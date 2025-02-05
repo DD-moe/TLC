@@ -26,15 +26,26 @@
                 bcgRequest.onsuccess = function() {
                     const imageBlob = bcgRequest.result;
                     if (imageBlob) {
-                        const img = new Image();
-                        img.src = URL.createObjectURL(imageBlob);
-                        img.onload = () => {
-                            // Set canvas size to match image
-                            canvas.width = img.width;
-                            canvas.height = img.height;
-                            ctx.drawImage(img, 0, 0);
-                            loadPixelCoordinates(); // Once image is loaded, load pixel coordinates
-                        };
+                        // Ensure the retrieved data is a Blob
+                        if (imageBlob instanceof Blob) {
+                            // Check if it's a PNG (optional but can be useful for debugging)
+                            const fileReader = new FileReader();
+                            fileReader.onloadend = function() {
+                                const imageUrl = fileReader.result;
+                                const img = new Image();
+                                img.src = imageUrl;
+                                img.onload = () => {
+                                    // Set canvas size to match image
+                                    canvas.width = img.width;
+                                    canvas.height = img.height;
+                                    ctx.drawImage(img, 0, 0);
+                                    loadPixelCoordinates(); // Once image is loaded, load pixel coordinates
+                                };
+                            };
+                            fileReader.readAsDataURL(imageBlob); // Convert Blob to Data URL for Image
+                        } else {
+                            console.error("Expected a Blob object, but got:", imageBlob);
+                        }
                     } else {
                         console.error("Image not found.");
                     }
