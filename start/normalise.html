@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operacje na obrazach</title>
+</head>
+<body>
+    <h1>Przetwarzanie obrazów z IndexedDB</h1>
+    <nav>
+        <ul>
+            <li><a href="/TLC/start/load.html">load images</a></li>
+            <li><a href="/TLC/start/settings.html">settings</a></li>
+            <li><a href="/TLC/start/normalise.html">normalise</a></li>
+            <li><a href="/TLC">main menu</a></li>
+        </ul>
+    </nav>
+
+    <label for="data_blurValue">Wartość rozmycia dla obrazu z danyni:</label>
+    <input type="number" id="blurValue" min="0" max="10" value="5">
+    <br>
+    <label for="bcg_blurValue">Wartość rozmycia dla obrazu tłą:</label>
+    <input type="number" id="blurValue" min="0" max="10" value="5">
+    <br>
+
+    <label for="red">waga dla red channel:</label>
+    <input type="number" id="red" min="0" max="1" value="0.2126">
+    <br>
+    <label for="green">waga dla green channel:</label>
+    <input type="number" id="green" min="0" max="1" value="0.7152">
+    <br>
+    <label for="blue">waga dla blue channel:</label>
+    <input type="number" id="blue" min="0" max="1" value="0.0722">
+    <br>
+
+    <button id="loadImages">Załaduj i przetwórz obrazy</button>
+
+    <canvas id="canvasBcg"></canvas>
+    <canvas id="canvasData"></canvas>
+
+    <script>
+        let db;
+        let bcgImageData, dataImageData;
+
+        // Funkcja otwierająca IndexedDB
+        function openDB() {
+            const request = indexedDB.open('imageDB', 1);
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+            };
+
+            request.onerror = function() {
+                alert("Błąd podczas otwierania bazy danych.");
+            };
+        }
+
+        // Załaduj obrazy z IndexedDB
+        function loadImages() {
+            const selectedValue = document.getElementById('imageOption').value;
+            const nameBcg = 'averageImage_bcg';
+            const nameData = 'averageImage_data';
+
+            const transaction = db.transaction(["images"], "readonly");
+            const store = transaction.objectStore("images");
+
+            // Załaduj obraz 'bcg' i 'data'
+            const bcgRequest = store.get(nameBcg);
+            const dataRequest = store.get(nameData);
+
+            bcgRequest.onsuccess = function() {
+                const bcgBlob = bcgRequest.result;
+                const dataBlob = dataRequest.result;
+
+                if (bcgBlob && dataBlob) {
+                    const bcgImg = new Image();
+                    const dataImg = new Image();
+
+                    // Ładujemy obrazy na raz
+                    bcgImg.onload = function() {
+                        dataImg.onload = function() {
+                            if (bcgImg.width !== dataImg.width || bcgImg.height !== dataImg.height) {
+                                alert("Obrazy mają różne rozmiary!");
+                                return;
+                            }
+
+                            processImages(bcgImg, dataImg);
+                        };
+                        dataImg.src = URL.createObjectURL(dataBlob);
+                    };
+                    bcgImg.src = URL.createObjectURL(bcgBlob);
+                } else {
+                    alert("Nie znaleziono obrazów w IndexedDB.");
+                }
+            };
+
+            dataRequest.onsuccess = function() {};
+        }
+
+        // Funkcja do przetwarzania obrazów
+        function processImages(bcgImg, dataImg) {
+            const bcg_blurValue = document.getElementById('bcg_blurValue').value;
+            const data_blurValue = document.getElementById('data_blurValue').value;
+            const canvasBcg = document.getElementById('canvasBcg');
+            const canvasData = document.getElementById('canvasData');
+            const ctxBcg = canvasBcg.getContext('2d');
+            const ctxData = canvasData.getContext('2d');
+
+            // Ustaw rozmiary canvasa
+            canvasBcg.width = bcgImg.width;
+            canvasBcg.height = bcgImg.height;
+            canvasData.width = dataImg.width;
+            canvasData.height = dataImg.height;
+
+            // Narysuj obrazy na canvas
+            ctxBcg.drawImage(bcgImg, 0, 0);
+            ctxData.drawImage(dataImg, 0, 0);
+
+            // Zastosuj blur
+            ctxBcg.filter = `blur(${bcg_blurValue}px)`;
+            ctxBcg.drawImage(bcgImg, 0, 0);
+            ctxData.filter = `blur(${data_blurValue}px)`;
+            ctxData.drawImage(dataImg, 0, 0);
+
+            // Pobierz imageData
+            bcgImageData = ctxBcg.getImageData(0, 0, canvasBcg.width, canvasBcg.height);
+            dataImageData = ctxData.getImageData(0, 0, canvasData.width, canvasData.height);
+
+            // Operacja per-pixel
+            processPixelWise();
+        }
+
+        // Funkcja operacji na pikselach
+        function processPixelWise() {
+            const bcgData = bcgImageData.data;
+            const dataData = dataImageData.data;
+
+            const red = parseFloat(document.getElementById('red').value);
+            const green = parseFloat(document.getElementById('green').value);
+            const blue = parseFloat(document.getElementById('blue').value);
+
+            const l1 = new Float32Array(bcgData.length / 4);
+            const l2 = new Float32Array(dataData.length / 4);
+
+            // Operacja per-pixel na obrazach
+            for (let i = 0; i < bcgData.length; i += 4) {
+                const rBcg = bcgData[i];
+                const gBcg = bcgData[i + 1];
+                const bBcg = bcgData[i + 2];
+                const rData = dataData[i];
+                const gData = dataData[i + 1];
+                const bData = dataData[i + 2];
+
+                // Przekształć na składową L HSL dla obu obrazów
+                l1[i / 4] = (red * rBcg + green * gBcg + blue * bBcg) / 255;
+                l2[i / 4] = (red * rData + green * gData + blue * bData) / 255;
+            }
+
+            // Normalizacja
+            normalizeImages(l1, l2);
+        }
+
+        // Normalizacja tablic
+        function normalizeImages(l1, l2) {
+            const length = l1.length;
+
+            // Normalizuj wartości na zakres 0-255
+            const result = new Uint8ClampedArray(length * 4);
+
+            for (let i = 0; i < length; i++) {
+                let value = l2[i] / l1[i];
+                value = Math.min(value, 1); // jeśli większe niż 1, ustaw na 1
+
+                // Ustaw kolory
+                result[i * 4] = value * 255; // R
+                result[i * 4 + 1] = value * 255; // G
+                result[i * 4 + 2] = value * 255; // B
+                result[i * 4 + 3] = 255; // A
+            }
+
+            // Zapisz wynik w canvas
+            const canvasResult = document.createElement('canvas');
+            const ctx = canvasResult.getContext('2d');
+            canvasResult.width = canvasBcg.width;
+            canvasResult.height = canvasBcg.height;
+            ctx.putImageData(new ImageData(result, canvasBcg.width, canvasBcg.height), 0, 0);
+
+            // Przekształć do PNG
+            const resultBlob = canvasResult.toDataURL("image/png");
+
+            // Zapisz wynik do IndexedDB
+            saveToIndexedDB(resultBlob);
+        }
+
+        // Zapisz wynik do IndexedDB
+        function saveToIndexedDB(resultBlob) {
+            const transaction = db.transaction(["images"], "readwrite");
+            const store = transaction.objectStore("images");
+            const name = 'normalised_image';
+            store.put(resultBlob, name);
+            alert("Obraz zapisany w IndexedDB jako: " + name);
+        }
+        
+
+        // Ustaw nasłuchiwacz dla przycisku
+        document.getElementById('loadImages').addEventListener('click', function() {
+            openDB();
+            loadImages();
+        });
+    </script>
+</body>
+</html>
