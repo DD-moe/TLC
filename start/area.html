@@ -3,64 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obraz z suwakiem</title>
+    <title>Obraz z IndexedDB</title>
     <style>
-        body {
-            text-align: center;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        #imageContainer {
-            position: relative;
-            width: 100vw;
-            overflow: hidden;
-        }
-        #uploadedImage {
-            width: 100%;
-            display: none;
-        }
-        #overlay {
-            position: absolute;
-            border: 2px solid red;
-            background: rgba(255, 165, 0, 0.8);
-            pointer-events: none;
-        }
-        #controlsContainer {
-            height: 200px; /* Wysokość kontenera */
-            overflow-y: scroll; /* Przewijanie w osi Y */
-            padding: 10px;
-            background: #f0f0f0;
-            scrollbar-width: thin; /* Cieńszy pasek przewijania */
-        }
-        .sliderContainer {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-        input[type="range"] {
-            width: 100%;
-            height: 35px; /* Grubość suwaków */
-        }
-        #saveBtn {
-            margin-top: 10px;
-            font-size: 18px;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        #output {
-            width: 90%;
-            margin-top: 10px;
-            font-size: 16px;
-        }
+        body { text-align: center; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        #imageContainer { position: relative; width: 100vw; overflow: hidden; }
+        #uploadedImage { width: 100%; display: none; }
+        #overlay { position: absolute; border: 2px solid red; background: rgba(255, 165, 0, 0.8); pointer-events: none; }
+        #controlsContainer { height: 200px; overflow-y: scroll; padding: 10px; background: #f0f0f0; }
+        .sliderContainer { margin-bottom: 20px; }
+        label { display: block; font-size: 18px; margin-bottom: 5px; }
+        input[type="range"] { width: 100%; height: 35px; }
+        #saveBtn { margin-top: 10px; font-size: 18px; padding: 10px 20px; cursor: pointer; }
+        #output { width: 90%; margin-top: 10px; font-size: 16px; }
     </style>
 </head>
 <body>
-    <h2>Wczytaj obraz:</h2>
-    <input type="file" id="fileInput" accept="image/*">
+    <h2>Obraz z IndexedDB</h2>
     
     <div id="imageContainer">
         <img id="uploadedImage">
@@ -87,31 +45,10 @@
     </div>
 
     <button id="saveBtn">Zapisz</button>
-    <textarea id="output" rows="6" readonly></textarea>
 
     <script>
-                // Funkcja otwierająca IndexedDB
-                function openDB() {
-            const request = indexedDB.open('ImageDB', 1);
-
-            request.onsuccess = function(event) {
-                db = event.target.result;
-            };
-
-            request.onerror = function() {
-                alert("Błąd podczas otwierania bazy danych.");
-            };
-        }
-
-        instead of loading from files load from : 
+        let db;
         const nameBcg = 'averageImage_bcg';
-        const transaction = db.transaction(["images"], "readwrite");
-            const store = transaction.objectStore("images");
-
-            // Załaduj obraz 'bcg' i 'data'
-            const bcgRequest = store.get(nameBcg);
-
-        const fileInput = document.getElementById("fileInput");
         const uploadedImage = document.getElementById("uploadedImage");
         const overlay = document.getElementById("overlay");
         const topSlider = document.getElementById("topSlider");
@@ -119,26 +56,47 @@
         const leftSlider = document.getElementById("leftSlider");
         const widthSlider = document.getElementById("widthSlider");
         const saveBtn = document.getElementById("saveBtn");
-        const output = document.getElementById("output");
 
         let naturalWidth = 1, naturalHeight = 1;
 
-        fileInput.addEventListener("change", function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
+        function openDB() {
+            const request = indexedDB.open('ImageDB', 1);
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                loadImageFromDB();
+            };
+
+            request.onerror = function() {
+                alert("Błąd podczas otwierania bazy danych.");
+            };
+        }
+
+        function loadImageFromDB() {
+            const transaction = db.transaction(["images"], "readonly");
+            const store = transaction.objectStore("images");
+            const bcgRequest = store.get(nameBcg);
+
+            bcgRequest.onsuccess = function() {
+                if (bcgRequest.result) {
+                    const blob = bcgRequest.result;
+                    const url = URL.createObjectURL(blob);
                     uploadedImage.onload = function () {
                         naturalWidth = uploadedImage.naturalWidth;
                         naturalHeight = uploadedImage.naturalHeight;
                         uploadedImage.style.display = "block";
                         updateOverlay();
                     };
-                    uploadedImage.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+                    uploadedImage.src = url;
+                } else {
+                    alert("Nie znaleziono obrazu w bazie danych.");
+                }
+            };
+
+            bcgRequest.onerror = function() {
+                alert("Błąd podczas ładowania obrazu.");
+            };
+        }
 
         function updateOverlay() {
             const topPx = (topSlider.value / 100) * naturalHeight;
@@ -157,15 +115,61 @@
         });
 
         saveBtn.addEventListener("click", function() {
-            const coords = {
-                top: Math.round((topSlider.value / 100) * naturalHeight),
-                height: Math.round((heightSlider.value / 100) * naturalHeight),
-                left: Math.round((leftSlider.value / 100) * naturalWidth),
-                width: Math.round((widthSlider.value / 100) * naturalWidth)
-            };
 
-            output.value = JSON.stringify(coords, null, 2);
+            const DB_NAME = "ParametryDB";
+            const STORE_NAME = "parametry";
+            const KEY_PIXEL = "pixel_coords";
+            const KEY_PERCENT = "percental_coords";
+
+            function openDB(callback) {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = function(event) {
+                    let db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+                request.onsuccess = function(event) {
+                    callback(event.target.result);
+                };
+                request.onerror = function() {
+                    alert("Błąd otwierania bazy danych.");
+                };
+            }
+
+            function saveToDB(key, value) {
+                openDB(db => {
+                    const transaction = db.transaction(STORE_NAME, "readwrite");
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.put(value, key);
+                });
+            }
+
+            const topPercent = document.getElementById("topSlider").value;
+            const heightPercent = document.getElementById("heightSlider").value;
+            const leftPercent = document.getElementById("leftSlider").value;
+            const widthPercent = document.getElementById("widthSlider").value;
+
+            const pixelCoords = {
+                top: Math.round((topPercent / 100) * naturalHeight),
+                height: Math.round((heightPercent / 100) * naturalHeight),
+                left: Math.round((leftPercent / 100) * naturalWidth),
+                width: Math.round((widthPercent / 100) * naturalWidth)
+            };
+            
+            const percentCoords = {
+                top: topPercent,
+                height: heightPercent,
+                left: leftPercent,
+                width: widthPercent
+            };
+            
+            saveToDB(KEY_PIXEL, pixelCoords);
+            saveToDB(KEY_PERCENT, percentCoords);
+            alert("Dane zapisane w IndexedDB!");
         });
+
+        openDB();
     </script>
 </body>
 </html>
