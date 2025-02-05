@@ -29,39 +29,50 @@
     <button onclick="saveJSON()" class="action-button">Zapisz</button>
     <button onclick="loadJSON()" class="action-button">Odśwież</button>
 </div>
+
 <script>
 const DB_NAME = "ParametryDB";
 const STORE_NAME = "parametry";
 const KEY = "jsonData";
+let db;
 
-// Otwieranie lub tworzenie bazy IndexedDB
-function openDB(callback) {
-    let request = indexedDB.open(DB_NAME, 1);
-    
-    request.onupgradeneeded = event => {
-        let db = event.target.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME);
-        }
-    };
+// Inicjalizacja IndexedDB
+const dbRequest = indexedDB.open(DB_NAME, 1);
 
-    request.onsuccess = event => callback(event.target.result);
-    request.onerror = event => console.error("Błąd otwierania IndexedDB:", event.target.error);
-}
+dbRequest.onupgradeneeded = (event) => {
+    let database = event.target.result;
+    if (!database.objectStoreNames.contains(STORE_NAME)) {
+        database.createObjectStore(STORE_NAME);
+    }
+};
+
+dbRequest.onsuccess = (event) => {
+    db = event.target.result;
+    console.log("IndexedDB zainicjalizowana pomyślnie");
+    loadJSON(); // Automatycznie wczytaj dane po inicjalizacji
+};
+
+dbRequest.onerror = (event) => {
+    console.error("Błąd IndexedDB:", event.target.error);
+};
 
 // Zapisywanie JSON do IndexedDB
 function saveJSON() {
+    if (!db) {
+        console.error("Baza danych nie jest jeszcze gotowa!");
+        return;
+    }
+
     let jsonText = document.getElementById("jsonEditor").value;
     
     try {
         let jsonData = JSON.parse(jsonText);
-        openDB(db => {
-            let tx = db.transaction(STORE_NAME, "readwrite");
-            let store = tx.objectStore(STORE_NAME);
-            store.put(jsonData, KEY);
-            tx.oncomplete = () => alert("Dane zapisane!");
-            tx.onerror = () => alert("Błąd zapisu!");
-        });
+        let tx = db.transaction(STORE_NAME, "readwrite");
+        let store = tx.objectStore(STORE_NAME);
+        store.put(jsonData, KEY);
+
+        tx.oncomplete = () => alert("Dane zapisane!");
+        tx.onerror = () => alert("Błąd zapisu!");
     } catch (error) {
         alert("Błąd parsowania JSON: " + error.message);
     }
@@ -69,22 +80,23 @@ function saveJSON() {
 
 // Ładowanie JSON z IndexedDB
 function loadJSON() {
-    openDB(db => {
-        let tx = db.transaction(STORE_NAME, "readonly");
-        let store = tx.objectStore(STORE_NAME);
-        let request = store.get(KEY);
-        
-        request.onsuccess = () => {
-            let data = request.result || {};
-            document.getElementById("jsonEditor").value = JSON.stringify(data, null, "\t");
-        };
+    if (!db) {
+        console.error("Baza danych nie jest jeszcze gotowa!");
+        return;
+    }
 
-        request.onerror = () => console.error("Błąd odczytu JSON");
-    });
+    let tx = db.transaction(STORE_NAME, "readonly");
+    let store = tx.objectStore(STORE_NAME);
+    let request = store.get(KEY);
+    
+    request.onsuccess = () => {
+        let data = request.result || {};
+        document.getElementById("jsonEditor").value = JSON.stringify(data, null, "\t");
+    };
+
+    request.onerror = () => console.error("Błąd odczytu JSON");
 }
 
-// Automatyczne ładowanie po załadowaniu strony
-window.onload = loadJSON;
 </script>
 
 </body>
