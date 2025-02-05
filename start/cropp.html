@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load and Crop Image</title>
+</head>
+<body>
+    <h1>Image Viewer</h1>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // Load image from 'images' object store in IndexedDB
+        const nameBcg = 'normalised_image'; // The name of the image to load from IndexedDB
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const loadImage = () => {
+            const request = indexedDB.open("images", 1);
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                const transaction = db.transaction(["images"], "readonly");
+                const store = transaction.objectStore("images");
+                const bcgRequest = store.get(nameBcg);
+
+                bcgRequest.onsuccess = function() {
+                    const imageBlob = bcgRequest.result;
+                    if (imageBlob) {
+                        const img = new Image();
+                        img.src = URL.createObjectURL(imageBlob);
+                        img.onload = () => {
+                            // Set canvas size to match image
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            ctx.drawImage(img, 0, 0);
+                            loadPixelCoordinates(); // Once image is loaded, load pixel coordinates
+                        };
+                    } else {
+                        console.error("Image not found.");
+                    }
+                };
+            };
+        };
+
+        // Load pixel coordinates from 'ParametryDB' to crop the image
+        const loadPixelCoordinates = () => {
+            const request = indexedDB.open("ParametryDB", 1);
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                const transaction = db.transaction("parametry", "readonly");
+                const store = transaction.objectStore("parametry");
+                const getRequest = store.get("pixel_coords");
+
+                getRequest.onsuccess = function() {
+                    const coords = getRequest.result;
+                    if (coords) {
+                        // Assume coords is an object with 'x', 'y', 'width', 'height' for cropping
+                        const { x, y, width, height } = coords;
+                        // Crop the image based on the coordinates and display on canvas
+                        const croppedImage = ctx.getImageData(x, y, width, height);
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.putImageData(croppedImage, 0, 0);
+                    } else {
+                        console.error("Pixel coordinates not found.");
+                    }
+                };
+            };
+        };
+
+        // Load the image when the page is ready
+        loadImage();
+    </script>
+</body>
+</html>
