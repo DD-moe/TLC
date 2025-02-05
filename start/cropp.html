@@ -8,6 +8,8 @@
 <body>
     <h1>Image Viewer</h1>
     <canvas id="canvas" style="border: solid 1px black;"></canvas>
+    <br>
+    <canvas id="chart" style="border: solid 1px black;"></canvas>
     <button onclick="findSpots()">Process Image</button>
     <input type="number" min="0" max="255" value="240" id="treshold">
     
@@ -15,6 +17,8 @@
         const nameBcg = 'normalised_image'; // The name of the image to load from IndexedDB
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const chart = document.getElementById('canvas');
+        const chart_ctx = canvas.getContext('2d');
 
         const loadImage = () => {
             const request = indexedDB.open("ImageDB", 1);
@@ -74,12 +78,12 @@
             };
         };
 
-        // Function to find spots and process the image based on threshold value
         const findSpots = () => {
-            const threshold = document.getElementById('treshold').value; // Get threshold from input
+            const threshold = parseInt(document.getElementById('treshold').value); // Get threshold from input
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data; // Image data array (RGBA values)
 
+            // First pass: Modify the image data based on the threshold
             for (let i = 0; i < data.length; i += 4) {
                 const r = data[i];     // Red channel
                 const g = data[i + 1]; // Green channel
@@ -88,16 +92,76 @@
 
                 // Check if the pixel's brightness exceeds the threshold
                 if (r > threshold) {
-                    // Set blue channel and alpha to 128 if condition is met
-                    data[i + 2] = 128; // Set blue channel to maximum
-                    data[i + 3] = 128; // Set alpha channel to 128
+                    // Set blue channel and alpha to specific values if condition is met
+                    data[i + 2] = 192; // Set blue channel to a fixed value
+                    data[i + 3] = 64;  // Set alpha channel to a fixed value
                 }
             }
 
+            let result = [];
+            // Iterate over rows
+            for (let x = 0; x < canvas.width; x++) {
+                let rowSum = 0;
+                const maxRowSum = 255 * canvas.height; // Max possible sum for the row (255 * number of pixels)
+
+                // Iterate over pixels in the row (y from 0 to canvas height)
+                for (let y = 0; y < canvas.height; y++) {
+                    const i = (y * canvas.width + x) * 4; // Get the index of the pixel in the 1D array
+
+                    const r = data[i];     // Red channel
+                    const g = data[i + 1]; // Green channel
+                    const b = data[i + 2]; // Blue channel
+                    const a = data[i + 3]; // Alpha channel
+
+                    let pixelValue = r; // Default value is the red channel
+
+                    // Check if alpha is 64 and blue is 192 (processed condition)
+                    if (a === 64 && b === 192) {
+                        pixelValue = 255; // If condition met, set pixel value to 255
+                    }
+
+                    rowSum += pixelValue; // Add the pixel value to the sum for the row
+                }
+
+                // Subtract the row sum from the max row sum and normalize
+                const normalizedRowValue = (maxRowSum - rowSum) / maxRowSum;
+                result.push(normalizedRowValue); // Store the result
+            }
+            drawChart(result);
             // Put the modified image data back onto the canvas
             ctx.putImageData(imageData, 0, 0);
         };
 
+        function drawChart(result){
+            // Normalize the result values to the range [0, 255]
+            const minResult = Math.min(...result);
+            const maxResult = Math.max(...result);
+            
+            // If max and min values are the same, prevent division by zero
+            const range = maxResult - minResult;
+            const normalizedResult = result.map(value => (range === 0) ? 0 : ((value - minResult) / range) * 255);
+            
+            // Clear the canvas before drawing
+            chart_ctx.clearRect(0, 0, chart.width, chart.height);
+            
+            // Set the line style (2px black line)
+            chart_ctx.lineWidth = 2;
+            chart_ctx.strokeStyle = 'black';
+            
+            // Begin drawing the line
+            chart_ctx.beginPath();
+            
+            // Start at the first point
+            chart_ctx.moveTo(0, 255 - normalizedResult[0]); // Invert the value because canvas y-axis starts from top
+            
+            // Draw line through all the points
+            for (let i = 1; i < normalizedResult.length; i++) {
+                chart_ctx.lineTo(i, 255 - normalizedResult[i]); // Invert y-axis values
+            }
+            
+            // Stroke the path
+            chart_ctx.stroke();
+        }
         // Load the image when the page is ready
         loadImage();
     </script>
