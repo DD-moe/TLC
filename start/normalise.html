@@ -35,8 +35,9 @@
 
     <button id="loadImages">Załaduj i przetwórz obrazy</button>
 
-    <canvas id="canvasBcg"></canvas>
-    <canvas id="canvasData"></canvas>
+    <canvas id="canvasBcg" style="display: none;"></canvas>
+    <canvas id="canvasData" style="display: none;"></canvas>
+    <canvas id="canvasResult"></canvas>
 
     <script>
         let db;
@@ -122,10 +123,6 @@
             canvasData.width = dataImg.width;
             canvasData.height = dataImg.height;
 
-            // Narysuj obrazy na canvas
-            ctxBcg.drawImage(bcgImg, 0, 0);
-            ctxData.drawImage(dataImg, 0, 0);
-
             // Zastosuj blur
             ctxBcg.filter = `blur(${bcg_blurValue}px)`;
             ctxBcg.drawImage(bcgImg, 0, 0);
@@ -189,7 +186,7 @@
             }
 
             // Zapisz wynik w canvas
-            const canvasResult = document.createElement('canvas');
+            const canvasResult = document.getElementById('canvasResult');
             const ctx = canvasResult.getContext('2d');
             canvasResult.width = canvasBcg.width;
             canvasResult.height = canvasBcg.height;
