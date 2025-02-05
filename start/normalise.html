@@ -60,7 +60,7 @@
             const nameBcg = 'averageImage_bcg';
             const nameData = 'averageImage_data';
 
-            const transaction = db.transaction(["images"], "readonly");
+            const transaction = db.transaction(["images"], "readwrite");
             const store = transaction.objectStore("images");
 
             // Załaduj obraz 'bcg' i 'data'
@@ -202,9 +202,11 @@
 
         // Ustaw nasłuchiwacz dla przycisku
         document.getElementById('loadImages').addEventListener('click', function() {
-            openDB();
             loadImages();
         });
+        window.onload = function() {
+            openDB();
+        };
     </script>
 </body>
 </html>
