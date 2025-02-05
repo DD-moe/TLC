@@ -24,27 +24,21 @@
                 const bcgRequest = store.get(nameBcg);
 
                 bcgRequest.onsuccess = function() {
-                    const imageBlob = bcgRequest.result;
-                    if (imageBlob) {
-                        // Ensure the retrieved data is a Blob
-                        if (imageBlob instanceof Blob) {
-                            // Check if it's a PNG (optional but can be useful for debugging)
-                            const fileReader = new FileReader();
-                            fileReader.onloadend = function() {
-                                const imageUrl = fileReader.result;
-                                const img = new Image();
-                                img.src = imageUrl;
-                                img.onload = () => {
-                                    // Set canvas size to match image
-                                    canvas.width = img.width;
-                                    canvas.height = img.height;
-                                    ctx.drawImage(img, 0, 0);
-                                    loadPixelCoordinates(); // Once image is loaded, load pixel coordinates
-                                };
+                    const imageDataUrl = bcgRequest.result;
+                    if (imageDataUrl) {
+                        // Check if the result is a Data URL (base64 string)
+                        if (typeof imageDataUrl === 'string' && imageDataUrl.startsWith('data:image/png;base64')) {
+                            const img = new Image();
+                            img.src = imageDataUrl;  // Directly use the base64 string as the image source
+                            img.onload = () => {
+                                // Set canvas size to match image
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                ctx.drawImage(img, 0, 0);
+                                loadPixelCoordinates(); // Once image is loaded, load pixel coordinates
                             };
-                            fileReader.readAsDataURL(imageBlob); // Convert Blob to Data URL for Image
                         } else {
-                            console.error("Expected a Blob object, but got:", imageBlob);
+                            console.error("Expected a Data URL (base64 string), but got:", imageDataUrl);
                         }
                     } else {
                         console.error("Image not found.");
