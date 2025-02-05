@@ -20,11 +20,13 @@
 </nav>
 <input type="file" id="fileInput" multiple accept="image/*" class="action-button">
 <!-- Lista rozwijana do wyboru typu danych -->
-<label for="imageOption" class="action-button">Wybierz opcję:</label>
-<select id="imageOption" onchange="getSelectedValue()" class="action-button">
-    <option value="data">Data Image</option>
-    <option value="bcg">Background Image</option>
-</select>
+ <div class="action-button">
+    <label for="imageOption" >Wybierz opcję:</label>
+    <select id="imageOption" onchange="getSelectedValue()" >
+        <option value="data">Data Image</option>
+        <option value="bcg">Background Image</option>
+    </select>
+</div>
 <canvas id="canvas"></canvas>
 
 <script>
