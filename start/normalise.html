@@ -44,7 +44,7 @@
 
         // Funkcja otwierająca IndexedDB
         function openDB() {
-            const request = indexedDB.open('imageDB', 1);
+            const request = indexedDB.open('ImageDB', 1);
 
             request.onsuccess = function(event) {
                 db = event.target.result;
@@ -55,7 +55,6 @@
             };
         }
 
-        // Załaduj obrazy z IndexedDB
         function loadImages() {
             const nameBcg = 'averageImage_bcg';
             const nameData = 'averageImage_data';
@@ -67,34 +66,46 @@
             const bcgRequest = store.get(nameBcg);
             const dataRequest = store.get(nameData);
 
+            // Oba żądania muszą zakończyć się, aby przejść do dalszych działań
             bcgRequest.onsuccess = function() {
                 const bcgBlob = bcgRequest.result;
-                const dataBlob = dataRequest.result;
 
-                if (bcgBlob && dataBlob) {
-                    const bcgImg = new Image();
-                    const dataImg = new Image();
+                // Jeśli obraz 'bcg' jest dostępny, załaduj 'data'
+                dataRequest.onsuccess = function() {
+                    const dataBlob = dataRequest.result;
 
-                    // Ładujemy obrazy na raz
-                    bcgImg.onload = function() {
-                        dataImg.onload = function() {
-                            if (bcgImg.width !== dataImg.width || bcgImg.height !== dataImg.height) {
-                                alert("Obrazy mają różne rozmiary!");
-                                return;
-                            }
+                    if (bcgBlob && dataBlob) {
+                        const bcgImg = new Image();
+                        const dataImg = new Image();
 
-                            processImages(bcgImg, dataImg);
+                        // Ładujemy obrazy na raz
+                        bcgImg.onload = function() {
+                            dataImg.onload = function() {
+                                if (bcgImg.width !== dataImg.width || bcgImg.height !== dataImg.height) {
+                                    alert("Obrazy mają różne rozmiary!");
+                                    return;
+                                }
+
+                                processImages(bcgImg, dataImg);
+                            };
+                            dataImg.src = URL.createObjectURL(dataBlob);
                         };
-                        dataImg.src = URL.createObjectURL(dataBlob);
-                    };
-                    bcgImg.src = URL.createObjectURL(bcgBlob);
-                } else {
-                    alert("Nie znaleziono obrazów w IndexedDB.");
-                }
+                        bcgImg.src = URL.createObjectURL(bcgBlob);
+                    } else {
+                        alert("Nie znaleziono obrazów w IndexedDB.");
+                    }
+                };
             };
 
-            dataRequest.onsuccess = function() {};
+            bcgRequest.onerror = function() {
+                alert("Wystąpił błąd podczas wczytywania obrazu 'bcg'.");
+            };
+
+            dataRequest.onerror = function() {
+                alert("Wystąpił błąd podczas wczytywania obrazu 'data'.");
+            };
         }
+
 
         // Funkcja do przetwarzania obrazów
         function processImages(bcgImg, dataImg) {
