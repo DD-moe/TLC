@@ -61,3 +61,31 @@ header h1 {
     width: 15vw;
     height: 15vw;
 }
+
+nav {
+    width: 90%;
+    background-color: #333;
+    padding: 5mm;
+    border-radius: 2mm;
+    margin-left: 5%;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 3mm;
+}
+
+li {
+    padding: 2mm 5mm;
+    background-color: #555;
+    color: rgb(0, 0, 0);
+    border-radius: 1mm;
+    cursor: pointer;
+}
+
+li:hover {
+    background-color: #454444;
+}
