@@ -20,10 +20,9 @@
 </nav>
 <input type="file" id="fileInput" multiple accept="image/*" class="action-button">
 <br>
-<!-- Lista rozwijana do wyboru typu danych -->
- <div class="action-button">
-    <label for="imageOption" >Wybierz opcję:</label>
-    <select id="imageOption" onchange="getSelectedValue()" >
+<div class="action-button">
+    <label for="imageOption">Wybierz opcję:</label>
+    <select id="imageOption">
         <option value="data">Data Image</option>
         <option value="bcg">Background Image</option>
     </select>
@@ -31,33 +30,35 @@
 <canvas id="canvas"></canvas>
 
 <script>
-const fileInput = document.getElementById("fileInput");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-let sumArray = null;
-let imageCount = 0;
-let imageWidth = 0, imageHeight = 0;
-
-// ** Inicjalizacja IndexedDB **
-const dbRequest = indexedDB.open("ImageDB", 1);
+const DB_NAME = "ImageDB";
+const STORE_NAME = "images";
 let db;
 
+// ** Inicjalizacja IndexedDB **
+const dbRequest = indexedDB.open(DB_NAME, 1);
+
 dbRequest.onupgradeneeded = (event) => {
-    let database = event.target.result; // Use a local variable here
-    if (!database.objectStoreNames.contains("images")) {
-        database.createObjectStore("images"); // Object store without a keyPath
+    let database = event.target.result;
+    if (!database.objectStoreNames.contains(STORE_NAME)) {
+        database.createObjectStore(STORE_NAME);
     }
 };
 
 dbRequest.onsuccess = (event) => {
-    db = event.target.result; // Now db is correctly set globally
-    console.log("IndexedDB initialized successfully");
+    db = event.target.result;
+    console.log("IndexedDB zainicjalizowana pomyślnie");
 };
 
 dbRequest.onerror = (event) => {
     console.error("Błąd IndexedDB:", event.target.error);
 };
 
+const fileInput = document.getElementById("fileInput");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let sumArray = null;
+let imageCount = 0;
+let imageWidth = 0, imageHeight = 0;
 
 // ** Obsługa wczytywania plików **
 fileInput.addEventListener("change", async (event) => {
@@ -71,7 +72,6 @@ fileInput.addEventListener("change", async (event) => {
         const img = await loadImage(file);
         if (!img) continue;
 
-        // ** Sprawdzenie rozmiaru **
         if (imageWidth === 0 && imageHeight === 0) {
             imageWidth = img.width;
             imageHeight = img.height;
@@ -82,14 +82,12 @@ fileInput.addEventListener("change", async (event) => {
             return;
         }
 
-        // ** Pobranie ImageData **
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-        // ** Sumowanie wartości **
         if (!sumArray) {
-            sumArray = new Uint32Array(imgData.length);  // 32-bit int dla sumy
+            sumArray = new Uint32Array(imgData.length);
         }
         for (let i = 0; i < imgData.length; i++) {
             sumArray[i] += imgData[i];
@@ -122,19 +120,21 @@ function processAverage() {
         avgArray[i] = Math.round(sumArray[i] / imageCount);
     }
 
-    // ** Wstawienie do canvas **
     const imageData = new ImageData(avgArray, imageWidth, imageHeight);
     ctx.putImageData(imageData, 0, 0);
-
-    // ** Zapis do IndexedDB **
     saveToIndexedDB();
 }
 
 // ** Zapis wyniku do IndexedDB jako PNG **
 function saveToIndexedDB() {
+    if (!db) {
+        console.error("Baza danych nie jest jeszcze gotowa!");
+        return;
+    }
+
     canvas.toBlob((blob) => {
-        const transaction = db.transaction(["images"], "readwrite");
-        const store = transaction.objectStore("images");
+        const transaction = db.transaction([STORE_NAME], "readwrite");
+        const store = transaction.objectStore(STORE_NAME);
         const selectedValue = document.getElementById('imageOption').value;
         const name = 'averageImage_' + selectedValue;
         store.put(blob, name);
