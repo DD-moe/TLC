@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obraz z suwakiem</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #imageContainer {
+            position: relative;
+            width: 100vw;
+            overflow: hidden;
+        }
+        #uploadedImage {
+            width: 100%;
+            display: none;
+        }
+        #overlay {
+            position: absolute;
+            border: 2px solid red;
+            background: rgba(255, 165, 0, 0.8);
+            pointer-events: none;
+        }
+        #controlsContainer {
+            height: 200px; /* Wysokość kontenera */
+            overflow-y: scroll; /* Przewijanie w osi Y */
+            padding: 10px;
+            background: #f0f0f0;
+            scrollbar-width: thin; /* Cieńszy pasek przewijania */
+        }
+        .sliderContainer {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 35px; /* Grubość suwaków */
+        }
+        #saveBtn {
+            margin-top: 10px;
+            font-size: 18px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #output {
+            width: 90%;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Wczytaj obraz:</h2>
+    <input type="file" id="fileInput" accept="image/*">
+    
+    <div id="imageContainer">
+        <img id="uploadedImage">
+        <div id="overlay"></div>
+    </div>
+
+    <div id="controlsContainer">
+        <div class="sliderContainer">
+            <label>Top:</label>
+            <input type="range" id="topSlider" min="0" max="100" value="20">
+        </div>
+        <div class="sliderContainer">
+            <label>Height:</label>
+            <input type="range" id="heightSlider" min="10" max="100" value="50">
+        </div>
+        <div class="sliderContainer">
+            <label>Left:</label>
+            <input type="range" id="leftSlider" min="0" max="100" value="20">
+        </div>
+        <div class="sliderContainer">
+            <label>Width:</label>
+            <input type="range" id="widthSlider" min="10" max="100" value="50">
+        </div>
+    </div>
+
+    <button id="saveBtn">Zapisz</button>
+    <textarea id="output" rows="6" readonly></textarea>
+
+    <script>
+                // Funkcja otwierająca IndexedDB
+                function openDB() {
+            const request = indexedDB.open('ImageDB', 1);
+
+            request.onsuccess = function(event) {
+                db = event.target.result;
+            };
+
+            request.onerror = function() {
+                alert("Błąd podczas otwierania bazy danych.");
+            };
+        }
+
+        instead of loading from files load from : 
+        const nameBcg = 'averageImage_bcg';
+        const transaction = db.transaction(["images"], "readwrite");
+            const store = transaction.objectStore("images");
+
+            // Załaduj obraz 'bcg' i 'data'
+            const bcgRequest = store.get(nameBcg);
+
+        const fileInput = document.getElementById("fileInput");
+        const uploadedImage = document.getElementById("uploadedImage");
+        const overlay = document.getElementById("overlay");
+        const topSlider = document.getElementById("topSlider");
+        const heightSlider = document.getElementById("heightSlider");
+        const leftSlider = document.getElementById("leftSlider");
+        const widthSlider = document.getElementById("widthSlider");
+        const saveBtn = document.getElementById("saveBtn");
+        const output = document.getElementById("output");
+
+        let naturalWidth = 1, naturalHeight = 1;
+
+        fileInput.addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage.onload = function () {
+                        naturalWidth = uploadedImage.naturalWidth;
+                        naturalHeight = uploadedImage.naturalHeight;
+                        uploadedImage.style.display = "block";
+                        updateOverlay();
+                    };
+                    uploadedImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function updateOverlay() {
+            const topPx = (topSlider.value / 100) * naturalHeight;
+            const heightPx = (heightSlider.value / 100) * naturalHeight;
+            const leftPx = (leftSlider.value / 100) * naturalWidth;
+            const widthPx = (widthSlider.value / 100) * naturalWidth;
+
+            overlay.style.top = (topPx * (uploadedImage.clientHeight / naturalHeight)) + "px";
+            overlay.style.height = (heightPx * (uploadedImage.clientHeight / naturalHeight)) + "px";
+            overlay.style.left = (leftPx * (uploadedImage.clientWidth / naturalWidth)) + "px";
+            overlay.style.width = (widthPx * (uploadedImage.clientWidth / naturalWidth)) + "px";
+        }
+
+        document.querySelectorAll("input[type='range']").forEach(slider => {
+            slider.addEventListener("input", updateOverlay);
+        });
+
+        saveBtn.addEventListener("click", function() {
+            const coords = {
+                top: Math.round((topSlider.value / 100) * naturalHeight),
+                height: Math.round((heightSlider.value / 100) * naturalHeight),
+                left: Math.round((leftSlider.value / 100) * naturalWidth),
+                width: Math.round((widthSlider.value / 100) * naturalWidth)
+            };
+
+            output.value = JSON.stringify(coords, null, 2);
+        });
+    </script>
+</body>
+</html>
