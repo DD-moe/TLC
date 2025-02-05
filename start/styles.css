@@ -68,6 +68,7 @@ nav {
     padding: 5mm;
     border-radius: 2mm;
     margin-left: 5%;
+    display: flexbox;
 }
 
 ul {
