@@ -18,6 +18,12 @@
     </ul>
 </nav>
 <input type="file" id="fileInput" multiple accept="image/*">
+<!-- Lista rozwijana do wyboru typu danych -->
+<label for="imageOption">Wybierz opcję:</label>
+<select id="imageOption" onchange="getSelectedValue()">
+    <option value="data">Data Image</option>
+    <option value="bcg">Background Image</option>
+</select>
 <canvas id="canvas"></canvas>
 
 <script>
@@ -120,8 +126,10 @@ function saveToIndexedDB() {
     canvas.toBlob((blob) => {
         const transaction = db.transaction(["images"], "readwrite");
         const store = transaction.objectStore("images");
-        store.put(blob, "averageImage");
-        alert("Obraz zapisany w IndexedDB!");
+        const selectedValue = document.getElementById('imageOption').value;
+        const name = 'averageImage_' + selectedValue;
+        store.put(blob, name);
+        alert("Obraz zapisany w IndexedDB jako: " + name);
     }, "image/png");
 }
 </script>
