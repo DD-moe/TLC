@@ -127,6 +127,7 @@
                 const normalizedRowValue = (maxRowSum - rowSum) / maxRowSum;
                 result.push(normalizedRowValue); // Store the result
             }
+            alert(result);
             drawChart(result);
             // Put the modified image data back onto the canvas
             ctx.putImageData(imageData, 0, 0);
