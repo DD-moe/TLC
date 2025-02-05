@@ -17,8 +17,8 @@
         const nameBcg = 'normalised_image'; // The name of the image to load from IndexedDB
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const chart = document.getElementById('canvas');
-        const chart_ctx = canvas.getContext('2d');
+        const chart = document.getElementById('chart');
+        const chart_ctx = chart.getContext('2d');
 
         const loadImage = () => {
             const request = indexedDB.open("ImageDB", 1);
@@ -127,13 +127,16 @@
                 const normalizedRowValue = (maxRowSum - rowSum) / maxRowSum;
                 result.push(normalizedRowValue); // Store the result
             }
-            alert(result);
             drawChart(result);
+            alert(result);
             // Put the modified image data back onto the canvas
             ctx.putImageData(imageData, 0, 0);
         }
 
         function drawChart(result){
+            chart.width = canvas.width;  // Match chart width with the image canvas
+            chart.height = 255;          // You can adjust the height based on your needs
+
             // Normalize the result values to the range [0, 255]
             const minResult = Math.min(...result);
             const maxResult = Math.max(...result);
