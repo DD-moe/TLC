@@ -64,18 +64,16 @@ header h1 {
 
 nav {
     width: 90%;
-    background-color: #333;
+    background-color: #ddd;
     padding: 5mm;
     border-radius: 2mm;
     margin-left: 5%;
-    display: flexbox;
 }
 
 ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    display: flex;
     gap: 3mm;
 }
 
