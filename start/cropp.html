@@ -16,7 +16,7 @@
         const ctx = canvas.getContext('2d');
 
         const loadImage = () => {
-            const request = indexedDB.open("images", 1);
+            const request = indexedDB.open("ImageDB", 1);
             request.onsuccess = function(event) {
                 const db = event.target.result;
                 const transaction = db.transaction(["images"], "readonly");
