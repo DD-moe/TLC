@@ -6,10 +6,10 @@
     <title>Obraz z IndexedDB</title>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        #imageContainer { position: relative; width: 100%; overflow: hidden; }
+        #imageContainer { position: relative; width: 98%; overflow: hidden; margin-left: 1%;}
         #uploadedImage { width: 100%; display: none; }
         #overlay { position: absolute; border: 2px solid red; background: rgba(255, 165, 0, 0.8); pointer-events: none; }
-        #controlsContainer { height: 200px; overflow-y: scroll; margin-left: 5%; background: #f0f0f0; position: fixed; bottom: 10vh; width: 90%;}
+        #controlsContainer { height: 200px; overflow-y: scroll; margin-left: 5%; background: #f0f0f0; position: fixed; bottom: 10vh; width: 90%; opacity: 80%;}
         .sliderContainer { margin-bottom: 20px; }
         label { display: block; font-size: 18px; margin-bottom: 5px; }
         input[type="range"] { width: 100%; height: 35px; }
@@ -52,6 +52,20 @@
     </div>
 
     <button id="saveBtn">Zapisz</button>
+
+    <div class="instruction">
+        <h2>Instrukcja używania selekcji ścieżki</h2>
+        <p>
+          1. Użyj suwaków, aby zaznaczyć interesujący Cię obszar na obrazie. Możesz wybrać całą ścieżkę TLC lub tylko pojedynczą plamkę.  
+        </p>
+        <p>
+          2. Kliknij przycisk <strong>Zapisz</strong>, aby potwierdzić wybór.  
+        </p>
+        <p class="note">
+          Niezależnie od zaznaczonego fragmentu, w kolejnym kroku będziesz mógł wybrać dowolny tryb przetwarzania.  
+          Ten etap służy jedynie do określenia części obrazu, którą chcesz analizować.  
+        </p>
+      </div>
 
     <script>
         let db;
