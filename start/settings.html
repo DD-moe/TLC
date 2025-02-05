@@ -25,9 +25,10 @@
     </ul>
 </nav>
 <textarea id="jsonEditor"></textarea>
-<button onclick="saveJSON()">Zapisz</button>
-<button onclick="loadJSON()">Odśwież</button>
-
+<div class="button-container">
+    <button onclick="saveJSON()" class="action-button">Zapisz</button>
+    <button onclick="loadJSON()" class="action-button">Odśwież</button>
+</div>
 <script>
 const DB_NAME = "ParametryDB";
 const STORE_NAME = "parametry";
