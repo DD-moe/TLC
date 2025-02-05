@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Load and Crop Image</title>
+    <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon-64x64.png" sizes="64x64" type="image/png">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>Image Viewer</h1>
@@ -128,7 +131,6 @@
                 result.push(normalizedRowValue); // Store the result
             }
             drawChart(result);
-            alert(result);
             // Put the modified image data back onto the canvas
             ctx.putImageData(imageData, 0, 0);
         }
