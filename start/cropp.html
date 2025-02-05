@@ -87,9 +87,9 @@
                 const a = data[i + 3]; // Alpha channel
 
                 // Check if the pixel's brightness exceeds the threshold
-                if (r > threshold || g > threshold || b > threshold) {
+                if (r > threshold) {
                     // Set blue channel and alpha to 128 if condition is met
-                    data[i + 2] = 255; // Set blue channel to maximum
+                    data[i + 2] = 128; // Set blue channel to maximum
                     data[i + 3] = 128; // Set alpha channel to 128
                 }
             }
