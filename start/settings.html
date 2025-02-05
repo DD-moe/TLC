@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytor JSON w IndexedDB</title>
+    <style>
+        textarea { width: 100%; height: 300px; font-family: monospace; }
+        button { margin-top: 10px; padding: 10px; }
+    </style>
+    <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon-64x64.png" sizes="64x64" type="image/png">
+</head>
+<body>
+
+<h2>Edytuj parametry JSON</h2>
+<textarea id="jsonEditor"></textarea>
+<button onclick="saveJSON()">Zapisz</button>
+<button onclick="loadJSON()">Odśwież</button>
+
+<script>
+const DB_NAME = "ParametryDB";
+const STORE_NAME = "parametry";
+const KEY = "jsonData";
+
+// Otwieranie lub tworzenie bazy IndexedDB
+function openDB(callback) {
+    let request = indexedDB.open(DB_NAME, 1);
+    
+    request.onupgradeneeded = event => {
+        let db = event.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+        }
+    };
+
+    request.onsuccess = event => callback(event.target.result);
+    request.onerror = event => console.error("Błąd otwierania IndexedDB:", event.target.error);
+}
+
+// Zapisywanie JSON do IndexedDB
+function saveJSON() {
+    let jsonText = document.getElementById("jsonEditor").value;
+    
+    try {
+        let jsonData = JSON.parse(jsonText);
+        openDB(db => {
+            let tx = db.transaction(STORE_NAME, "readwrite");
+            let store = tx.objectStore(STORE_NAME);
+            store.put(jsonData, KEY);
+            tx.oncomplete = () => alert("Dane zapisane!");
+            tx.onerror = () => alert("Błąd zapisu!");
+        });
+    } catch (error) {
+        alert("Błąd parsowania JSON: " + error.message);
+    }
+}
+
+// Ładowanie JSON z IndexedDB
+function loadJSON() {
+    openDB(db => {
+        let tx = db.transaction(STORE_NAME, "readonly");
+        let store = tx.objectStore(STORE_NAME);
+        let request = store.get(KEY);
+        
+        request.onsuccess = () => {
+            let data = request.result || {};
+            document.getElementById("jsonEditor").value = JSON.stringify(data, null, "\t");
+        };
+
+        request.onerror = () => console.error("Błąd odczytu JSON");
+    });
+}
+
+// Automatyczne ładowanie po załadowaniu strony
+window.onload = loadJSON;
+</script>
+
+</body>
+</html>
