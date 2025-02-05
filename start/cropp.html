@@ -60,9 +60,9 @@
                     const coords = getRequest.result;
                     if (coords) {
                         // Assume coords is an object with 'x', 'y', 'width', 'height' for cropping
-                        const { x, y, width, height } = coords;
+                        const { top, height, left, width } = coords;
                         // Crop the image based on the coordinates and display on canvas
-                        const croppedImage = ctx.getImageData(x, y, width, height);
+                        const croppedImage = ctx.getImageData(left, top, width, height);
                         canvas.width = width;
                         canvas.height = height;
                         ctx.putImageData(croppedImage, 0, 0);
