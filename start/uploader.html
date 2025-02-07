@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Średnia Obrazów</title>
     <style>
+              * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: box;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            max-width: 100%; /* Ensure it doesn't overflow */
+            box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
+        }
         canvas {
             width: 100%;
             height: auto;
@@ -13,18 +31,21 @@
     </style>
 </head>
 <body>
+      <div class="controls">
     <input type="file" webkitdirectory directory multiple />
-    <input type="checkbox" id="deleteImages"> Usuń obrazy po przetworzeniu
+    <button id="deleteFiles">Usuń pliki</button>
     <a href="unwarp.html">Unwarp</a>
+        </div>
     <canvas></canvas>
     <script>
         const fileInput = document.querySelector('input[type="file"]');
+        const deleteButton = document.getElementById('deleteFiles');
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
-        const deleteImages = document.getElementById('deleteImages');
         let sumImageData = null;
         let imageCount = 0;
         let prevWidth = null, prevHeight = null;
+        let filesToDelete = [];
 
         async function processFiles(files) {
             for (const file of files) {
@@ -43,7 +64,7 @@
                 if (!sumImageData) sumImageData = new Uint32Array(imageData.data.length);
                 sumImageData.set(sumImageData.map((v, i) => v + imageData.data[i]));
                 imageCount++;
-                if (deleteImages.checked) await fileHandleDelete(file);
+                filesToDelete.push(file);
             }
             finalizeImage();
         }
@@ -74,17 +95,20 @@
             };
         }
 
-        async function fileHandleDelete(file) {
-            try {
-                const handle = await window.showDirectoryPicker();
-                const fileHandle = await handle.getFileHandle(file.name);
-                await fileHandle.remove();
-            } catch (err) {
-                console.error('Nie można usunąć pliku:', err);
+        async function deleteAllFiles() {
+            for (const file of filesToDelete) {
+                try {
+                    const handle = await window.showDirectoryPicker();
+                    const fileHandle = await handle.getFileHandle(file.name);
+                    await fileHandle.remove();
+                } catch (err) {
+                    console.error('Nie można usunąć pliku:', err);
+                }
             }
         }
 
         fileInput.addEventListener('change', (e) => processFiles(e.target.files));
+        deleteButton.addEventListener('click', deleteAllFiles);
     </script>
 </body>
 </html>
