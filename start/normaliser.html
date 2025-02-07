@@ -43,7 +43,7 @@
     </style>
 </head>
 <body>
-    <div class="container" data-croffle-ref="element$0">
+    <div class="container" data-croffle-ref="element$0" id="cfc">
         <canvas id="canvas"></canvas>
         <div class="draggable" data-croffle-ref="targetRef0" style="top: 10%"></div>
         <div class="draggable" data-croffle-ref="targetRef1" style="top: 25%"></div>
@@ -64,6 +64,7 @@
         const key = "warped";
         let rotation = 0;
         let flipX = 1, flipY = 1;
+        const cfc = document.getElementById("cfc");
 
         function loadImageFromDB() {
             const request = indexedDB.open(dbName);
@@ -158,8 +159,9 @@
             draggables.forEach(draggable => {
                 const rect = draggable.getBoundingClientRect();
                 const canvasRect = canvas.getBoundingClientRect();
-                const y = rect.top - canvasRect.top;
-                const height = rect.height;
+                const y = (rect.top - canvasRect.top) / canvasRect.height * canvas.height;
+                const height = (rect.height) / canvasRect.height * canvas.height;
+
                 
                 ctx.fillStyle = "yellow";
                 ctx.fillRect(0, y, canvas.width, height);
