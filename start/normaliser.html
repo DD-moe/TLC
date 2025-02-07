@@ -164,7 +164,7 @@
 
                 // Get image data from the area
                 const imageData = ctx.getImageData(0, y, canvas.width, height);
-                const reducedData = new Uint8ClampedArray(canvas.width * 4); // Store 1px height data
+                const reducedData = new Uint8ClampedArray(canvas.width); // Store 1px height data
                 
                 // Reduce height to 1 pixel (average Y-channel over height)
                 for (let x = 0; x < canvas.width; x++) {
@@ -174,7 +174,7 @@
                         const r = imageData.data[index];
                         const g = imageData.data[index + 1];
                         const b = imageData.data[index + 2];
-                        const yChannel = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                        const yChannel = 0.299 * r + 0.587 * g + 0.114 * b;
                         sumY += yChannel;
                     }
                     const avgY = Math.round(sumY / height);
@@ -192,6 +192,7 @@
                 }
 
                 //console.log("Y-channel changes:", changes);
+                console.log(imageData);
                 console.log(reducedData);
             });
         }
