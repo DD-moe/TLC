@@ -7,10 +7,18 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <div class="controls">
+        <button onclick="rotateRight()">↻</button>
+        <button onclick="rotateLeft()">↺</button>
+        <button onclick="flipVertical()">⇅</button>
+        <button onclick="flipHorizontal()">⇄</button>
+    </div>
     <script>
         const dbName = "TLC";
         const storeName = "data";
         const key = "warped";
+        let rotation = 0;
+        let flipX = 1, flipY = 1;
 
         function loadImageFromDB() {
             const request = indexedDB.open(dbName);
@@ -40,13 +48,43 @@
             img.crossOrigin = "anonymous";
             img.src = imageUrl;
             img.onload = function() {
-                const canvas = document.getElementById("canvas");
-                const ctx = canvas.getContext("2d");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.filter = "blur(3px)";
-                ctx.drawImage(img, 0, 0);
+                renderImage(img);
             };
+        }
+
+        function renderImage(img) {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.filter = "blur(3px)";
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.scale(flipX, flipY);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            ctx.restore();
+        }
+
+        function rotateRight() {
+            rotation = (rotation + 90) % 360;
+            loadImageFromDB();
+        }
+
+        function rotateLeft() {
+            rotation = (rotation - 90) % 360;
+            loadImageFromDB();
+        }
+
+        function flipVertical() {
+            flipY *= -1;
+            loadImageFromDB();
+        }
+
+        function flipHorizontal() {
+            flipX *= -1;
+            loadImageFromDB();
         }
 
         loadImageFromDB();
