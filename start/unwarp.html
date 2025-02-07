@@ -35,6 +35,9 @@
             display: flex;
             justify-content: center;
             gap: 20px;
+            flex-wrap: wrap; /* Allow items to wrap to the next line */
+            max-width: 100%; /* Ensure it doesn't overflow */
+            box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
         }
         .target {
             width: 50%;
@@ -99,9 +102,17 @@
     </div>
 
     <div class="controls">
-        <input type="file" id="imageInput" accept="image/*">
         <button id="unwarpBtn">Unwarp</button>
         <button id="reunwarpBtn">ReUnwarp</button>
+        <select id="fileType">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG</option>
+        </select>
+        <button id="downloadBtn">Download</button>
+        <button id="copyBtn">Copy</button>
+        <button id="shareBtn">Share</button>
+        <button id="internalizeBtn">Internalize</button>
+        <input type="file" id="imageInput" accept="image/*">
     </div>
     <script>
         const warpable = true;
@@ -234,13 +245,136 @@ function calculateDistance(p1, p2) {
 
 
             // Obsługa załadowania obrazu
-            document.getElementById("imageInput").addEventListener("change", (e) => {
+        document.getElementById("imageInput").addEventListener("change", (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     loadImageToCanvas(file);
                 }
             });
         });
+
+
+        document.getElementById("internalizeBtn").addEventListener("click", () => {
+            const dataURL = lastCanvas.toDataURL(`image/png`);  // Use selected format
+            saveToIndexedDB(dataURL);
+        });
+
+                // Function to save to IndexedDB
+        function saveToIndexedDB(dataURL) {
+            const dbName = "TLC";
+            const storeName = "data";
+            const key = "warped";
+
+            const request = indexedDB.open(dbName, 1);
+
+            request.onupgradeneeded = function(event) {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(storeName)) {
+                    db.createObjectStore(storeName);
+                }
+            };
+
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                const transaction = db.transaction(storeName, "readwrite");
+                const store = transaction.objectStore(storeName);
+                store.put(dataURL, key);
+                alert("Image saved to IndexedDB as 'warped'");
+            };
+
+            request.onerror = function() {
+                alert("Error saving to IndexedDB.");
+            };
+        }
+
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+    const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
+    
+    // Ensure lastCanvas is valid
+    if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
+        console.error('Canvas element is not available.');
+        return;
+    }
+
+    let imageURL;
+    if (selectedFormat === 'jpeg') {
+        // JPG format requires a quality parameter (0 to 1)
+        imageURL = lastCanvas.toDataURL('image/jpeg', 1.0);  // Using 1.0 for best quality
+    } else {
+        imageURL = lastCanvas.toDataURL(`image/${selectedFormat}`);  // Use selected format
+    }
+
+    // Create a link element for downloading
+    const link = document.createElement('a');
+    link.href = imageURL;
+    link.download = `canvas_image.${selectedFormat}`;  // Name of the file
+    link.click();  // Trigger the download
+});
+
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+    const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
+    
+    // Ensure lastCanvas is valid
+    if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
+        console.error('Canvas element is not available.');
+        return;
+    }
+
+    let imageBlob;
+    imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/png`));
+
+
+    // Create a ClipboardItem and copy it to the clipboard
+    const clipboardItem = new ClipboardItem({
+        'image/png': imageBlob, // You can modify this to 'image/jpeg' or 'image/jpg' if needed
+    });
+
+    try {
+        await navigator.clipboard.write([clipboardItem]);
+        console.log('Image copied to clipboard!');
+    } catch (error) {
+        console.error('Failed to copy image to clipboard', error);
+    }
+});
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
+    const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
+    
+    // Ensure lastCanvas is valid
+    if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
+        console.error('Canvas element is not available.');
+        return;
+    }
+
+    let imageBlob;
+    if (selectedFormat === 'jpeg') {
+        // JPG format requires a quality parameter (0 to 1)
+        imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), 'image/jpeg', 1.0));
+    } else {
+        imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/${selectedFormat}`));
+    }
+
+    // If the Share API is available
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                files: [new File([imageBlob], `canvas_image.${selectedFormat}`, { type: `image/${selectedFormat}` })],
+                title: 'Canvas Image',
+                text: 'Check out this canvas image I made!',
+            });
+            console.log('Image shared successfully!');
+        } catch (error) {
+            console.error('Error sharing the image:', error);
+        }
+    } else {
+        console.log('Share API is not available on this device.');
+    }
+});
+
+
+
     </script>
 
 </body>
