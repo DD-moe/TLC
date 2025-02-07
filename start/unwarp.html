@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analiza obrazu</title>
+<script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
+<!-- warning: loading OpenCV can take some time. Load asynchronously -->
+<script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
+</head>
+<body>
+    <input type="file" id="imageFile" accept="image/*">
+    <input type="number" id="scaleFactor" value="3" min="1" step="0.1">
+    <button id="reloadButton">Wczytaj ponownie obraz</button>
+    <button id="unwrapButton">Przytnij i unwarp</button>
+    <canvas id="canvas"></canvas>
+    <script>
+        let corners = {
+            topLeft: { x: null, y: null },
+            topRight: { x: null, y: null },
+            bottomLeft: { x: null, y: null },
+            bottomRight: { x: null, y: null }
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let img = new Image();
+
+        document.getElementById('imageFile').addEventListener('change', loadAndProcessImage);
+        document.getElementById('reloadButton').addEventListener('click', reloadImage);
+        document.getElementById('unwrapButton').addEventListener('click', unwrapImage);
+
+        function loadAndProcessImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            img.onload = function() {
+                const scale = parseFloat(document.getElementById('scaleFactor').value);
+                const width = img.width / scale;
+                const height = img.height / scale;
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                ctx.drawImage(img, 0, 0, width, height);
+                detectAndReplaceRedDots(ctx, width, height);
+            };
+            img.src = URL.createObjectURL(file);
+        }
+
+        function detectAndReplaceRedDots(ctx, width, height) {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const redDots = [];
+            corners = {  // Reset the corners each time we detect new dots
+                topLeft: { x: null, y: null },
+                topRight: { x: null, y: null },
+                bottomLeft: { x: null, y: null },
+                bottomRight: { x: null, y: null }
+            };
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+                    const r = imageData.data[index];
+                    const g = imageData.data[index + 1];
+                    const b = imageData.data[index + 2];
+                    
+                    if (r/g > 1.5 && r/b > 1.5) {
+                        redDots.push({ x, y });
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            redDots.forEach(dot => {
+                drawDot(ctx, dot.x, dot.y, 'yellow');
+                updateCorners(dot);
+            });
+            
+            if (allCornersSet()) {
+                drawLinesBetweenCorners();
+            }
+
+            console.log('Corners with closest red dots:', corners);
+        }
+
+        function drawDot(ctx, x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function updateCorners(dot) {
+            const distances = {
+                topLeft: Math.sqrt(Math.pow(dot.x, 2) + Math.pow(dot.y, 2)),
+                topRight: Math.sqrt(Math.pow(dot.x - canvas.width, 2) + Math.pow(dot.y, 2)),
+                bottomLeft: Math.sqrt(Math.pow(dot.x, 2) + Math.pow(dot.y - canvas.height, 2)),
+                bottomRight: Math.sqrt(Math.pow(dot.x - canvas.width, 2) + Math.pow(dot.y - canvas.height, 2))
+            };
+
+            const closestCorner = Object.keys(distances).reduce((prev, curr) => {
+                return distances[curr] < distances[prev] ? curr : prev;
+            });
+            
+            corners[closestCorner] = { x: dot.x, y: dot.y };
+        }
+
+        function allCornersSet() {
+            return Object.values(corners).every(corner => corner.x !== null && corner.y !== null);
+        }
+
+        function drawLinesBetweenCorners() {
+            const { topLeft, topRight, bottomLeft, bottomRight } = corners;
+            ctx.strokeStyle = 'orange';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(topLeft.x, topLeft.y);
+            ctx.lineTo(topRight.x, topRight.y);
+            ctx.lineTo(bottomRight.x, bottomRight.y);
+            ctx.lineTo(bottomLeft.x, bottomLeft.y);
+            ctx.lineTo(topLeft.x, topLeft.y);
+            ctx.stroke();
+        }
+
+        function reloadImage() {
+            const imageFileInput = document.getElementById('imageFile');
+            imageFileInput.value = ''; // Clear the file input
+            const event = new Event('change');
+            imageFileInput.dispatchEvent(event);
+        }
+
+        function unwrapImage() {
+            if (!allCornersSet()) {
+                alert('Narożniki nie zostały wykryte!');
+                return;
+            }
+
+ // Obliczenie wynikowej szerokości i wysokości
+            const width = (corners.topRight.x - corners.topLeft.x + corners.bottomRight.x - corners.bottomLeft.x) / 2;
+            const height = (corners.bottomLeft.y - corners.topLeft.y + corners.bottomRight.y - corners.topRight.y) / 2;
+
+                const scale = parseFloat(document.getElementById('scaleFactor').value);   
+                
+            // Korzystając z JScanify do unwarpowania
+            const points = {
+                topLeftCorner: { x: corners.topLeft.x * scale, y: corners.topLeft.y  * scale},
+                topRightCorner: { x: corners.topRight.x * scale, y: corners.topRight.y  * scale},
+                bottomLeftCorner: { x: corners.bottomLeft.x * scale, y: corners.bottomLeft.y  * scale},
+                bottomRightCorner: { x: corners.bottomRight.x * scale, y: corners.bottomRight.y  * scale}
+            };
+            
+         
+            // Używamy JScanify do przekształcenia perspektywy
+            const scanner = new jscanify();
+            const unwrappedCanvas = scanner.extractPaper(img, width * scale, height * scale, points);
+            document.body.appendChild(unwrappedCanvas); // Dodanie wyniku do dokumentu
+        }
+    </script>
+</body>
+</html>
