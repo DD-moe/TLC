@@ -45,7 +45,7 @@
             top : 25%;
             left : 25%;
             background-color: lightblue;
-            position: relative;
+            position: absolute;
             opacity: 30%;
         }
         .container {
@@ -113,8 +113,10 @@
         <button id="shareBtn">Share</button>
         <button id="internalizeBtn">Internalize</button>
         <input type="file" id="imageInput" accept="image/*">
+        <a href="normaliser.html">Normalise</a>
     </div>
     <script>
+        // variables
         const warpable = true;
         const renderDirections = ["nw", "n", "ne", "w", "e", "sw", "s", "se"];
         const canvas = document.getElementById("canvas");
@@ -124,6 +126,7 @@
         const ctx = canvas.getContext("2d");
         let img;
         let lastCanvas;
+        let warper = false;
 
         let targetRef = document.querySelector(".target");
         let element$0 = document.querySelector(".container");
@@ -138,110 +141,172 @@
                     canvas.height = img.height;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
+                    emitMoveableInit();
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        // Inicjalizacja Moveable
-        document.addEventListener("DOMContentLoaded", () => {
-            const moveable$0 = new Moveable(element$0, {
-                target: targetRef,
-                warpable: warpable,
-                renderDirections: renderDirections
+        // Emisja zdarzenia
+        function emitMoveableInit() {
+            const event = new Event("moveableInit");
+            document.dispatchEvent(event);
+        }
+
+        // Obsługa zdarzenia i inicjalizacja Moveable
+        document.addEventListener("moveableInit", () => {
+            if (!warper) {
+                const moveable$0 = new Moveable(element$0, {
+                    target: targetRef,
+                    warpable: warpable,
+                    renderDirections: renderDirections
+                });
+
+                moveable$0.on("warp", e => {
+                    e.target.style.transform = e.transform;
+                });
+                warper = true;                
+            }
+        });
+
+
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            const dbName = "TLC";
+            const storeName = "data";
+            const key = "average";
+
+            try {
+                const imageUrl = await getImageUrlFromIndexedDB(dbName, storeName, key);
+                if (imageUrl) {
+                    const img = new Image();
+                    img.crossOrigin = "anonymous"; // Optional if loading from external sources
+                    img.onload = function () {
+                        const canvas = document.getElementById("canvas");
+                        if (canvas) {
+                            const ctx = canvas.getContext("2d");
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            ctx.drawImage(img, 0, 0);
+                            emitMoveableInit();
+                        } else {
+                            console.error("Canvas element not found.");
+                        }
+                    };
+                    img.src = imageUrl;
+                } else {
+                    console.error("No image URL found in IndexedDB.");
+                }
+            } catch (error) {
+                console.error("Error loading image:", error);
+            }
+        });
+
+        async function getImageUrlFromIndexedDB(dbName, storeName, key) {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName);
+
+                request.onerror = () => reject("Failed to open IndexedDB.");
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    const transaction = db.transaction(storeName, "readonly");
+                    const store = transaction.objectStore(storeName);
+                    const getRequest = store.get(key);
+
+                    getRequest.onsuccess = () => resolve(getRequest.result || null);
+                    getRequest.onerror = () => reject("Failed to retrieve image URL.");
+                };
             });
-
-            moveable$0.on("warp", e => {
-                e.target.style.transform = e.transform;
-            });
-
-document.getElementById("reunwarpBtn").addEventListener("click", () => {
-    // Set the canvas dimensions to match Pcanvas
-    canvas.width = lastCanvas.width;
-    canvas.height = lastCanvas.height;
-
-    // Get the context for the new canvas
-    const ctx = canvas.getContext("2d");
-
-    // Copy the content of Pcanvas to canvas
-    ctx.drawImage(lastCanvas, 0, 0);
-});
-
-document.getElementById("unwarpBtn").addEventListener("click", () => {
-    const Cwidth = canvas.width;
-    const Cheight = canvas.height;
-
-    const canvasRect = canvas.getBoundingClientRect();
-    
-    // Parse the transformation matrix
-    function getMatrixFromElement(element) {
-        const computedStyle = window.getComputedStyle(element);
-        const transform = computedStyle.transform;
-        if (transform === "none") return new DOMMatrix();
-        return new DOMMatrix(transform);
-    }
-
-    // Get the transformed position of an element
-    function getTransformedPosition(element) {
-        const rect = element.getBoundingClientRect();
-        const matrix = getMatrixFromElement(element);
-        
-        const originalPoint = new DOMPoint(0, 0);
-        const transformedPoint = originalPoint.matrixTransform(matrix);
-
-        return {
-            x: (transformedPoint.x + rect.left - canvasRect.left) / Rwidth ,
-            y: (transformedPoint.y + rect.top - canvasRect.top) / Rheight 
-        };
-    }
-
-    // Get real positions of the elements
-    const positions = {
-    topLeftCorner: {
-        x: getTransformedPosition(document.getElementById("tl")).x * Cwidth,
-        y: getTransformedPosition(document.getElementById("tl")).y * Cheight
-    },
-    topRightCorner: {
-        x: getTransformedPosition(document.getElementById("tr")).x * Cwidth,
-        y: getTransformedPosition(document.getElementById("tr")).y * Cheight
-    },
-    bottomLeftCorner: {
-        x: getTransformedPosition(document.getElementById("bl")).x * Cwidth,
-        y: getTransformedPosition(document.getElementById("bl")).y * Cheight
-    },
-    bottomRightCorner: {
-        x: getTransformedPosition(document.getElementById("br")).x * Cwidth,
-        y: getTransformedPosition(document.getElementById("br")).y * Cheight
-    }
-};
+        }
 
 
-    // Calculate width (average of top and bottom edge distances)
-    const topEdgeDistance = calculateDistance(positions.topLeftCorner, positions.topRightCorner);
-    const bottomEdgeDistance = calculateDistance(positions.bottomLeftCorner, positions.bottomRightCorner);
-    const resultWidth = (topEdgeDistance + bottomEdgeDistance) / 2;
+        document.getElementById("reunwarpBtn").addEventListener("click", () => {
+            // Set the canvas dimensions to match Pcanvas
+            canvas.width = lastCanvas.width;
+            canvas.height = lastCanvas.height;
 
-    // Calculate height (average of left and right edge distances)
-    const leftEdgeDistance = calculateDistance(positions.topLeftCorner, positions.bottomLeftCorner);
-    const rightEdgeDistance = calculateDistance(positions.topRightCorner, positions.bottomRightCorner);
-    const resultHeight = (leftEdgeDistance + rightEdgeDistance) / 2;
+            // Get the context for the new canvas
+            const ctx = canvas.getContext("2d");
 
-    // Log coordinates to the console
-    console.log("Transformed Coordinates:", positions);
-    const scanner = new jscanify();
-    const newcanvas = scanner.extractPaper(img, resultWidth, resultHeight, positions);
-    document.body.appendChild(newcanvas);
-    if (lastCanvas) {
-        document.body.removeChild(lastCanvas);
-    }
-    lastCanvas = newcanvas;
-    console.log("done");
-});
+            // Copy the content of Pcanvas to canvas
+            ctx.drawImage(lastCanvas, 0, 0);
+        });
 
-function calculateDistance(p1, p2) {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-}
+        document.getElementById("unwarpBtn").addEventListener("click", () => {
+            const Cwidth = canvas.width;
+            const Cheight = canvas.height;
+
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            // Parse the transformation matrix
+            function getMatrixFromElement(element) {
+                const computedStyle = window.getComputedStyle(element);
+                const transform = computedStyle.transform;
+                if (transform === "none") return new DOMMatrix();
+                return new DOMMatrix(transform);
+            }
+
+            // Get the transformed position of an element
+            function getTransformedPosition(element) {
+                const rect = element.getBoundingClientRect();
+                const matrix = getMatrixFromElement(element);
+                
+                const originalPoint = new DOMPoint(0, 0);
+                const transformedPoint = originalPoint.matrixTransform(matrix);
+
+                return {
+                    x: (transformedPoint.x + rect.left - canvasRect.left) / Rwidth ,
+                    y: (transformedPoint.y + rect.top - canvasRect.top) / Rheight 
+                };
+            }
+
+            // Get real positions of the elements
+            const positions = {
+                topLeftCorner: {
+                    x: getTransformedPosition(document.getElementById("tl")).x * Cwidth,
+                    y: getTransformedPosition(document.getElementById("tl")).y * Cheight
+                },
+                topRightCorner: {
+                    x: getTransformedPosition(document.getElementById("tr")).x * Cwidth,
+                    y: getTransformedPosition(document.getElementById("tr")).y * Cheight
+                },
+                bottomLeftCorner: {
+                    x: getTransformedPosition(document.getElementById("bl")).x * Cwidth,
+                    y: getTransformedPosition(document.getElementById("bl")).y * Cheight
+                },
+                bottomRightCorner: {
+                    x: getTransformedPosition(document.getElementById("br")).x * Cwidth,
+                    y: getTransformedPosition(document.getElementById("br")).y * Cheight
+                }
+            };
+
+
+            // Calculate width (average of top and bottom edge distances)
+            const topEdgeDistance = calculateDistance(positions.topLeftCorner, positions.topRightCorner);
+            const bottomEdgeDistance = calculateDistance(positions.bottomLeftCorner, positions.bottomRightCorner);
+            const resultWidth = (topEdgeDistance + bottomEdgeDistance) / 2;
+
+            // Calculate height (average of left and right edge distances)
+            const leftEdgeDistance = calculateDistance(positions.topLeftCorner, positions.bottomLeftCorner);
+            const rightEdgeDistance = calculateDistance(positions.topRightCorner, positions.bottomRightCorner);
+            const resultHeight = (leftEdgeDistance + rightEdgeDistance) / 2;
+
+            // Log coordinates to the console
+            console.log("Transformed Coordinates:", positions);
+            const scanner = new jscanify();
+            const newcanvas = scanner.extractPaper(img, resultWidth, resultHeight, positions);
+            document.body.appendChild(newcanvas);
+            if (lastCanvas) {
+                document.body.removeChild(lastCanvas);
+            }
+            lastCanvas = newcanvas;
+            console.log("done");
+        });
+
+        function calculateDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+        }
 
 
             // Obsługa załadowania obrazu
@@ -251,7 +316,6 @@ function calculateDistance(p1, p2) {
                     loadImageToCanvas(file);
                 }
             });
-        });
 
 
         document.getElementById("internalizeBtn").addEventListener("click", () => {
@@ -288,92 +352,90 @@ function calculateDistance(p1, p2) {
         }
 
 
-    document.getElementById('downloadBtn').addEventListener('click', () => {
-    const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
-    
-    // Ensure lastCanvas is valid
-    if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
-        console.error('Canvas element is not available.');
-        return;
-    }
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
+            
+            // Ensure lastCanvas is valid
+            if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
+                console.error('Canvas element is not available.');
+                return;
+            }
 
-    let imageURL;
-    if (selectedFormat === 'jpeg') {
-        // JPG format requires a quality parameter (0 to 1)
-        imageURL = lastCanvas.toDataURL('image/jpeg', 1.0);  // Using 1.0 for best quality
-    } else {
-        imageURL = lastCanvas.toDataURL(`image/${selectedFormat}`);  // Use selected format
-    }
+            let imageURL;
+            if (selectedFormat === 'jpeg') {
+                // JPG format requires a quality parameter (0 to 1)
+                imageURL = lastCanvas.toDataURL('image/jpeg', 1.0);  // Using 1.0 for best quality
+            } else {
+                imageURL = lastCanvas.toDataURL(`image/${selectedFormat}`);  // Use selected format
+            }
 
-    // Create a link element for downloading
-    const link = document.createElement('a');
-    link.href = imageURL;
-    link.download = `canvas_image.${selectedFormat}`;  // Name of the file
-    link.click();  // Trigger the download
-});
-
-
-document.getElementById('copyBtn').addEventListener('click', async () => {
-    const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
-    
-    // Ensure lastCanvas is valid
-    if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
-        console.error('Canvas element is not available.');
-        return;
-    }
-
-    let imageBlob;
-    imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/png`));
+            // Create a link element for downloading
+            const link = document.createElement('a');
+            link.href = imageURL;
+            link.download = `canvas_image.${selectedFormat}`;  // Name of the file
+            link.click();  // Trigger the download
+        });
 
 
-    // Create a ClipboardItem and copy it to the clipboard
-    const clipboardItem = new ClipboardItem({
-        'image/png': imageBlob, // You can modify this to 'image/jpeg' or 'image/jpg' if needed
-    });
+        document.getElementById('copyBtn').addEventListener('click', async () => {
+            const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
+            
+            // Ensure lastCanvas is valid
+            if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
+                console.error('Canvas element is not available.');
+                return;
+            }
 
-    try {
-        await navigator.clipboard.write([clipboardItem]);
-        console.log('Image copied to clipboard!');
-    } catch (error) {
-        console.error('Failed to copy image to clipboard', error);
-    }
-});
+            let imageBlob;
+            imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/png`));
 
-document.getElementById('shareBtn').addEventListener('click', async () => {
-    const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
-    
-    // Ensure lastCanvas is valid
-    if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
-        console.error('Canvas element is not available.');
-        return;
-    }
 
-    let imageBlob;
-    if (selectedFormat === 'jpeg') {
-        // JPG format requires a quality parameter (0 to 1)
-        imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), 'image/jpeg', 1.0));
-    } else {
-        imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/${selectedFormat}`));
-    }
-
-    // If the Share API is available
-    if (navigator.share) {
-        try {
-            await navigator.share({
-                files: [new File([imageBlob], `canvas_image.${selectedFormat}`, { type: `image/${selectedFormat}` })],
-                title: 'Canvas Image',
-                text: 'Check out this canvas image I made!',
+            // Create a ClipboardItem and copy it to the clipboard
+            const clipboardItem = new ClipboardItem({
+                'image/png': imageBlob, // You can modify this to 'image/jpeg' or 'image/jpg' if needed
             });
-            console.log('Image shared successfully!');
-        } catch (error) {
-            console.error('Error sharing the image:', error);
-        }
-    } else {
-        console.log('Share API is not available on this device.');
-    }
-});
 
+            try {
+                await navigator.clipboard.write([clipboardItem]);
+                console.log('Image copied to clipboard!');
+            } catch (error) {
+                console.error('Failed to copy image to clipboard', error);
+            }
+        });
 
+        document.getElementById('shareBtn').addEventListener('click', async () => {
+            const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
+            
+            // Ensure lastCanvas is valid
+            if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
+                console.error('Canvas element is not available.');
+                return;
+            }
+
+            let imageBlob;
+            if (selectedFormat === 'jpeg') {
+                // JPG format requires a quality parameter (0 to 1)
+                imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), 'image/jpeg', 1.0));
+            } else {
+                imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/${selectedFormat}`));
+            }
+
+            // If the Share API is available
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        files: [new File([imageBlob], `canvas_image.${selectedFormat}`, { type: `image/${selectedFormat}` })],
+                        title: 'Canvas Image',
+                        text: 'Check out this canvas image I made!',
+                    });
+                    console.log('Image shared successfully!');
+                } catch (error) {
+                    console.error('Error sharing the image:', error);
+                }
+            } else {
+                console.log('Share API is not available on this device.');
+            }
+        });
 
     </script>
 
