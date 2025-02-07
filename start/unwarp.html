@@ -43,6 +43,7 @@
             left : 25%;
             background-color: lightblue;
             position: relative;
+            opacity: 30%;
         }
         .container {
             position: absolute;
@@ -100,6 +101,7 @@
     <div class="controls">
         <input type="file" id="imageInput" accept="image/*">
         <button id="unwarpBtn">Unwarp</button>
+        <button id="reunwarpBtn">ReUnwarp</button>
     </div>
     <script>
         const warpable = true;
@@ -142,6 +144,18 @@
             moveable$0.on("warp", e => {
                 e.target.style.transform = e.transform;
             });
+
+document.getElementById("reunwarpBtn").addEventListener("click", () => {
+    // Set the canvas dimensions to match Pcanvas
+    canvas.width = lastCanvas.width;
+    canvas.height = lastCanvas.height;
+
+    // Get the context for the new canvas
+    const ctx = canvas.getContext("2d");
+
+    // Copy the content of Pcanvas to canvas
+    ctx.drawImage(lastCanvas, 0, 0);
+});
 
 document.getElementById("unwarpBtn").addEventListener("click", () => {
     const Cwidth = canvas.width;
