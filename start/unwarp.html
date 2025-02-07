@@ -113,7 +113,8 @@
         <button id="shareBtn">Share</button>
         <button id="internalizeBtn">Internalize</button>
         <input type="file" id="imageInput" accept="image/*">
-        <a href="normaliser.html">Normalise</a>
+        <a href="normaliser.html">→ Normalise</a>
+        <a href="uploader.html">← Upload</a>
     </div>
     <script>
         // variables
@@ -295,7 +296,7 @@
             // Log coordinates to the console
             console.log("Transformed Coordinates:", positions);
             const scanner = new jscanify();
-            const newcanvas = scanner.extractPaper(img, resultWidth, resultHeight, positions);
+            const newcanvas = scanner.extractPaper(canvas, resultWidth, resultHeight, positions);
             document.body.appendChild(newcanvas);
             if (lastCanvas) {
                 document.body.removeChild(lastCanvas);
