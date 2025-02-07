@@ -43,23 +43,21 @@
     </style>
 </head>
 <body>
+    <div class="container" data-croffle-ref="element$0">
+        <canvas id="canvas"></canvas>
+        <div class="draggable" data-croffle-ref="targetRef0" style="top: 10%"></div>
+        <div class="draggable" data-croffle-ref="targetRef1" style="top: 25%"></div>
+        <div class="draggable" data-croffle-ref="targetRef2" style="top: 40%"></div>
+        <div class="draggable" data-croffle-ref="targetRef3" style="top: 55%"></div>
+        <div class="draggable" data-croffle-ref="targetRef4" style="top: 70%"></div>
+    </div>
     <div class="controls">
         <button onclick="rotateRight()">↻</button>
         <button onclick="rotateLeft()">↺</button>
         <button onclick="flipVertical()">⇅</button>
         <button onclick="flipHorizontal()">⇄</button>
         <button onclick="drawYellowBlocks()">Rysuj bloki</button>
-    </div>
-    <div class="root">
-        <div class="container" data-croffle-ref="element$0">
-            <canvas id="canvas"></canvas>
-            <div class="draggable" data-croffle-ref="targetRef0" style="top: 10%"></div>
-            <div class="draggable" data-croffle-ref="targetRef1" style="top: 25%"></div>
-            <div class="draggable" data-croffle-ref="targetRef2" style="top: 40%"></div>
-            <div class="draggable" data-croffle-ref="targetRef3" style="top: 55%"></div>
-            <div class="draggable" data-croffle-ref="targetRef4" style="top: 70%"></div>
-        </div>
-    </div>
+    </div>    
     <script>
         const dbName = "TLC";
         const storeName = "data";
