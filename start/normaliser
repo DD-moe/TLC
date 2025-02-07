@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexedDB Image</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const dbName = "TLC";
+        const storeName = "data";
+        const key = "warped";
+
+        function loadImageFromDB() {
+            const request = indexedDB.open(dbName);
+            
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                const transaction = db.transaction(storeName, "readonly");
+                const store = transaction.objectStore(storeName);
+                const getRequest = store.get(key);
+                
+                getRequest.onsuccess = function() {
+                    if (getRequest.result) {
+                        drawImage(getRequest.result);
+                    } else {
+                        console.error("Brak obrazu w bazie danych.");
+                    }
+                };
+            };
+            
+            request.onerror = function() {
+                console.error("Błąd otwierania bazy danych.");
+            };
+        }
+
+        function drawImage(imageUrl) {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = imageUrl;
+            img.onload = function() {
+                const canvas = document.getElementById("canvas");
+                const ctx = canvas.getContext("2d");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.filter = "blur(3px)";
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+
+        loadImageFromDB();
+    </script>
+</body>
+</html>
