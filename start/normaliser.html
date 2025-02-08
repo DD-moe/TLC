@@ -57,6 +57,7 @@
         <button onclick="flipVertical()">⇅</button>
         <button onclick="flipHorizontal()">⇄</button>
         <button onclick="drawWhiteBlocks()">Rysuj bloki</button>
+        <input type="number" value="3" id="degree">
         <a href="unwarp.html">→ Normalise</a>
     </div>    
     <script>
@@ -153,6 +154,7 @@
         }
 
         function drawWhiteBlocks() {
+            const deg = parseFloat(document.getElementById('degree').value);
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
             const draggables = document.querySelectorAll(".draggable");
@@ -242,7 +244,7 @@
                 }
                 
                 if (valuesX.length > 1) {
-                    const coeffs = polynomialRegression(valuesX, valuesY, 2);
+                    const coeffs = polynomialRegression(valuesX, valuesY, deg);
                     
                     for (let y = 0; y < canvas.height; y++) {
                         const index = (y * canvas.width + x) * 4;
