@@ -203,8 +203,7 @@
                 }
 
                 console.log("Y-channel changes:", changes);
-                
-                const ctx = canvas.getContext("2d");
+
                 let toggleColor = true;
                 changes.forEach(({ pi, ni, vp }) => {
                     let y = vp * 10; // Przykładowa wysokość w zależności od wartości vp
