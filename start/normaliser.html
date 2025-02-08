@@ -153,65 +153,109 @@
         }
 
         function drawWhiteBlocks() {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const draggables = document.querySelectorAll(".draggable");
-    
-    draggables.forEach(draggable => {
-        const rect = draggable.getBoundingClientRect();
-        const canvasRect = canvas.getBoundingClientRect();
-        const y = Math.round((rect.top - canvasRect.top) / canvasRect.height * canvas.height);
-        const height = Math.round(rect.height / canvasRect.height * canvas.height);
-        
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, y, canvas.width, height);
-    });
-
-    // Pobierz ImageData i przekonwertuj na grayscale
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    
-    for (let i = 0; i < data.length; i += 4) {
-        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        data[i] = data[i + 1] = data[i + 2] = gray;
-    }
-    ctx.putImageData(imageData, 0, 0);
-    
-    // Interpolacja wartości dla całej kolumny na podstawie regresji wielomianowej
-    function polynomialRegression(x, y, degree) {
-        let X = x.map(v => Array.from({ length: degree + 1 }, (_, i) => Math.pow(v, i)));
-        let XT = math.transpose(X);
-        let XTX = math.multiply(XT, X);
-        let XTY = math.multiply(XT, y);
-        let coeffs = math.lusolve(XTX, XTY).flat();
-        return coeffs;
-    }
-    
-    for (let x = 0; x < canvas.width; x++) {
-        let valuesX = [], valuesY = [];
-        for (let y = 0; y < canvas.height; y++) {
-            const index = (y * canvas.width + x) * 4;
-            const gray = data[index];
-            if (gray < 250) {
-                valuesX.push(y);
-                valuesY.push(gray);
-            }
-        }
-        
-        if (valuesX.length > 1) {
-            const coeffs = polynomialRegression(valuesX, valuesY, 2);
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const draggables = document.querySelectorAll(".draggable");
             
-            for (let y = 0; y < canvas.height; y++) {
-                const index = (y * canvas.width + x) * 4;
-                let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
-                interpolated = Math.min(255, Math.max(0, interpolated));
-                data[index] = data[index + 1] = data[index + 2] = interpolated;
+            draggables.forEach(draggable => {
+                const rect = draggable.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const y = Math.round((rect.top - canvasRect.top) / canvasRect.height * canvas.height);
+                const height = Math.round(rect.height / canvasRect.height * canvas.height);
+                
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, y, canvas.width, height);
+            });
+
+            // Pobierz ImageData i przekonwertuj na grayscale
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                data[i] = data[i + 1] = data[i + 2] = gray;
             }
+            ctx.putImageData(imageData, 0, 0);
+            
+            // Regresja wielomianowa w czystym JavaScript
+            function polynomialRegression(x, y, degree) {
+                const matrix = [];
+                for (let i = 0; i < x.length; i++) {
+                    matrix[i] = [];
+                    for (let j = 0; j <= degree; j++) {
+                        matrix[i][j] = Math.pow(x[i], j);
+                    }
+                }
+                
+                // Rozwiązanie metodą pseudoodwrotności macierzy
+                const transpose = (m) => m[0].map((_, i) => m.map(row => row[i]));
+                const multiply = (a, b) => a.map(row => b[0].map((_, j) => row.reduce((sum, el, k) => sum + el * b[k][j], 0)));
+                
+                const XT = transpose(matrix);
+                const XTX = multiply(XT, matrix);
+                const XTY = multiply(XT, y.map(v => [v]));
+                
+                function gaussianElimination(A, b) {
+                    const n = A.length;
+                    for (let i = 0; i < n; i++) {
+                        let maxRow = i;
+                        for (let k = i + 1; k < n; k++) {
+                            if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+                                maxRow = k;
+                            }
+                        }
+                        [A[i], A[maxRow]] = [A[maxRow], A[i]];
+                        [b[i], b[maxRow]] = [b[maxRow], b[i]];
+                        
+                        for (let k = i + 1; k < n; k++) {
+                            const c = -A[k][i] / A[i][i];
+                            for (let j = i; j < n; j++) {
+                                A[k][j] += c * A[i][j];
+                            }
+                            b[k][0] += c * b[i][0];
+                        }
+                    }
+                    
+                    const x = new Array(n).fill(0);
+                    for (let i = n - 1; i >= 0; i--) {
+                        let sum = 0;
+                        for (let j = i + 1; j < n; j++) {
+                            sum += A[i][j] * x[j];
+                        }
+                        x[i] = (b[i][0] - sum) / A[i][i];
+                    }
+                    return x;
+                }
+                
+                return gaussianElimination(XTX, XTY);
+            }
+            
+            for (let x = 0; x < canvas.width; x++) {
+                let valuesX = [], valuesY = [];
+                for (let y = 0; y < canvas.height; y++) {
+                    const index = (y * canvas.width + x) * 4;
+                    const gray = data[index];
+                    if (gray < 250) {
+                        valuesX.push(y);
+                        valuesY.push(gray);
+                    }
+                }
+                
+                if (valuesX.length > 1) {
+                    const coeffs = polynomialRegression(valuesX, valuesY, 2);
+                    
+                    for (let y = 0; y < canvas.height; y++) {
+                        const index = (y * canvas.width + x) * 4;
+                        let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
+                        interpolated = Math.min(255, Math.max(0, interpolated));
+                        data[index] = data[index + 1] = data[index + 2] = interpolated;
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
         }
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-}
+
 
 
     </script>
