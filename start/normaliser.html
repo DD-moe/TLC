@@ -157,7 +157,7 @@
 
             // Tworzenie pomocniczego canvas do zmniejszania
             const tempCanvas = document.createElement("canvas");
-            document.appendChild(tempCanvas);
+            document.body.appendChild(tempCanvas);
             tempCanvas.width = canvas.width;
             tempCanvas.height = Math.ceil(canvas.height / 50);
             const tempCtx = tempCanvas.getContext("2d");
