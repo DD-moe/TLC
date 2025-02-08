@@ -265,8 +265,8 @@
 
             
             for (let x = 0; x < canvas.width; x++) {
-                const column = getColumn(data, canvasWidth, canvasHeight, x);
-                const processedColumn = processColumn(column, canvasHeight, deg);
+                const column = getColumn(data, canvas.width, canvas.height, x);
+                const processedColumn = processColumn(column, canvas.height, deg);
 
 
                 for (let y = 0; y < canvas.height; y++) {
