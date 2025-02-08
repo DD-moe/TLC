@@ -53,3 +53,65 @@
 
             });
         }
+
+
+
+
+
+
+
+
+
+
+                    // Regresja wielomianowa w czystym JavaScript
+            function polynomialRegression(x, y, degree) {
+                const matrix = [];
+                for (let i = 0; i < x.length; i++) {
+                    matrix[i] = [];
+                    for (let j = 0; j <= degree; j++) {
+                        matrix[i][j] = Math.pow(x[i], j);
+                    }
+                }
+                
+                // Rozwiązanie metodą pseudoodwrotności macierzy
+                const transpose = (m) => m[0].map((_, i) => m.map(row => row[i]));
+                const multiply = (a, b) => a.map(row => b[0].map((_, j) => row.reduce((sum, el, k) => sum + el * b[k][j], 0)));
+                
+                const XT = transpose(matrix);
+                const XTX = multiply(XT, matrix);
+                const XTY = multiply(XT, y.map(v => [v]));
+                
+                function gaussianElimination(A, b) {
+                    const n = A.length;
+                    for (let i = 0; i < n; i++) {
+                        let maxRow = i;
+                        for (let k = i + 1; k < n; k++) {
+                            if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+                                maxRow = k;
+                            }
+                        }
+                        [A[i], A[maxRow]] = [A[maxRow], A[i]];
+                        [b[i], b[maxRow]] = [b[maxRow], b[i]];
+                        
+                        for (let k = i + 1; k < n; k++) {
+                            const c = -A[k][i] / A[i][i];
+                            for (let j = i; j < n; j++) {
+                                A[k][j] += c * A[i][j];
+                            }
+                            b[k][0] += c * b[i][0];
+                        }
+                    }
+                    
+                    const x = new Array(n).fill(0);
+                    for (let i = n - 1; i >= 0; i--) {
+                        let sum = 0;
+                        for (let j = i + 1; j < n; j++) {
+                            sum += A[i][j] * x[j];
+                        }
+                        x[i] = (b[i][0] - sum) / A[i][i];
+                    }
+                    return x;
+                }
+                
+                return gaussianElimination(XTX, XTY);
+            }

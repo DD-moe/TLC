@@ -201,59 +201,6 @@
             }
             ctx.putImageData(imageData, 0, 0);
             
-            // Regresja wielomianowa w czystym JavaScript
-            function polynomialRegression(x, y, degree) {
-                const matrix = [];
-                for (let i = 0; i < x.length; i++) {
-                    matrix[i] = [];
-                    for (let j = 0; j <= degree; j++) {
-                        matrix[i][j] = Math.pow(x[i], j);
-                    }
-                }
-                
-                // Rozwiązanie metodą pseudoodwrotności macierzy
-                const transpose = (m) => m[0].map((_, i) => m.map(row => row[i]));
-                const multiply = (a, b) => a.map(row => b[0].map((_, j) => row.reduce((sum, el, k) => sum + el * b[k][j], 0)));
-                
-                const XT = transpose(matrix);
-                const XTX = multiply(XT, matrix);
-                const XTY = multiply(XT, y.map(v => [v]));
-                
-                function gaussianElimination(A, b) {
-                    const n = A.length;
-                    for (let i = 0; i < n; i++) {
-                        let maxRow = i;
-                        for (let k = i + 1; k < n; k++) {
-                            if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
-                                maxRow = k;
-                            }
-                        }
-                        [A[i], A[maxRow]] = [A[maxRow], A[i]];
-                        [b[i], b[maxRow]] = [b[maxRow], b[i]];
-                        
-                        for (let k = i + 1; k < n; k++) {
-                            const c = -A[k][i] / A[i][i];
-                            for (let j = i; j < n; j++) {
-                                A[k][j] += c * A[i][j];
-                            }
-                            b[k][0] += c * b[i][0];
-                        }
-                    }
-                    
-                    const x = new Array(n).fill(0);
-                    for (let i = n - 1; i >= 0; i--) {
-                        let sum = 0;
-                        for (let j = i + 1; j < n; j++) {
-                            sum += A[i][j] * x[j];
-                        }
-                        x[i] = (b[i][0] - sum) / A[i][i];
-                    }
-                    return x;
-                }
-                
-                return gaussianElimination(XTX, XTY);
-            }
-            
             function getColumn(data, canvasWidth, canvasHeight, x) {
                 let columnData = new Array(canvasHeight).fill(255);
                 for (let y = 0; y < canvasHeight; y++) {
@@ -304,6 +251,82 @@
                 return column1.map((value, index) => value + column2[index]);
             }
 
+            function polynomialRegression(x, y, degree) {
+    const n = x.length;
+    const X = [];
+    const Y = [];
+
+    // Tworzenie macierzy X (potęgi x)
+    for (let i = 0; i < n; i++) {
+        const row = [];
+        for (let j = 0; j <= degree; j++) {
+            row.push(Math.pow(x[i], j));
+        }
+        X.push(row);
+        Y.push([y[i]]);
+    }
+
+    // Funkcja do transponowania macierzy
+    const transpose = (matrix) => {
+        return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
+    };
+
+    // Funkcja do mnożenia macierzy
+    const multiply = (A, B) => {
+        const result = [];
+        for (let i = 0; i < A.length; i++) {
+            result[i] = [];
+            for (let j = 0; j < B[0].length; j++) {
+                result[i][j] = 0;
+                for (let k = 0; k < A[0].length; k++) {
+                    result[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+        return result;
+    };
+
+    // Funkcja do rozwiązywania układu równań liniowych za pomocą eliminacji Gaussa
+    function gaussianElimination(A, b) {
+        const n = A.length;
+        for (let i = 0; i < n; i++) {
+            let maxRow = i;
+            for (let k = i + 1; k < n; k++) {
+                if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
+                    maxRow = k;
+                }
+            }
+            [A[i], A[maxRow]] = [A[maxRow], A[i]];
+            [b[i], b[maxRow]] = [b[maxRow], b[i]];
+
+            for (let k = i + 1; k < n; k++) {
+                const c = -A[k][i] / A[i][i];
+                for (let j = i; j < n; j++) {
+                    A[k][j] += c * A[i][j];
+                }
+                b[k][0] += c * b[i][0];
+            }
+        }
+
+        const x = new Array(n).fill(0);
+        for (let i = n - 1; i >= 0; i--) {
+            let sum = 0;
+            for (let j = i + 1; j < n; j++) {
+                sum += A[i][j] * x[j];
+            }
+            x[i] = (b[i][0] - sum) / A[i][i];
+        }
+        return x;
+    }
+
+    // Obliczanie macierzy transponowanej i mnożenie
+    const XT = transpose(X);
+    const XTX = multiply(XT, X);
+    const XTY = multiply(XT, Y);
+
+    // Rozwiązywanie układu równań XTX * beta = XTY
+    return gaussianElimination(XTX, XTY);
+}
 
             
             for (let x = 0; x < canvas.width; x++) {
