@@ -176,10 +176,10 @@
         }
 
         function drawWhiteBlocks() {
-            ctx.filter = "none";
             const deg = parseInt(document.getElementById('degree').value);
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
+            ctx.filter = "none";
             const draggables = document.querySelectorAll(".draggable");
             
             draggables.forEach(draggable => {
