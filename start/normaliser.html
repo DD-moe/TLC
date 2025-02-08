@@ -232,50 +232,46 @@
                 return gaussianElimination(XTX, XTY);
             }
             
-            function processColumn(data, canvasWidth, canvasHeight, x, deg) {
-                let valuesX = [], valuesY = [], columnData = new Array(canvasHeight).fill(255);
-                
+            function getColumn(data, canvasWidth, canvasHeight, x) {
+                let columnData = new Array(canvasHeight).fill(255);
                 for (let y = 0; y < canvasHeight; y++) {
                     const index = (y * canvasWidth + x) * 4;
-                    const gray = data[index];
+                    columnData[y] = data[index]; // Pobranie wartości skali szarości
+                }
+                return columnData;
+            }
+
+            function processColumn(columnData, canvasHeight, deg) {
+                let valuesX = [], valuesY = [];
+
+                for (let y = 0; y < canvasHeight; y++) {
+                    const gray = columnData[y];
                     if (gray < 254) {
                         valuesX.push(y);
                         valuesY.push(gray);
                     }
                 }
-                
+
                 if (valuesX.length > 1) {
                     const coeffs = polynomialRegression(valuesX, valuesY, deg);
-                    
                     for (let y = 0; y < canvasHeight; y++) {
                         let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
                         columnData[y] = Math.min(255, Math.max(0, interpolated));
                     }
                 }
-                
+
                 return columnData;
             }
+
             
             for (let x = 0; x < canvas.width; x++) {
-                let valuesX = [], valuesY = [];
+                const column = getColumn(data, canvasWidth, canvasHeight, x);
+                const processedColumn = processColumn(column, canvasHeight, deg);
+
+
                 for (let y = 0; y < canvas.height; y++) {
                     const index = (y * canvas.width + x) * 4;
-                    const gray = data[index];
-                    if (gray < 254) {
-                        valuesX.push(y);
-                        valuesY.push(gray);
-                    }
-                }
-                
-                if (valuesX.length > 1) {
-                    const coeffs = polynomialRegression(valuesX, valuesY, deg);
-                    
-                    for (let y = 0; y < canvas.height; y++) {
-                        const index = (y * canvas.width + x) * 4;
-                        let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
-                        interpolated = Math.min(255, Math.max(0, interpolated));
-                        data[index] = data[index + 1] = data[index + 2] = interpolated;
-                    }
+                    data[index] = data[index + 1] = data[index + 2] = processedColumn[y];
                 }
             }
             
