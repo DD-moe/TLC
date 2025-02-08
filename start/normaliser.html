@@ -191,8 +191,8 @@
                             let vn = reducedData[i];
                             let ni = i;
                             
-                            // Sprawdź, czy różnica jest dokładnie 1
-                            if (Math.abs(vp - vn) === 1) {
+                            // Sprawdź, czy różnica jest dokładnie 1 i wartości rosną
+                            if (vn - vp === 1) {
                                 changes.push({ vp, vn, pi, ni });
                             }
                             
