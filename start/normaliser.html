@@ -176,7 +176,7 @@
         }
 
         function drawWhiteBlocks() {
-            const deg = parseFloat(document.getElementById('degree').value);
+            const deg = parseInt(document.getElementById('degree').value);
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
             const draggables = document.querySelectorAll(".draggable");
