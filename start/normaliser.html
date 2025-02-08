@@ -289,12 +289,15 @@
                 const mask = createMask(column);
                 const processedColumn = processColumn(column, mask, deg);
                 const difference = subtractColumns(column, processedColumn);
-                const processedDiference = processColumn(difference, mask, deg);
+                const processedDiference = processColumn(difference, mask, deg + 1);
                 const final = addColumns(processedColumn, processedDiference);
+                const postDiference = subtractColumns(column, final);
+                const processedPost = processColumn(postDiference, mask, deg + 2);
+                const out = addColumns(processedPost, final);
 
                 for (let y = 0; y < canvas.height; y++) {
                     const index = (y * canvas.width + x) * 4;
-                    data[index] = data[index + 1] = data[index + 2] = final[y];
+                    data[index] = data[index + 1] = data[index + 2] = out[y];
                 }
             }
             
