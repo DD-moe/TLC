@@ -310,7 +310,7 @@
                 const column = getColumn(data, canvas.width, canvas.height, x);
                 const mask = createMask(column);
                 const processedColumn = processColumn(column, mask, deg);
-                const difference = subtractColumns(column, processedColumn);
+                const difference = subtractColumns(processedColumn, column);
 
                 /*
                 const processedDiference = processColumn(difference, mask, deg + 1);
