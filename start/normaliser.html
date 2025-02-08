@@ -230,29 +230,52 @@
                 return column1.map((value, index) => value + column2[index]);
             }
 
-            function fillMissingDataUsingIntervals(data, mask) {
-                if (data.length !== mask.length) {
-                    throw new Error("Tablice muszą mieć ten sam rozmiar");
+            function fillMissingDataUsingIntervals(data, intervals) {
+                // Helper function for linear regression
+                function linearRegression(x, y) {
+                    const n = x.length;
+                    const sumX = x.reduce((acc, val) => acc + val, 0);
+                    const sumY = y.reduce((acc, val) => acc + val, 0);
+                    const sumXY = x.reduce((acc, val, i) => acc + val * y[i], 0);
+                    const sumX2 = x.reduce((acc, val) => acc + val * val, 0);
+
+                    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+                    const intercept = (sumY - slope * sumX) / n;
+
+                    return (x) => slope * x + intercept;
                 }
 
-                let intervals = findIntervals(mask);
-                
+                // Go through intervals
                 intervals.forEach(interval => {
-                    let [start, end] = interval;
+                    if (interval.typ === false) {
+                    // Check if previous and next intervals are true
+                    const prevInterval = intervals[intervals.indexOf(interval) - 1];
+                    const nextInterval = intervals[intervals.indexOf(interval) + 1];
                     
-                    if (start === end) return;  // Jeśli cały przedział ma tylko jeden element, nie musimy nic robić
-
-                    // Regresja lokalna dla brakujących danych (false w masce)
-                    for (let i = start; i <= end; i++) {
-                    if (!mask[i]) {
-                        // Wykorzystujemy regresję liniową na podstawie dwóch sąsiednich punktów true
-                        let prev = findPreviousValidValue(data, i);
-                        let next = findNextValidValue(data, i);
+                    if (prevInterval && nextInterval && prevInterval.typ === true && nextInterval.typ === true) {
+                        // Get data from true intervals for linear regression
+                        const xData = [];
+                        const yData = [];
                         
-                        if (prev !== null && next !== null) {
-                        // Prosta regresja liniowa (interpolacja) między sąsiednimi wartościami
-                        data[i] = prev + (next - prev) * (i - findIndexOf(mask, prev)) / (findIndexOf(mask, next) - findIndexOf(mask, prev));
+                        // Collect data points from previous and next intervals
+                        for (let i = prevInterval.start; i <= prevInterval.end; i++) {
+                        xData.push(i);
+                        yData.push(data[i]);
                         }
+                        for (let i = nextInterval.start; i <= nextInterval.end; i++) {
+                        xData.push(i);
+                        yData.push(data[i]);
+                        }
+                        
+                        // Perform linear regression
+                        const predict = linearRegression(xData, yData);
+
+                        // Fill missing values for the false interval
+                        for (let i = interval.start; i <= interval.end; i++) {
+                        data[i] = predict(i); // Use the linear regression to predict values
+                        }
+                    } else {
+                        throw new Error("Intervals adjacent to false interval must be of type true.");
                     }
                     }
                 });
@@ -261,54 +284,40 @@
                 }
 
                 function findIntervals(mask) {
-                let intervals = [];
-                let inInterval = false;
-                let start = 0;
-                
-                for (let i = 0; i < mask.length; i++) {
-                    if (mask[i] && !inInterval) {
-                    start = i;
-                    inInterval = true;
+                    let intervals = [];
+                    let currentType = mask[0];
+                    let startIndex = 0;
+
+                    for (let i = 1; i < mask.length; i++) {
+                        if (mask[i] !== currentType) {  // Typ się zmienia
+                            intervals.push({
+                                typ: currentType,
+                                start: startIndex,
+                                end: i - 1
+                            });
+                            currentType = mask[i];
+                            startIndex = i;
+                        }
                     }
-                    if (!mask[i] && inInterval) {
-                    intervals.push([start, i - 1]);
-                    inInterval = false;
-                    }
-                }
-                // Zakończenie ostatniego przedziału
-                if (inInterval) intervals.push([start, mask.length - 1]);
-                
-                return intervals;
+
+                    // Dodajemy ostatni zakres
+                    intervals.push({
+                        typ: currentType,
+                        start: startIndex,
+                        end: mask.length - 1
+                    });
+
+                    return intervals;
                 }
 
-                function findPreviousValidValue(data, index) {
-                for (let i = index - 1; i >= 0; i--) {
-                    if (data[i] !== null && data[i] !== undefined) {
-                    return data[i];
-                    }
-                }
-                return null;
-                }
 
-                function findNextValidValue(data, index) {
-                for (let i = index + 1; i < data.length; i++) {
-                    if (data[i] !== null && data[i] !== undefined) {
-                    return data[i];
-                    }
-                }
-                return null;
-                }
-
-                function findIndexOf(mask, value) {
-                return mask.indexOf(value);
-                }
 
             
             for (let x = 0; x < canvas.width; x++) {
                 const column = getColumn(data, canvas.width, canvas.height, x);
                 const mask = createMask(column);
-                const processedColumn = fillMissingDataUsingIntervals(column, mask)
-                const difference = subtractColumns(processedColumn, column);
+                const intervals = findIntervals(mask);
+                const processedColumn = fillMissingDataUsingIntervals(column, intervals);
 
                 /*
                 const processedDiference = processColumn(difference, mask, deg + 1);
