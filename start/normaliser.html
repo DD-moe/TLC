@@ -290,7 +290,7 @@
                 const processedColumn = processColumn(column, mask, deg);
                 const difference = subtractColumns(column, processedColumn);
 
-                if (x === 0) {
+                if (x === 128 || x === 256 || x === 384) {
                     console.log(difference);
                 }
                 /*
