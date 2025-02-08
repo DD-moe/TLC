@@ -1,0 +1,55 @@
+        function drawYellowBlocks() {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const draggables = document.querySelectorAll(".draggable");
+            
+            draggables.forEach(draggable => {
+                const rect = draggable.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                const y = Math.round((rect.top - canvasRect.top) / canvasRect.height * canvas.height);
+                const height = Math.round((rect.height) / canvasRect.height * canvas.height);
+
+                // Get image data from the area
+                const imageData = ctx.getImageData(0, y, canvas.width, height);
+                const reducedData = new Uint8ClampedArray(canvas.width); // Store 1px height data
+                
+                // Reduce height to 1 pixel (average Y-channel over height)
+                for (let x = 0; x < canvas.width; x++) {
+                    let sumY = 0;
+                    for (let row = 0; row < height; row++) {
+                        const index = (row * canvas.width + x) * 4;
+                        const r = imageData.data[index];
+                        const g = imageData.data[index + 1];
+                        const b = imageData.data[index + 2];
+                        const yChannel = 0.299 * r + 0.587 * g + 0.114 * b;
+                        sumY += yChannel;
+                    }
+                    const avgY = Math.round(sumY / height);
+                    reducedData[x] = avgY;
+                }
+
+                const changes = [];
+                let pi = 0; // Początkowy indeks pasa jednakowych wartości
+
+                for (let i = 1; i < canvas.width; i++) {
+                    if (Number.isInteger(reducedData[i]) && Number.isInteger(reducedData[i - 1])) {
+                        if (reducedData[i] !== reducedData[i - 1]) {
+                            let vp = reducedData[i - 1];
+                            let vn = reducedData[i];
+                            let ni = i;
+                            
+                            // Sprawdź, czy różnica jest dokładnie 1 i wartości rosną
+                            if (vn - vp === 1) {
+                                changes.push({ vp, vn, pi, ni });
+                            }
+                            
+                            // Zaktualizuj początkowy indeks dla następnego pasa
+                            pi = i;
+                        }
+                    }
+                }
+
+                console.log("Y-channel changes:", changes);
+
+            });
+        }

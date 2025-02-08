@@ -154,19 +154,14 @@
         function drawYellowBlocks() {
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
-            const draggables = document.querySelectorAll(".draggable");
+            const segmentHeight = Math.max(50, Math.round(canvas.height / Math.ceil(canvas.height / 50))); // Ok. 50px segmenty
             
-            let groupedChanges = new Map(); // Mapa wartości vp -> tablica punktów {x, y}
-
-            draggables.forEach(draggable => {
-                const rect = draggable.getBoundingClientRect();
-                const canvasRect = canvas.getBoundingClientRect();
-                const y = Math.round((rect.top - canvasRect.top) / canvasRect.height * canvas.height);
-                const height = Math.round(rect.height / canvasRect.height * canvas.height);
-
-                const imageData = ctx.getImageData(0, y, canvas.width, height);
+            for (let segY = 0; segY < canvas.height; segY += segmentHeight) {
+                const height = Math.min(segmentHeight, canvas.height - segY);
+                const imageData = ctx.getImageData(0, segY, canvas.width, height);
                 const reducedData = new Uint8ClampedArray(canvas.width);
                 
+                // Redukcja wysokości do 1 piksela
                 for (let x = 0; x < canvas.width; x++) {
                     let sumY = 0;
                     for (let row = 0; row < height; row++) {
@@ -177,9 +172,12 @@
                         const yChannel = 0.299 * r + 0.587 * g + 0.114 * b;
                         sumY += yChannel;
                     }
-                    reducedData[x] = Math.round(sumY / height);
+                    const avgY = Math.round(sumY / height);
+                    reducedData[x] = avgY;
                 }
-
+                
+                // Wykrywanie gradientów światła
+                const changes = [];
                 let pi = 0;
                 for (let i = 1; i < canvas.width; i++) {
                     if (Number.isInteger(reducedData[i]) && Number.isInteger(reducedData[i - 1])) {
@@ -189,33 +187,27 @@
                             let ni = i;
                             
                             if (vn - vp === 1) {
-                                if (!groupedChanges.has(vp)) {
-                                    groupedChanges.set(vp, []);
-                                }
-                                groupedChanges.get(vp).push({ x: pi, y });
+                                changes.push({ vp, vn, pi, ni });
                             }
-                            
                             pi = i;
                         }
                     }
                 }
-            });
 
-            // Rysowanie czarnych linii
-            ctx.strokeStyle = "black";
-            ctx.lineWidth = 2;
-            
-            groupedChanges.forEach(points => {
-                ctx.beginPath();
-                points.sort((a, b) => a.x - b.x); // Sortowanie punktów po X
-                ctx.moveTo(points[0].x, points[0].y);
+                // Modyfikacja kanału alpha (przezroczystość)
+                for (let x = 0; x < canvas.width; x++) {
+                    let inGradient = changes.some(change => x >= change.pi && x < change.ni);
+                    for (let row = 0; row < height; row++) {
+                        const index = (row * canvas.width + x) * 4 + 3;
+                        if (!inGradient) {
+                            imageData.data[index] = 0; // Ustawienie pełnej przezroczystości
+                        }
+                    }
+                }
                 
-                points.forEach(({ x, y }) => {
-                    ctx.lineTo(x, y);
-                });
-                
-                ctx.stroke();
-            });
+                ctx.putImageData(imageData, 0, segY);
+                console.log(`Gradienty światła w segmencie ${segY}:`, changes);
+            }
         }
 
     </script>
