@@ -156,27 +156,49 @@
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
 
-            // Tworzenie pomocniczego canvas do zmniejszania
-            const tempCanvas = document.createElement("canvas");
-            document.body.appendChild(tempCanvas);
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = Math.ceil(canvas.height / 50);
-            const tempCtx = tempCanvas.getContext("2d");
+            // Tworzenie pomocniczego canvas do zmniejszania w osi Y
+            const tempCanvasY = document.createElement("canvas");
+            document.body.appendChild(tempCanvasY);
+            tempCanvasY.width = canvas.width;
+            tempCanvasY.height = Math.ceil(canvas.height / 50);
+            const tempCtxY = tempCanvasY.getContext("2d");
 
-            // Rysowanie oryginalnego obrazu na zmniejszonym canvasie
-            tempCtx.drawImage(canvas, 0, 0, canvas.width, tempCanvas.height);
+            // Rysowanie oryginalnego obrazu na zmniejszonym canvasie w osi Y
+            tempCtxY.drawImage(canvas, 0, 0, canvas.width, tempCanvasY.height);
 
-            // Utworzenie ImageBitmap (lepsza interpolacja)
-            const resizedImage = await createImageBitmap(tempCanvas, {
+            // Utworzenie ImageBitmap po pomniejszeniu w osi Y (lepsza interpolacja)
+            const resizedImageY = await createImageBitmap(tempCanvasY, {
                 resizeWidth: canvas.width,
                 resizeHeight: canvas.height,
                 resizeQuality: "high",
             });
 
-            // Czyszczenie oryginalnego canvas i rysowanie powiększonego obrazu
+            // Czyszczenie oryginalnego canvas i rysowanie powiększonego obrazu w osi Y
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(resizedImage, 0, 0);
+            ctx.drawImage(resizedImageY, 0, 0);
+
+            // Tworzenie pomocniczego canvas do zmniejszania w osi X
+            const tempCanvasX = document.createElement("canvas");
+            document.body.appendChild(tempCanvasX);
+            tempCanvasX.width = Math.ceil(canvas.width / 50);
+            tempCanvasX.height = canvas.height;
+            const tempCtxX = tempCanvasX.getContext("2d");
+
+            // Rysowanie obrazu na zmniejszonym canvasie w osi X
+            tempCtxX.drawImage(canvas, 0, 0, tempCanvasX.width, canvas.height);
+
+            // Utworzenie ImageBitmap po pomniejszeniu w osi X (lepsza interpolacja)
+            const resizedImageX = await createImageBitmap(tempCanvasX, {
+                resizeWidth: canvas.width,
+                resizeHeight: canvas.height,
+                resizeQuality: "high",
+            });
+
+            // Czyszczenie oryginalnego canvas i rysowanie powiększonego obrazu w osi X
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(resizedImageX, 0, 0);
         }
+
 
 
     </script>
