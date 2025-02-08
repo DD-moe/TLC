@@ -181,12 +181,23 @@
                     reducedData[x] = avgY;
                 }
 
-                // Find indices where values change between whole numbers
                 const changes = [];
+                let pi = 0; // Początkowy indeks pasa jednakowych wartości
+
                 for (let i = 1; i < canvas.width; i++) {
                     if (Number.isInteger(reducedData[i]) && Number.isInteger(reducedData[i - 1])) {
                         if (reducedData[i] !== reducedData[i - 1]) {
-                            changes.push({ vch: `${reducedData[i - 1]}->${reducedData[i]}`, i });
+                            let vp = reducedData[i - 1];
+                            let vn = reducedData[i];
+                            let ni = i;
+                            
+                            // Sprawdź, czy różnica jest dokładnie 1
+                            if (Math.abs(vp - vn) === 1) {
+                                changes.push({ vp, vn, pi, ni });
+                            }
+                            
+                            // Zaktualizuj początkowy indeks dla następnego pasa
+                            pi = i;
                         }
                     }
                 }
