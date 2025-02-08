@@ -233,17 +233,74 @@
 
             function fillMissingDataUsingIntervals(data, intervals) {
                 // Helper function for linear regression
-                function linearRegression(x, y) {
+                function polynomialRegression(x, y, degree) {
                     const n = x.length;
-                    const sumX = x.reduce((acc, val) => acc + val, 0);
-                    const sumY = y.reduce((acc, val) => acc + val, 0);
-                    const sumXY = x.reduce((acc, val, i) => acc + val * y[i], 0);
-                    const sumX2 = x.reduce((acc, val) => acc + val * val, 0);
+                    const X = [];
+                    const Y = [...y];
 
-                    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-                    const intercept = (sumY - slope * sumX) / n;
+                    // Tworzymy macierz X zawierającą potęgi x
+                    for (let i = 0; i < n; i++) {
+                        X[i] = [];
+                        for (let j = 0; j <= degree; j++) {
+                            X[i].push(Math.pow(x[i], j));
+                        }
+                    }
 
-                    return (x) => slope * x + intercept;
+                    // Rozwiązujemy równanie macierzowe X^T * X * B = X^T * Y, aby znaleźć współczynniki B
+                    const XT = transpose(X);
+                    const XTX = multiplyMatrices(XT, X);
+                    const XTY = multiplyMatrices(XT, Y.map(v => [v]));
+                    const B = gaussianElimination(XTX, XTY);
+
+                    // Funkcja zwracająca wartości przewidywane przez model
+                    return (xVal) => B.reduce((sum, coeff, i) => sum + coeff * Math.pow(xVal, i), 0);
+                }
+
+                // Pomocnicza funkcja transponowania macierzy
+                function transpose(A) {
+                    return A[0].map((_, colIndex) => A.map(row => row[colIndex]));
+                }
+
+                // Pomocnicza funkcja mnożenia macierzy
+                function multiplyMatrices(A, B) {
+                    return A.map(row =>
+                        B[0].map((_, colIndex) =>
+                            row.reduce((sum, val, rowIndex) => sum + val * B[rowIndex][colIndex], 0)
+                        )
+                    );
+                }
+
+                // Rozwiązywanie układu równań metodą eliminacji Gaussa
+                function gaussianElimination(A, B) {
+                    const n = A.length;
+                    const M = A.map((row, i) => [...row, B[i][0]]);
+
+                    for (let i = 0; i < n; i++) {
+                        let maxRow = i;
+                        for (let k = i + 1; k < n; k++) {
+                            if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) {
+                                maxRow = k;
+                            }
+                        }
+                        [M[i], M[maxRow]] = [M[maxRow], M[i]];
+
+                        for (let k = i + 1; k < n; k++) {
+                            const factor = M[k][i] / M[i][i];
+                            for (let j = i; j <= n; j++) {
+                                M[k][j] -= factor * M[i][j];
+                            }
+                        }
+                    }
+
+                    const X = Array(n).fill(0);
+                    for (let i = n - 1; i >= 0; i--) {
+                        let sum = M[i][n];
+                        for (let j = i + 1; j < n; j++) {
+                            sum -= M[i][j] * X[j];
+                        }
+                        X[i] = sum / M[i][i];
+                    }
+                    return X;
                 }
 
                 // Go through intervals
@@ -269,7 +326,7 @@
                         }
                         
                         // Perform linear regression
-                        const predict = linearRegression(xData, yData);
+                        const predict = polynomialRegression(xData, yData, deg);
 
                         // Fill missing values for the false interval
                         for (let i = interval.start; i <= interval.end; i++) {
