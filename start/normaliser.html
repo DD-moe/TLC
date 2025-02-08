@@ -155,11 +155,9 @@
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
 
-            // Pobranie oryginalnego obrazu z canvas
-            const originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
             // Tworzenie pomocniczego canvas do zmniejszania
             const tempCanvas = document.createElement("canvas");
+            document.appendChild(tempCanvas);
             tempCanvas.width = canvas.width;
             tempCanvas.height = Math.ceil(canvas.height / 50);
             const tempCtx = tempCanvas.getContext("2d");
