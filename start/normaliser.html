@@ -304,7 +304,7 @@
 
                 for (let y = 0; y < canvas.height; y++) {
                     const index = (y * canvas.width + x) * 4;
-                    data[index] = data[index + 1] = data[index + 2] = difference[y];
+                    data[index] = data[index + 1] = data[index + 2] = column[y];
                 }
             }
             
