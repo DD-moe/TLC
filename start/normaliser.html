@@ -308,9 +308,9 @@
             
             for (let x = 0; x < canvas.width; x++) {
                 const column = getColumn(data, canvas.width, canvas.height, x);
-                //const mask = createMask(column);
-                //const processedColumn = processColumn(column, mask, deg);
-                //const difference = subtractColumns(column, processedColumn);
+                const mask = createMask(column);
+                const processedColumn = processColumn(column, mask, deg);
+                const difference = subtractColumns(column, processedColumn);
 
                 /*
                 const processedDiference = processColumn(difference, mask, deg + 1);
@@ -322,7 +322,7 @@
 
                 for (let y = 0; y < canvas.height; y++) {
                     const index = (y * canvas.width + x) * 4;
-                    data[index] = data[index + 1] = data[index + 2] = column[y];
+                    data[index] = data[index + 1] = data[index + 2] = difference[y];
                 }
             }
             
