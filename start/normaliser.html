@@ -214,27 +214,6 @@
                 return columnData.map(value => value < 254);
             }
 
-            function processColumn(columnData, mask, deg) {
-                let valuesX = [], valuesY = [];
-
-                for (let y = 0; y < columnData.length; y++) {
-                    if (mask[y]) {
-                        valuesX.push(y);
-                        valuesY.push(columnData[y]);
-                    }
-                }
-
-                if (valuesX.length > 1) {
-                    const coeffs = polynomialRegression(valuesX, valuesY, deg);
-                    for (let y = 0; y < columnData.length; y++) {
-                        let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
-                        columnData[y] = Math.min(255, Math.max(0, interpolated));
-                    }
-                }
-
-                return columnData;
-            }
-
             function subtractColumns(column1, column2) {
                 if (column1.length !== column2.length) {
                     throw new Error("Columns must have the same length");
@@ -251,88 +230,84 @@
                 return column1.map((value, index) => value + column2[index]);
             }
 
-            function polynomialRegression(x, y, degree) {
-    const n = x.length;
-    const X = [];
-    const Y = [];
-
-    // Tworzenie macierzy X (potęgi x)
-    for (let i = 0; i < n; i++) {
-        const row = [];
-        for (let j = 0; j <= degree; j++) {
-            row.push(Math.pow(x[i], j));
-        }
-        X.push(row);
-        Y.push([y[i]]);
-    }
-
-    // Funkcja do transponowania macierzy
-    const transpose = (matrix) => {
-        return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
-    };
-
-    // Funkcja do mnożenia macierzy
-    const multiply = (A, B) => {
-        const result = [];
-        for (let i = 0; i < A.length; i++) {
-            result[i] = [];
-            for (let j = 0; j < B[0].length; j++) {
-                result[i][j] = 0;
-                for (let k = 0; k < A[0].length; k++) {
-                    result[i][j] += A[i][k] * B[k][j];
+            function fillMissingDataUsingIntervals(data, mask) {
+                if (data.length !== mask.length) {
+                    throw new Error("Tablice muszą mieć ten sam rozmiar");
                 }
-            }
-        }
-        return result;
-    };
 
-    // Funkcja do rozwiązywania układu równań liniowych za pomocą eliminacji Gaussa
-    function gaussianElimination(A, b) {
-        const n = A.length;
-        for (let i = 0; i < n; i++) {
-            let maxRow = i;
-            for (let k = i + 1; k < n; k++) {
-                if (Math.abs(A[k][i]) > Math.abs(A[maxRow][i])) {
-                    maxRow = k;
+                let intervals = findIntervals(mask);
+                
+                intervals.forEach(interval => {
+                    let [start, end] = interval;
+                    
+                    if (start === end) return;  // Jeśli cały przedział ma tylko jeden element, nie musimy nic robić
+
+                    // Regresja lokalna dla brakujących danych (false w masce)
+                    for (let i = start; i <= end; i++) {
+                    if (!mask[i]) {
+                        // Wykorzystujemy regresję liniową na podstawie dwóch sąsiednich punktów true
+                        let prev = findPreviousValidValue(data, i);
+                        let next = findNextValidValue(data, i);
+                        
+                        if (prev !== null && next !== null) {
+                        // Prosta regresja liniowa (interpolacja) między sąsiednimi wartościami
+                        data[i] = prev + (next - prev) * (i - findIndexOf(mask, prev)) / (findIndexOf(mask, next) - findIndexOf(mask, prev));
+                        }
+                    }
+                    }
+                });
+
+                return data;
                 }
-            }
-            [A[i], A[maxRow]] = [A[maxRow], A[i]];
-            [b[i], b[maxRow]] = [b[maxRow], b[i]];
 
-            for (let k = i + 1; k < n; k++) {
-                const c = -A[k][i] / A[i][i];
-                for (let j = i; j < n; j++) {
-                    A[k][j] += c * A[i][j];
+                function findIntervals(mask) {
+                let intervals = [];
+                let inInterval = false;
+                let start = 0;
+                
+                for (let i = 0; i < mask.length; i++) {
+                    if (mask[i] && !inInterval) {
+                    start = i;
+                    inInterval = true;
+                    }
+                    if (!mask[i] && inInterval) {
+                    intervals.push([start, i - 1]);
+                    inInterval = false;
+                    }
                 }
-                b[k][0] += c * b[i][0];
-            }
-        }
+                // Zakończenie ostatniego przedziału
+                if (inInterval) intervals.push([start, mask.length - 1]);
+                
+                return intervals;
+                }
 
-        const x = new Array(n).fill(0);
-        for (let i = n - 1; i >= 0; i--) {
-            let sum = 0;
-            for (let j = i + 1; j < n; j++) {
-                sum += A[i][j] * x[j];
-            }
-            x[i] = (b[i][0] - sum) / A[i][i];
-        }
-        return x;
-    }
+                function findPreviousValidValue(data, index) {
+                for (let i = index - 1; i >= 0; i--) {
+                    if (data[i] !== null && data[i] !== undefined) {
+                    return data[i];
+                    }
+                }
+                return null;
+                }
 
-    // Obliczanie macierzy transponowanej i mnożenie
-    const XT = transpose(X);
-    const XTX = multiply(XT, X);
-    const XTY = multiply(XT, Y);
+                function findNextValidValue(data, index) {
+                for (let i = index + 1; i < data.length; i++) {
+                    if (data[i] !== null && data[i] !== undefined) {
+                    return data[i];
+                    }
+                }
+                return null;
+                }
 
-    // Rozwiązywanie układu równań XTX * beta = XTY
-    return gaussianElimination(XTX, XTY);
-}
+                function findIndexOf(mask, value) {
+                return mask.indexOf(value);
+                }
 
             
             for (let x = 0; x < canvas.width; x++) {
                 const column = getColumn(data, canvas.width, canvas.height, x);
                 const mask = createMask(column);
-                const processedColumn = processColumn(column, mask, deg);
+                const processedColumn = fillMissingDataUsingIntervals(column, mask)
                 const difference = subtractColumns(processedColumn, column);
 
                 /*
