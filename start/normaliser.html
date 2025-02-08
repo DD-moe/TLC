@@ -203,6 +203,19 @@
                 }
 
                 console.log("Y-channel changes:", changes);
+                
+                const ctx = canvas.getContext("2d");
+                let toggleColor = true;
+                changes.forEach(({ pi, ni, vp }) => {
+                    let y = vp * 10; // Przykładowa wysokość w zależności od wartości vp
+                    let height = 10; // Stała wysokość segmentu
+                    let color = toggleColor ? "red" : "green";
+                    ctx.fillStyle = color;
+                    ctx.fillRect(pi, y, ni - pi, height);
+                    toggleColor = !toggleColor;
+                });
+
+
             });
         }
     </script>
