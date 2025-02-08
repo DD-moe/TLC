@@ -266,17 +266,35 @@
                 return columnData;
             }
 
+            function subtractColumns(column1, column2) {
+                if (column1.length !== column2.length) {
+                    throw new Error("Columns must have the same length");
+                }
+
+                return column1.map((value, index) => value - column2[index]);
+            }
+
+            function addColumns(column1, column2) {
+                if (column1.length !== column2.length) {
+                    throw new Error("Columns must have the same length");
+                }
+
+                return column1.map((value, index) => value + column2[index]);
+            }
+
 
             
             for (let x = 0; x < canvas.width; x++) {
                 const column = getColumn(data, canvas.width, canvas.height, x);
                 const mask = createMask(column);
                 const processedColumn = processColumn(column, mask, deg);
-
+                const difference = subtractColumns(column, processedColumn);
+                const processedDiference = processColumn(difference, mask, deg);
+                const final = addColumns(processedColumn, processedDiference);
 
                 for (let y = 0; y < canvas.height; y++) {
                     const index = (y * canvas.width + x) * 4;
-                    data[index] = data[index + 1] = data[index + 2] = processedColumn[y];
+                    data[index] = data[index + 1] = data[index + 2] = final[y];
                 }
             }
             
