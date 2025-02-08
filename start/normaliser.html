@@ -258,10 +258,8 @@
                 if (valuesX.length > 1) {
                     const coeffs = polynomialRegression(valuesX, valuesY, deg);
                     for (let y = 0; y < columnData.length; y++) {
-                        if (mask[y]) {
-                            let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
-                            columnData[y] = Math.min(255, Math.max(0, interpolated));
-                        }
+                        let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
+                        columnData[y] = Math.min(255, Math.max(0, interpolated));
                     }
                 }
 
