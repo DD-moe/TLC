@@ -289,6 +289,10 @@
                 const mask = createMask(column);
                 const processedColumn = processColumn(column, mask, deg);
                 const difference = subtractColumns(column, processedColumn);
+
+                if (x = 0) {
+                    console.log(difference);
+                }
                 /*
                 const processedDiference = processColumn(difference, mask, deg + 1);
                 const final = addColumns(processedColumn, processedDiference);
