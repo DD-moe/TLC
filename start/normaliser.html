@@ -255,13 +255,27 @@
                 
                 return columnData;
             }
-
+            
             for (let x = 0; x < canvas.width; x++) {
-                const columnData = processColumn(data, canvas.width, canvas.height, x, deg);
-                
+                let valuesX = [], valuesY = [];
                 for (let y = 0; y < canvas.height; y++) {
                     const index = (y * canvas.width + x) * 4;
-                    newData[index] = newData[index + 1] = newData[index + 2] = columnData[y];
+                    const gray = data[index];
+                    if (gray < 254) {
+                        valuesX.push(y);
+                        valuesY.push(gray);
+                    }
+                }
+                
+                if (valuesX.length > 1) {
+                    const coeffs = polynomialRegression(valuesX, valuesY, deg);
+                    
+                    for (let y = 0; y < canvas.height; y++) {
+                        const index = (y * canvas.width + x) * 4;
+                        let interpolated = coeffs.reduce((sum, c, i) => sum + c * Math.pow(y, i), 0);
+                        interpolated = Math.min(255, Math.max(0, interpolated));
+                        data[index] = data[index + 1] = data[index + 2] = interpolated;
+                    }
                 }
             }
             
