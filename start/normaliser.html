@@ -205,9 +205,7 @@
                 console.log("Y-channel changes:", changes);
 
                 let toggleColor = true;
-                changes.forEach(({ pi, ni, vp }) => {
-                    let y = vp * 10; // Przykładowa wysokość w zależności od wartości vp
-                    let height = 10; // Stała wysokość segmentu
+                changes.forEach(({ pi, ni}) => {
                     let color = toggleColor ? "red" : "green";
                     ctx.fillStyle = color;
                     ctx.fillRect(pi, y, ni - pi, height);
