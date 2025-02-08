@@ -308,14 +308,10 @@
             
             for (let x = 0; x < canvas.width; x++) {
                 const column = getColumn(data, canvas.width, canvas.height, x);
-                const mask = createMask(column);
-                const processedColumn = processColumn(column, mask, deg);
-                const difference = subtractColumns(column, processedColumn);
+                //const mask = createMask(column);
+                //const processedColumn = processColumn(column, mask, deg);
+                //const difference = subtractColumns(column, processedColumn);
 
-                if (x === 128 || x === 256 || x === 384) {
-                    console.log(column);
-                    console.log(processedColumn);
-                }
                 /*
                 const processedDiference = processColumn(difference, mask, deg + 1);
                 const final = addColumns(processedColumn, processedDiference);
