@@ -31,14 +31,16 @@
     </style>
 </head>
 <body>
-      <div class="controls">
-    <input type="file" webkitdirectory directory multiple />
-    <button id="deleteFiles">Usuń pliki</button>
-    <a href="unwarp.html">Unwarp</a>
-        </div>
+    <div class="controls">
+        <input type="file" id="dirPicker" webkitdirectory directory multiple>
+        <input type="file" id="filePicker" multiple>
+        <button id="deleteFiles">Usuń pliki</button>
+        <a href="unwarp.html">Unwarp</a>
+    </div>
     <canvas></canvas>
     <script>
-        const fileInput = document.querySelector('input[type="file"]');
+        const dirInput = document.getElementById('dirPicker');
+        const fileInput = document.getElementById('filePicker');
         const deleteButton = document.getElementById('deleteFiles');
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
@@ -107,6 +109,7 @@
             }
         }
 
+        dirInput.addEventListener('change', (e) => processFiles(e.target.files));
         fileInput.addEventListener('change', (e) => processFiles(e.target.files));
         deleteButton.addEventListener('click', deleteAllFiles);
     </script>
