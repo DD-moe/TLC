@@ -25,7 +25,7 @@ function saveToIndexedDB(dataURL, key) {
         store.put(dataURL, key);
 
         transaction.oncomplete = function () {
-            alert("Image saved to IndexedDB as 'warped'");
+            alert(`Image saved to IndexedDB as '${key}`);
         };
 
         transaction.onerror = function () {

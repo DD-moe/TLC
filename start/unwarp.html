@@ -110,9 +110,9 @@
     </div>
 
     <div class="controls">
-        <button id="unwarpBtn">Unwarp</button>
-        <button id="reunwarpBtn">ReUnwarp</button>
-        <button id="internalizeBtn">Internalize</button>
+        <button id="unwarpBtn" title="wyprostuj i przytnij obraz">✂⤢</button>
+        <button id="reunwarpBtn" title="przerzuć obraz do płutna przed prostowaniem">↩⤣</button>
+        <button id="internalizeBtn" title="zapisz przycięty obraz do pamięci wewnętrznej aplikacji">💾📦</button>
         <!-- datapush elementy -->
         <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
         <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
@@ -313,8 +313,13 @@
         }
 
         document.getElementById("internalizeBtn").addEventListener("click", () => {
-            const dataURL = lastCanvas.toDataURL(`image/png`);  // Use selected format
-            saveToIndexedDB(dataURL, 'warped');
+            if (lastCanvas) {
+                const dataURL = lastCanvas.toDataURL(`image/png`);  // Use selected format
+                saveToIndexedDB(dataURL, 'warped');                
+            }
+            else{
+                alert('Unwarp image first');
+            }
         });
 
     </script>
