@@ -100,7 +100,7 @@
         <a href="unwarp.html">→ Unwarp</a>
         <!-- stałe elementy -->
     </div>
-    <canvas></canvas>
+    <canvas id="canvas"></canvas>
     <script src="datapush.js"></script>
     <script>
         // datapush variables
@@ -111,7 +111,7 @@
         const dirInput = document.getElementById('dirPicker');
         const fileInput = document.getElementById('filePicker');
         const deleteButton = document.getElementById('deleteFiles');
-        const canvas = document.querySelector('canvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const console = document.querySelector('console');
         let sumImageData = null;
