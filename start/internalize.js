@@ -25,11 +25,11 @@ function saveToIndexedDB(dataURL, key) {
         store.put(dataURL, key);
 
         transaction.oncomplete = function () {
-            alert(`Image saved to IndexedDB as '${key}`);
+            alert(`data saved to IndexedDB as '${key}`);
         };
 
         transaction.onerror = function () {
-            alert("Error saving image to IndexedDB.");
+            alert("Error saving data to IndexedDB.");
         };
     };
 
@@ -62,7 +62,7 @@ async function getImageUrlFromIndexedDB(dbName, storeName, key) {
             const getRequest = store.get(key);
 
             getRequest.onsuccess = () => resolve(getRequest.result || null);
-            getRequest.onerror = () => reject("Failed to retrieve image URL.");
+            getRequest.onerror = () => reject("Failed to retrieve data URL.");
         };
 
         request.onerror = () => reject("Failed to open IndexedDB.");
