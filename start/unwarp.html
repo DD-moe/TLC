@@ -8,17 +8,8 @@
     <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
     <!-- warning: loading OpenCV can take some time. Load asynchronously -->
     <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
+    <link rel="stylesheet" href="pushdata.css">    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            display: box;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
         .canvas-container {
             position: relative;
             width: 100%;
@@ -26,19 +17,13 @@
             background-color: #fff;
             border: 1px solid black;
         }
+
         #canvas {
             width: 100%;
             height: 100%;
             position: absolute;
         }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap; /* Allow items to wrap to the next line */
-            max-width: 100%; /* Ensure it doesn't overflow */
-            box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
-        }
+
         .target {
             width: 50%;
             height: 50%;
@@ -89,6 +74,29 @@
 </head>
 <body>
 
+    <script>
+        // starter script
+        function setBodyClassBasedOnScreenSize() {
+            const dpi = window.devicePixelRatio || 1;
+            const screenWidthInches = (window.innerWidth / dpi) / 96; // 96 dpi as standard
+            const screenHeightInches = (window.innerHeight / dpi) / 96;
+            const screenDiagonalInches = Math.sqrt(Math.pow(screenWidthInches, 2) + Math.pow(screenHeightInches, 2));
+            const screenDiagonalMM = screenDiagonalInches * 25.4; // Convert inches to millimeters
+            
+            document.body.classList.remove("small-screen", "medium-screen", "large-screen");
+            
+            if (screenDiagonalMM < 180) { 
+                document.body.classList.add("small-screen");
+            } else if (screenDiagonalMM >= 180 && screenDiagonalMM < 330) { 
+                document.body.classList.add("medium-screen");
+            } else {
+                document.body.classList.add("large-screen");
+            }
+        }
+        window.onresize = setBodyClassBasedOnScreenSize;
+        setBodyClassBasedOnScreenSize();
+    </script>
+
     <div class="canvas-container" id="cfc">
         <canvas id="canvas"></canvas>
         <div class="container">
@@ -104,19 +112,31 @@
     <div class="controls">
         <button id="unwarpBtn">Unwarp</button>
         <button id="reunwarpBtn">ReUnwarp</button>
-        <select id="fileType">
+        <button id="internalizeBtn">Internalize</button>
+        <!-- datapush elementy -->
+        <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
+        <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
+        <select id="fileType" title="Wybierz format zapisu obrazu">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
         </select>
-        <button id="downloadBtn">Download</button>
-        <button id="copyBtn">Copy</button>
-        <button id="shareBtn">Share</button>
-        <button id="internalizeBtn">Internalize</button>
-        <input type="file" id="imageInput" accept="image/*">
+        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
+        <button id="DirdownloadBtn" title="zapisz obraz jako plik na dysku">📂💾</button>
+        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
+        <button id="shareBtn" title="Udostępnij obraz">📋</button>
+        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+        <!-- datapush elementy -->        
         <a href="normaliser.html">→ Normalise</a>
         <a href="uploader.html">← Upload</a>
     </div>
+         <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->        
     <script>
+        // datapush variables
+        const panel_canvas = document.getElementById('canvas');
+        const panel_ctx = panel_canvas.getContext('2d');
+        const selectedFormat = document.getElementById("fileType");
+        // datapush variables
+
         // variables
         const warpable = true;
         const renderDirections = ["nw", "n", "ne", "w", "e", "sw", "s", "se"];
@@ -309,22 +329,12 @@
             return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
         }
 
-
-            // Obsługa załadowania obrazu
-        document.getElementById("imageInput").addEventListener("change", (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    loadImageToCanvas(file);
-                }
-            });
-
-
         document.getElementById("internalizeBtn").addEventListener("click", () => {
             const dataURL = lastCanvas.toDataURL(`image/png`);  // Use selected format
             saveToIndexedDB(dataURL);
         });
 
-                // Function to save to IndexedDB
+        // Function to save to IndexedDB
         function saveToIndexedDB(dataURL) {
             const dbName = "TLC";
             const storeName = "data";
@@ -351,93 +361,6 @@
                 alert("Error saving to IndexedDB.");
             };
         }
-
-
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
-            
-            // Ensure lastCanvas is valid
-            if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
-                console.error('Canvas element is not available.');
-                return;
-            }
-
-            let imageURL;
-            if (selectedFormat === 'jpeg') {
-                // JPG format requires a quality parameter (0 to 1)
-                imageURL = lastCanvas.toDataURL('image/jpeg', 1.0);  // Using 1.0 for best quality
-            } else {
-                imageURL = lastCanvas.toDataURL(`image/${selectedFormat}`);  // Use selected format
-            }
-
-            // Create a link element for downloading
-            const link = document.createElement('a');
-            link.href = imageURL;
-            link.download = `canvas_image.${selectedFormat}`;  // Name of the file
-            link.click();  // Trigger the download
-        });
-
-
-        document.getElementById('copyBtn').addEventListener('click', async () => {
-            const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
-            
-            // Ensure lastCanvas is valid
-            if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
-                console.error('Canvas element is not available.');
-                return;
-            }
-
-            let imageBlob;
-            imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/png`));
-
-
-            // Create a ClipboardItem and copy it to the clipboard
-            const clipboardItem = new ClipboardItem({
-                'image/png': imageBlob, // You can modify this to 'image/jpeg' or 'image/jpg' if needed
-            });
-
-            try {
-                await navigator.clipboard.write([clipboardItem]);
-                console.log('Image copied to clipboard!');
-            } catch (error) {
-                console.error('Failed to copy image to clipboard', error);
-            }
-        });
-
-        document.getElementById('shareBtn').addEventListener('click', async () => {
-            const selectedFormat = document.getElementById("fileType").value;  // Get selected format (png/jpg)
-            
-            // Ensure lastCanvas is valid
-            if (!lastCanvas || !(lastCanvas instanceof HTMLCanvasElement)) {
-                console.error('Canvas element is not available.');
-                return;
-            }
-
-            let imageBlob;
-            if (selectedFormat === 'jpeg') {
-                // JPG format requires a quality parameter (0 to 1)
-                imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), 'image/jpeg', 1.0));
-            } else {
-                imageBlob = await new Promise(resolve => lastCanvas.toBlob(blob => resolve(blob), `image/${selectedFormat}`));
-            }
-
-            // If the Share API is available
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        files: [new File([imageBlob], `canvas_image.${selectedFormat}`, { type: `image/${selectedFormat}` })],
-                        title: 'Canvas Image',
-                        text: 'Check out this canvas image I made!',
-                    });
-                    console.log('Image shared successfully!');
-                } catch (error) {
-                    console.error('Error sharing the image:', error);
-                }
-            } else {
-                console.log('Share API is not available on this device.');
-            }
-        });
-
     </script>
 
 </body>

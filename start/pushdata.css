@@ -17,12 +17,10 @@ body {
     box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
     border: solid black 1px;
     background-color: azure;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
-canvas {
-    width: 100%;
-    height: auto;
-    display: block;
-}
+
 /* Mały ekran (np. telefony) */
 body.small-screen button, 
 body.small-screen input, 
