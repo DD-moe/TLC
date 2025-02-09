@@ -68,6 +68,7 @@
         <button onclick="flipHorizontal()" title="przerzuć w poziomie">⇄</button>
         <button onclick="drawWhiteBlocks()" title="ujednolić oświetlenie">≋</button>
         <button onclick="makeGray()" title="przerzuć do skali szarości">░█</button>
+        <button onclick="saveDraggableDataToIndexedDB()" title="zapisz dane do pamięci wewnętrznej aplikacji">💾📦</button>
         <label for="degree">Stopień wielomianu</label>
         <input type="number" value="3" id="degree" step="1" max="6" min="1">
         <!-- datapush elementy -->
@@ -416,7 +417,42 @@
             ctx.putImageData(imageData, 0, 0);
         }
 
+        // Funkcja do zbierania współrzędnych z draggable
+        function collectDraggableCoordinates() {
+            const canvas = document.getElementById("canvas");
+            const draggables = document.querySelectorAll(".draggable");
+            const draggableData = [];
 
+            draggables.forEach(draggable => {
+                const rect = draggable.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+
+                // Obliczanie pozycji i wysokości na podstawie koordynat canvas
+                const y = Math.round((rect.top - canvasRect.top) / canvasRect.height * canvas.height);
+                const height = Math.round(rect.height / canvasRect.height * canvas.height);
+
+                // Dodawanie obiektu z danymi do tablicy
+                draggableData.push({
+                    id: draggable.id, // Zbieranie ID elementu, może być przydatne później
+                    y: y,
+                    height: height
+                });
+            });
+
+            return draggableData; // Zwraca tablicę z obiektami zawierającymi koordynaty
+        }
+
+        // Funkcja zapisująca dane do IndexedDB
+        function saveDraggableDataToIndexedDB() {
+            const imageDataURL = canvas.toDataURL(`image/png`);  // Use selected format
+            saveToIndexedDB(imageDataURL, 'background');
+
+            const data = collectDraggableCoordinates(); // Pobierz dane draggable
+            const dataURL = JSON.stringify(data); // Konwertuj dane do formatu JSON
+
+            const key = "draggable_coordinates"; // Klucz dla danych w IndexedDB
+            saveToIndexedDB(dataURL, key); // Zapisz dane do IndexedDB
+        }
 
     </script>
 </body>
