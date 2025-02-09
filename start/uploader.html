@@ -70,7 +70,7 @@
             
             if (screenDiagonalMM < 180) { 
                 document.body.classList.add("small-screen");
-            } else if (screenDiagonalMM >= 180 && screenDiagonalMM < 275) { 
+            } else if (screenDiagonalMM >= 180 && screenDiagonalMM < 330) { 
                 document.body.classList.add("medium-screen");
             } else {
                 document.body.classList.add("large-screen");
@@ -81,16 +81,33 @@
     </script>
 
     <div class="controls">
-        <h3 id="console">konsola: </h3>
-        <label for="dirPicker">choose whole directory</label>
-        <label for="filePicker">choose files manually</label>
+        <label for="dirPicker" title="załaduj wszystkie obrazy z folderu">📂</label>
+        <label for="filePicker" title="załaduj obrazy manualnie">🗂️</label>
         <input type="file" id="dirPicker" webkitdirectory directory multiple>
         <input type="file" id="filePicker" multiple>
         <button id="deleteFiles">Usuń pliki</button>
+        <!-- stałe elementy -->
+        <h3 id="console">konsola: </h3>
+        <select id="fileType" title="Wybierz format zapisu obrazu">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG</option>
+        </select>
+        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
+        <button id="DirdownloadBtn" title="zapisz obraz jako plik na dysku">📂💾</button>
+        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
+        <button id="shareBtn" title="Udostępnij obraz">📋</button>
+        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
         <a href="unwarp.html">→ Unwarp</a>
+        <!-- stałe elementy -->
     </div>
     <canvas></canvas>
+    <script src="datapush.js"></script>
     <script>
+        // datapush variables
+        const panel_canvas = document.getElementById('canvas');
+        const panel_ctx = panel_canvas.getContext('2d');
+        const selectedFormat = document.getElementById("fileType");
+        // local var
         const dirInput = document.getElementById('dirPicker');
         const fileInput = document.getElementById('filePicker');
         const deleteButton = document.getElementById('deleteFiles');
