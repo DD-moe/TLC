@@ -25,7 +25,7 @@ function saveToIndexedDB(dataURL, key) {
         store.put(dataURL, key);
 
         transaction.oncomplete = function () {
-            alert(`data saved to IndexedDB as '${key}`);
+            do_konsoli(`zapisano jako: '${key}`);
         };
 
         transaction.onerror = function () {

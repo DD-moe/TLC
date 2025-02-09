@@ -4,6 +4,11 @@ const copyBtn = document.getElementById('copyBtn');
 const pasteBtn = document.getElementById('pasteBtn');
 const shareBtn = document.getElementById('shareBtn');
 const imageInput = document.getElementById('imageInput');
+const konsola = document.getElementById('konsola');
+
+function do_konsoli(text) {
+    konsola.textContent = `konsola: ${text}`;
+}
 
 if (downloadBtn) {
     downloadBtn.addEventListener('click', () => {

@@ -77,14 +77,13 @@
         const deleteButton = document.getElementById('deleteFiles');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const konsola = document.getElementById('konsola');
         let sumImageData = null;
         let imageCount = 0;
         let prevWidth = null, prevHeight = null;
         let filesToDelete = [];
 
         async function processFiles(files) {
-            konsola.textContent = 'konsola: ładowanie obrazów';
+            do_konsoli('ładowanie obrazów');
             for (const file of files) {
                 if (!file.type.startsWith('image/')) continue;
                 const img = await loadImage(file);
@@ -112,7 +111,7 @@
             const avgImageData = new ImageData(avgData, prevWidth, prevHeight);
             ctx.putImageData(avgImageData, 0, 0);
             saveToIndexedDB(canvas.toDataURL(), 'average');
-            konsola.textContent = 'konsola: GOTOWE';
+            do_konsoli('GOTOWE');
         }
 
         function loadImage(file) {
