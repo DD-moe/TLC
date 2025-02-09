@@ -1,7 +1,3 @@
-const panel_canvas = document.getElementById('canvas');
-const panel_ctx = panel_canvas.getContext('2d');
-const selectedFormat = document.getElementById("fileType");
-
 document.getElementById('downloadBtn').addEventListener('click', () => {
     if (!panel_canvas) return;
     const imageURL = selectedFormat === 'jpeg' 
