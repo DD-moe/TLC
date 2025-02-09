@@ -1,6 +1,5 @@
         <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
         <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
-        <h3 id="console">konsola: </h3>
         <select id="fileType" title="Wybierz format zapisu obrazu">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
@@ -10,4 +9,3 @@
         <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
         <button id="shareBtn" title="Udostępnij obraz">📋</button>
         <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
-        <a href="unwarp.html">→ Unwarp</a>

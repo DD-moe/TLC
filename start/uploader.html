@@ -35,6 +35,7 @@
         body.small-screen label, 
         body.small-screen a {
             color: black;
+            font-size: 10mm;
         }
 
         /* Średni ekran (np. tablety) */
@@ -44,6 +45,7 @@
         body.medium-screen label, 
         body.medium-screen a {
             color: purple;
+            font-size: 7mm;
         }
 
         /* Duży ekran (np. laptopy, monitory) */
@@ -53,6 +55,21 @@
         body.large-screen label, 
         body.large-screen a {
            color: maroon;
+           font-size: 5mm;
+        }
+
+        #dirPicker, #filePicker{
+            display: none;
+        }
+
+        h3{
+            border-left: solid black 1px;
+            border-bottom: solid black 1px;
+        }
+
+        a{
+            border: solid black 1px;
+            background-color: azure;
         }
     </style>
 </head>
@@ -86,8 +103,8 @@
         <label for="filePicker" title="załaduj obrazy manualnie">🗂️</label>
         <input type="file" id="filePicker" multiple>
         <button id="deleteFiles">Usuń pliki</button>
-        <!-- stałe elementy -->
         <h3 id="konsola">konsola: </h3>
+        <!-- datapush elementy -->
         <select id="fileType" title="Wybierz format zapisu obrazu">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
@@ -97,16 +114,17 @@
         <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
         <button id="shareBtn" title="Udostępnij obraz">📋</button>
         <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+        <!-- datapush elementy -->
         <a href="unwarp.html">→ Unwarp</a>
-        <!-- stałe elementy -->
     </div>
     <canvas id="canvas"></canvas>
-    <script src="datapush.js"></script>
+     <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
     <script>
         // datapush variables
         const panel_canvas = document.getElementById('canvas');
         const panel_ctx = panel_canvas.getContext('2d');
         const selectedFormat = document.getElementById("fileType");
+        // datapush variables
         // local var
         const dirInput = document.getElementById('dirPicker');
         const fileInput = document.getElementById('filePicker');
