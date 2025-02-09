@@ -9,8 +9,8 @@ if (downloadBtn) {
     downloadBtn.addEventListener('click', () => {
         if (!panel_canvas) return;
         const imageURL = selectedFormat === 'jpeg' 
-            ? lastCanvas.toDataURL('image/jpeg', 1.0) 
-            : lastCanvas.toDataURL(`image/${selectedFormat.value}`);
+            ? panel_canvas.toDataURL('image/jpeg', 1.0) 
+            : panel_canvas.toDataURL(`image/${selectedFormat.value}`);
         const link = document.createElement('a');
         link.href = imageURL;
         link.download = `canvas_image.${selectedFormat.value}`;
@@ -30,8 +30,8 @@ if (DirdownloadBtn) {
 
         // Get image data as a data URL
         const imageURL = selectedFormat === 'jpeg' 
-            ? lastCanvas.toDataURL('image/jpeg', 1.0) 
-            : lastCanvas.toDataURL(`image/${selectedFormat.value}`);
+            ? panel_canvas.toDataURL('image/jpeg', 1.0) 
+            : panel_canvas.toDataURL(`image/${selectedFormat.value}`);
 
         // Convert image data URL to a Blob
         const blob = await fetch(imageURL).then(res => res.blob());
@@ -56,7 +56,7 @@ if (DirdownloadBtn) {
 if (copyBtn) {
     copyBtn.addEventListener('click', async () => {
         if (!panel_canvas) return;
-        const imageBlob = await new Promise(resolve => lastCanvas.toBlob(resolve, 'image/png'));
+        const imageBlob = await new Promise(resolve => panel_canvas.toBlob(resolve, 'image/png'));
         const clipboardItem = new ClipboardItem({ 'image/png': imageBlob });
         try {
             await navigator.clipboard.write([clipboardItem]);
@@ -90,7 +90,7 @@ if (shareBtn) {
     shareBtn.addEventListener('click', async () => {
         if (!panel_canvas) return;
         const selectedFormat = document.getElementById("fileType").value;
-        const imageBlob = await new Promise(resolve => lastCanvas.toBlob(resolve, `image/${selectedFormat.value}`));
+        const imageBlob = await new Promise(resolve => panel_canvas.toBlob(resolve, `image/${selectedFormat.value}`));
         if (navigator.share) {
             try {
                 await navigator.share({

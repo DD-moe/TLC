@@ -120,6 +120,7 @@
         let filesToDelete = [];
 
         async function processFiles(files) {
+            konsola.textContent = 'konsola: ładowanie obrazów';
             for (const file of files) {
                 if (!file.type.startsWith('image/')) continue;
                 const img = await loadImage(file);
