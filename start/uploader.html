@@ -61,8 +61,8 @@
         // starter script
         function setBodyClassBasedOnScreenSize() {
             const dpi = window.devicePixelRatio || 1;
-            const screenWidthInches = (screen.width / dpi) / 96; // 96 dpi as standard
-            const screenHeightInches = (screen.height / dpi) / 96;
+            const screenWidthInches = (window.innerWidth / dpi) / 96; // 96 dpi as standard
+            const screenHeightInches = (window.innerHeight / dpi) / 96;
             const screenDiagonalInches = Math.sqrt(Math.pow(screenWidthInches, 2) + Math.pow(screenHeightInches, 2));
             const screenDiagonalMM = screenDiagonalInches * 25.4; // Convert inches to millimeters
             
