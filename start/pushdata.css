@@ -1,0 +1,73 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    display: box;
+    height: 100vh;
+    background-color: #f0f0f0;
+}        
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    max-width: 100%; /* Ensure it doesn't overflow */
+    box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
+    border: solid black 1px;
+    background-color: azure;
+}
+canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+/* Mały ekran (np. telefony) */
+body.small-screen button, 
+body.small-screen input, 
+body.small-screen h3, 
+body.small-screen label, 
+body.small-screen a {
+    color: black;
+    font-size: 10mm;
+    min-width: 10mm;
+    min-height: 10mm;
+}
+
+/* Średni ekran (np. tablety) */
+body.medium-screen button, 
+body.medium-screen input, 
+body.medium-screen h3, 
+body.medium-screen label, 
+body.medium-screen a {
+    color: purple;
+    font-size: 7mm;
+    min-width: 7mm;
+    min-height: 7mm;
+}
+
+/* Duży ekran (np. laptopy, monitory) */
+body.large-screen button, 
+body.large-screen input, 
+body.large-screen h3,
+body.large-screen label, 
+body.large-screen a {
+   color: maroon;
+   font-size: 5mm;
+   min-width: 5mm;
+   min-height: 5mm;
+}
+
+h3{
+    border-left: solid black 1px;
+    border-bottom: solid black 1px;
+}
+
+a{
+    border: solid black 1px;
+}
+
+#imageInput{
+    display: none;
+}
