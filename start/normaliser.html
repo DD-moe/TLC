@@ -23,6 +23,10 @@
             color: white;
             font-weight: bold;
         }
+
+        #degree{
+            width: 4ch;
+        }
     </style>
 </head>
 <body>
@@ -64,7 +68,8 @@
         <button onclick="flipHorizontal()" title="przerzuć w poziomie">⇄</button>
         <button onclick="drawWhiteBlocks()" title="ujednolić oświetlenie">≋</button>
         <button onclick="makeGray()" title="przerzuć do skali szarości">░█</button>
-        <input type="number" value="3" id="degree">
+        <label for="degree"></label>
+        <input type="number" value="3" id="degree" step="1" max="6" min="1">
         <!-- datapush elementy -->
         <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
         <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
