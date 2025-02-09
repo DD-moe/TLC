@@ -1,7 +1,6 @@
-function saveToIndexedDB(dataURL) {
+function saveToIndexedDB(dataURL, key) {
     const dbName = "TLC";
     const storeName = "data";
-    const key = "warped";
 
     const request = indexedDB.open(dbName, 1);
 

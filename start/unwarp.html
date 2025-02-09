@@ -314,7 +314,7 @@
 
         document.getElementById("internalizeBtn").addEventListener("click", () => {
             const dataURL = lastCanvas.toDataURL(`image/png`);  // Use selected format
-            saveToIndexedDB(dataURL);
+            saveToIndexedDB(dataURL, 'warped');
         });
 
     </script>

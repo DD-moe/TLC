@@ -62,7 +62,8 @@
         <a href="unwarp.html">→ Unwarp</a>
     </div>
     <canvas id="canvas"></canvas>
-     <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
+    <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
+    <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->    
     <script>
         // datapush variables
         const panel_canvas = document.getElementById('canvas');
@@ -109,7 +110,7 @@
             const avgData = new Uint8ClampedArray(sumImageData.map(v => v / imageCount));
             const avgImageData = new ImageData(avgData, prevWidth, prevHeight);
             ctx.putImageData(avgImageData, 0, 0);
-            saveToIndexedDB(canvas.toDataURL());
+            saveToIndexedDB(canvas.toDataURL(), 'average');
             konsola.textContent = 'konsola: GOTOWE';
         }
 
@@ -119,16 +120,6 @@
                 img.onload = () => resolve(img);
                 img.src = URL.createObjectURL(file);
             });
-        }
-
-        function saveToIndexedDB(dataURL) {
-            const request = indexedDB.open("TLC", 1);
-            request.onupgradeneeded = () => request.result.createObjectStore("data");
-            request.onsuccess = () => {
-                const db = request.result;
-                const tx = db.transaction("data", "readwrite");
-                tx.objectStore("data").put(dataURL, "average");
-            };
         }
 
         async function deleteAllFiles() {
