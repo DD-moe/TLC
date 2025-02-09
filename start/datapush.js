@@ -15,18 +15,12 @@ if (downloadBtn) {
         link.href = imageURL;
         link.download = `canvas_image.${selectedFormat.value}`;
         link.click();
-        document.body.removeChild(link);
     });
 }
 
 if (DirdownloadBtn) {
     DirdownloadBtn.addEventListener('click', async () => {
         if (!panel_canvas) return;
-        
-        // Prompt user for file name
-        const fileName = prompt("Enter the file name:", "canvas_image");
-
-        if (!fileName) return; // If no name is provided, do nothing
 
         // Get image data as a data URL
         const imageURL = selectedFormat === 'jpeg' 
@@ -37,11 +31,14 @@ if (DirdownloadBtn) {
         const blob = await fetch(imageURL).then(res => res.blob());
 
         try {
-            // Request a handle to a directory
-            const directoryHandle = await window.showDirectoryPicker();
-            
-            // Create or overwrite the file in the chosen directory
-            const fileHandle = await directoryHandle.getFileHandle(`${fileName}.${selectedFormat.value}`, { create: true });
+            // Show file save dialog (user selects any location)
+            const fileHandle = await window.showSaveFilePicker({
+                suggestedName: `canvas_image.${selectedFormat}`,
+                types: [{
+                    description: "Image Files",
+                    accept: { [`image/${selectedFormat}`]: [`.${selectedFormat}`] }
+                }]
+            });
 
             // Create a writable stream to write the image data
             const writableStream = await fileHandle.createWritable();
@@ -89,7 +86,6 @@ if (pasteBtn) {
 if (shareBtn) {
     shareBtn.addEventListener('click', async () => {
         if (!panel_canvas) return;
-        const selectedFormat = document.getElementById("fileType").value;
         const imageBlob = await new Promise(resolve => panel_canvas.toBlob(resolve, `image/${selectedFormat.value}`));
         if (navigator.share) {
             try {
