@@ -129,7 +129,8 @@
         <a href="normaliser.html">→ Normalise</a>
         <a href="uploader.html">← Upload</a>
     </div>
-         <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->        
+        <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->     
+        <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->    
     <script>
         // datapush variables
         const panel_canvas = document.getElementById('canvas');
@@ -334,33 +335,6 @@
             saveToIndexedDB(dataURL);
         });
 
-        // Function to save to IndexedDB
-        function saveToIndexedDB(dataURL) {
-            const dbName = "TLC";
-            const storeName = "data";
-            const key = "warped";
-
-            const request = indexedDB.open(dbName, 1);
-
-            request.onupgradeneeded = function(event) {
-                const db = event.target.result;
-                if (!db.objectStoreNames.contains(storeName)) {
-                    db.createObjectStore(storeName);
-                }
-            };
-
-            request.onsuccess = function(event) {
-                const db = event.target.result;
-                const transaction = db.transaction(storeName, "readwrite");
-                const store = transaction.objectStore(storeName);
-                store.put(dataURL, key);
-                alert("Image saved to IndexedDB as 'warped'");
-            };
-
-            request.onerror = function() {
-                alert("Error saving to IndexedDB.");
-            };
-        }
     </script>
 
 </body>
