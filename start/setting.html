@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ustawienia</title>
+    <link rel="stylesheet" href="pushdata.css">
+</head>
+
+<body>
+    <h1>Ustawienia</h1>
+
+    <!-- Button to refresh all resources in the cache -->
+    <button id="refresh-cache">Odśwież Cache Wszystkich Zasobów</button>
+    <a href="unwarp.html">← Unwarp</a>
+    <a href="normaliser.html">← Normalise</a>
+    <a href="uploader.html">← Upload</a>
+    <script>
+        // List of URLs to be cached
+        const resourceLinks = [
+            'internalize.js',
+            'datapush.js',
+            'pushdata.css'
+            // Add more URLs here
+        ];
+
+        // Function to cache all resources
+        function cacheResources() {
+            let promises = resourceLinks.map(url => {
+                return fetch(url, { cache: 'force-cache' })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Nie udało się załadować zasobu: ${url}`);
+                        }
+                        console.log(`Zasób załadowany: ${url}`);
+                    })
+                    .catch(error => {
+                        console.error('Błąd:', error);
+                    });
+            });
+
+            // Wait for all resources to be cached
+            Promise.all(promises)
+                .then(() => {
+                    alert('Wszystkie zasoby zostały zcache’owane.');
+                });
+        }
+
+        // Attach the caching function to the button
+        document.getElementById('refresh-cache').addEventListener('click', cacheResources);
+    </script>
+</body>
+</html>

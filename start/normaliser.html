@@ -71,6 +71,12 @@
         <button onclick="saveDraggableDataToIndexedDB()" title="zapisz dane do pamięci wewnętrznej aplikacji">💾📦</button>
         <label for="degree">Stopień wielomianu</label>
         <input type="number" value="3" id="degree" step="1" max="6" min="1">
+        <label for="coef_r" title="Współczynnik dla kanału czerwonego">coef. R</label>
+        <input type="number" id="coef_r" value="0.299" step="0.001" min="0" max="1">
+        <label for="coef_g" title="Współczynnik dla kanału zielonego">coef. G</label>
+        <input type="number" id="coef_g" value="0.587" step="0.001" min="0" max="1">
+        <label for="coef_b" title="Współczynnik dla kanału niebieskiego">coef. B</label>
+        <input type="number" id="coef_b" value="0.114" step="0.001" min="0" max="1">
         <!-- datapush elementy -->
         <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
         <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
@@ -85,6 +91,8 @@
         <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
         <!-- datapush elementy -->
         <a href="unwarp.html">← Unwarp</a>
+        <a href="track.html">→ Tracks analysis</a>
+        <a href="setting.html">→ Settings</a>
     </div>
         <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
         <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->        
@@ -178,6 +186,9 @@
         }
 
         function makeGray() {
+            const coef_r = parseFloat(document.getElementById('coef_r').value);
+            const coef_g = parseFloat(document.getElementById('coef_g').value);
+            const coef_b = parseFloat(document.getElementById('coef_b').value);
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
 
@@ -188,7 +199,7 @@
             // Przechodzimy po wszystkich pikselach (co 4 elementy: R, G, B, A)
             for (let i = 0; i < data.length; i += 4) {
                 // Obliczamy wartość szarości na podstawie RGB
-                const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                const gray = coef_r * data[i] + coef_g * data[i + 1] + coef_b * data[i + 2];
 
                 // Ustawiamy wszystkie 3 składniki RGB na wartość szarości
                 data[i] = data[i + 1] = data[i + 2] = gray;
@@ -196,9 +207,12 @@
 
             // Umieszczamy zmodyfikowane dane z powrotem na canvas
             ctx.putImageData(imageData, 0, 0);
+            const imageDataURL = canvas.toDataURL(`image/png`);  // Use selected format
+            saveToIndexedDB(imageDataURL, 'spots');
         }
 
         function drawWhiteBlocks() {
+            makeGray();
             const deg = parseInt(document.getElementById('degree').value);
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
@@ -218,12 +232,6 @@
             // Pobierz ImageData i przekonwertuj na grayscale
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
-            
-            for (let i = 0; i < data.length; i += 4) {
-                const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                data[i] = data[i + 1] = data[i + 2] = gray;
-            }
-            ctx.putImageData(imageData, 0, 0);
             
             function getColumn(data, canvasWidth, canvasHeight, x) {
                 let columnData = new Array(canvasHeight).fill(255);
@@ -433,7 +441,7 @@
 
                 // Dodawanie obiektu z danymi do tablicy
                 draggableData.push({
-                    id: draggable.id, // Zbieranie ID elementu, może być przydatne później
+                    name: draggable.name, // Zbieranie ID elementu, może być przydatne później
                     y: y,
                     height: height
                 });
