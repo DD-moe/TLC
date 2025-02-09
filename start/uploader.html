@@ -87,7 +87,7 @@
         <input type="file" id="filePicker" multiple>
         <button id="deleteFiles">Usuń pliki</button>
         <!-- stałe elementy -->
-        <h3 id="console">konsola: </h3>
+        <h3 id="konsola">konsola: </h3>
         <select id="fileType" title="Wybierz format zapisu obrazu">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
@@ -113,7 +113,7 @@
         const deleteButton = document.getElementById('deleteFiles');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const console = document.querySelector('console');
+        const konsola = document.getElementById('konsola');
         let sumImageData = null;
         let imageCount = 0;
         let prevWidth = null, prevHeight = null;
@@ -147,7 +147,7 @@
             const avgImageData = new ImageData(avgData, prevWidth, prevHeight);
             ctx.putImageData(avgImageData, 0, 0);
             saveToIndexedDB(canvas.toDataURL());
-            console.textContent = 'konsola: GOTOWE';
+            konsola.textContent = 'konsola: GOTOWE';
         }
 
         function loadImage(file) {
