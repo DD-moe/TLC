@@ -8,7 +8,7 @@ const imageInput = document.getElementById('imageInput');
 if (downloadBtn) {
     downloadBtn.addEventListener('click', () => {
         if (!panel_canvas) return;
-        const imageURL = selectedFormat === 'jpeg' 
+        const imageURL = selectedFormat.value === 'jpeg' 
             ? panel_canvas.toDataURL('image/jpeg', 1.0) 
             : panel_canvas.toDataURL(`image/${selectedFormat.value}`);
         const link = document.createElement('a');
@@ -23,7 +23,7 @@ if (DirdownloadBtn) {
         if (!panel_canvas) return;
 
         // Get image data as a data URL
-        const imageURL = selectedFormat === 'jpeg' 
+        const imageURL = selectedFormat.value === 'jpeg' 
             ? panel_canvas.toDataURL('image/jpeg', 1.0) 
             : panel_canvas.toDataURL(`image/${selectedFormat.value}`);
 
@@ -33,10 +33,10 @@ if (DirdownloadBtn) {
         try {
             // Show file save dialog (user selects any location)
             const fileHandle = await window.showSaveFilePicker({
-                suggestedName: `canvas_image.${selectedFormat}`,
+                suggestedName: `canvas_image.${selectedFormat.value}`,
                 types: [{
                     description: "Image Files",
-                    accept: { [`image/${selectedFormat}`]: [`.${selectedFormat}`] }
+                    accept: { [`image/${selectedFormat.value}`]: [`.${selectedFormat.value}`] }
                 }]
             });
 
@@ -90,7 +90,7 @@ if (shareBtn) {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    files: [new File([imageBlob], `canvas_image.${selectedFormat}`, { type: `image/${selectedFormat.value}` })],
+                    files: [new File([imageBlob], `canvas_image.${selectedFormat.value}`, { type: `image/${selectedFormat.value}` })],
                     title: 'Canvas Image',
                     text: 'Check this out!',
                 });
