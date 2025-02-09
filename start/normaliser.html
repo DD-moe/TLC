@@ -23,7 +23,54 @@
             flex-wrap: wrap; /* Allow items to wrap to the next line */
             max-width: 100%; /* Ensure it doesn't overflow */
             box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
+            border: solid black 1px;
+            background-color: azure;
         }
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        /* Mały ekran (np. telefony) */
+        body.small-screen button, 
+        body.small-screen input, 
+        body.small-screen h3, 
+        body.small-screen label, 
+        body.small-screen a {
+            color: black;
+            font-size: 10mm;
+        }
+
+        /* Średni ekran (np. tablety) */
+        body.medium-screen button, 
+        body.medium-screen input, 
+        body.medium-screen h3, 
+        body.medium-screen label, 
+        body.medium-screen a {
+            color: purple;
+            font-size: 7mm;
+        }
+
+        /* Duży ekran (np. laptopy, monitory) */
+        body.large-screen button, 
+        body.large-screen input, 
+        body.large-screen h3,
+        body.large-screen label, 
+        body.large-screen a {
+           color: maroon;
+           font-size: 5mm;
+        }
+
+        h3{
+            border-left: solid black 1px;
+            border-bottom: solid black 1px;
+        }
+
+        a{
+            border: solid black 1px;
+        }
+    </style>
+    <style>
         canvas {
             width: 100%;
             height: auto;
@@ -43,6 +90,29 @@
     </style>
 </head>
 <body>
+    <script>
+        // starter script
+        function setBodyClassBasedOnScreenSize() {
+            const dpi = window.devicePixelRatio || 1;
+            const screenWidthInches = (window.innerWidth / dpi) / 96; // 96 dpi as standard
+            const screenHeightInches = (window.innerHeight / dpi) / 96;
+            const screenDiagonalInches = Math.sqrt(Math.pow(screenWidthInches, 2) + Math.pow(screenHeightInches, 2));
+            const screenDiagonalMM = screenDiagonalInches * 25.4; // Convert inches to millimeters
+            
+            document.body.classList.remove("small-screen", "medium-screen", "large-screen");
+            
+            if (screenDiagonalMM < 180) { 
+                document.body.classList.add("small-screen");
+            } else if (screenDiagonalMM >= 180 && screenDiagonalMM < 330) { 
+                document.body.classList.add("medium-screen");
+            } else {
+                document.body.classList.add("large-screen");
+            }
+        }
+        window.onresize = setBodyClassBasedOnScreenSize;
+        setBodyClassBasedOnScreenSize();
+    </script>
+
     <div class="container" data-croffle-ref="element$0" id="cfc">
         <canvas id="canvas"></canvas>
         <div class="draggable" data-croffle-ref="targetRef0" style="top: 10%"></div>
@@ -59,9 +129,29 @@
         <button onclick="drawWhiteBlocks()">Rysuj bloki</button>
         <button onclick="makeGray()">Make gray</button>
         <input type="number" value="3" id="degree">
+        <!-- datapush elementy -->
+        <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
+        <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
+        <select id="fileType" title="Wybierz format zapisu obrazu">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG</option>
+        </select>
+        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
+        <button id="DirdownloadBtn" title="zapisz obraz jako plik na dysku">📂💾</button>
+        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
+        <button id="shareBtn" title="Udostępnij obraz">📋</button>
+        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+        <!-- datapush elementy -->
         <a href="unwarp.html">← Unwarp</a>
-    </div>    
+    </div>
+         <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->    
     <script>
+        // datapush variables
+        const panel_canvas = document.getElementById('canvas');
+        const panel_ctx = panel_canvas.getContext('2d');
+        const selectedFormat = document.getElementById("fileType");
+        // datapush variables
+        
         const dbName = "TLC";
         const storeName = "data";
         const key = "warped";

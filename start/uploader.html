@@ -22,6 +22,8 @@
             flex-wrap: wrap; /* Allow items to wrap to the next line */
             max-width: 100%; /* Ensure it doesn't overflow */
             box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
+            border: solid black 1px;
+            background-color: azure;
         }
         canvas {
             width: 100%;
@@ -58,10 +60,6 @@
            font-size: 5mm;
         }
 
-        #dirPicker, #filePicker{
-            display: none;
-        }
-
         h3{
             border-left: solid black 1px;
             border-bottom: solid black 1px;
@@ -69,8 +67,12 @@
 
         a{
             border: solid black 1px;
-            background-color: azure;
         }
+    </style>
+    <style>
+        #dirPicker, #filePicker{
+            display: none;
+        }        
     </style>
 </head>
 <body>
