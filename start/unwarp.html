@@ -225,24 +225,6 @@
             }
         });
 
-        async function getImageUrlFromIndexedDB(dbName, storeName, key) {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(dbName);
-
-                request.onerror = () => reject("Failed to open IndexedDB.");
-                request.onsuccess = (event) => {
-                    const db = event.target.result;
-                    const transaction = db.transaction(storeName, "readonly");
-                    const store = transaction.objectStore(storeName);
-                    const getRequest = store.get(key);
-
-                    getRequest.onsuccess = () => resolve(getRequest.result || null);
-                    getRequest.onerror = () => reject("Failed to retrieve image URL.");
-                };
-            });
-        }
-
-
         document.getElementById("reunwarpBtn").addEventListener("click", () => {
             // Set the canvas dimensions to match Pcanvas
             canvas.width = lastCanvas.width;
