@@ -28,10 +28,57 @@
             height: auto;
             display: block;
         }
+                /* Mały ekran (np. telefony) */
+                body.small-screen button, 
+        body.small-screen input, 
+        body.small-screen h3, 
+        body.small-screen a {
+            font-size: 4mm;
+        }
+
+        /* Średni ekran (np. tablety) */
+        body.medium-screen button, 
+        body.medium-screen input, 
+        body.medium-screen h3, 
+        body.medium-screen a {
+            font-size: 5.5mm;
+        }
+
+        /* Duży ekran (np. laptopy, monitory) */
+        body.large-screen button, 
+        body.large-screen input, 
+        body.large-screen h3, 
+        body.large-screen a {
+            font-size: 7mm;
+        }
     </style>
+    <script>
+        function setBodyClassBasedOnScreenSize() {
+            const dpi = window.devicePixelRatio || 1;
+            const screenWidthInches = (screen.width / dpi) / 96; // 96 dpi as standard
+            const screenHeightInches = (screen.height / dpi) / 96;
+            const screenDiagonalInches = Math.sqrt(Math.pow(screenWidthInches, 2) + Math.pow(screenHeightInches, 2));
+            const screenDiagonalMM = screenDiagonalInches * 25.4; // Convert inches to millimeters
+            
+            document.body.classList.remove("small-screen", "medium-screen", "large-screen");
+            
+            if (screenDiagonalMM < 180) { 
+                document.body.classList.add("small-screen");
+            } else if (screenDiagonalMM >= 180 && screenDiagonalMM < 275) { 
+                document.body.classList.add("medium-screen");
+            } else {
+                document.body.classList.add("large-screen");
+            }
+        }
+        window.onresize = setBodyClassBasedOnScreenSize;
+        setBodyClassBasedOnScreenSize();
+    </script>
 </head>
 <body>
     <div class="controls">
+        <h3 id="console">konsola: </h3>
+        <label for="dirPicker">choose whole directory</label>
+        <label for="filePicker">choose files manually</label>
         <input type="file" id="dirPicker" webkitdirectory directory multiple>
         <input type="file" id="filePicker" multiple>
         <button id="deleteFiles">Usuń pliki</button>
@@ -44,6 +91,7 @@
         const deleteButton = document.getElementById('deleteFiles');
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
+        const console = document.querySelector('console');
         let sumImageData = null;
         let imageCount = 0;
         let prevWidth = null, prevHeight = null;
@@ -77,6 +125,7 @@
             const avgImageData = new ImageData(avgData, prevWidth, prevHeight);
             ctx.putImageData(avgImageData, 0, 0);
             saveToIndexedDB(canvas.toDataURL());
+            console.textContent = 'konsola: GOTOWE';
         }
 
         function loadImage(file) {
