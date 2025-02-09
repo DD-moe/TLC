@@ -52,7 +52,10 @@
             font-size: 7mm;
         }
     </style>
+</head>
+<body>
     <script>
+        // starter script
         function setBodyClassBasedOnScreenSize() {
             const dpi = window.devicePixelRatio || 1;
             const screenWidthInches = (screen.width / dpi) / 96; // 96 dpi as standard
@@ -73,8 +76,7 @@
         window.onresize = setBodyClassBasedOnScreenSize;
         setBodyClassBasedOnScreenSize();
     </script>
-</head>
-<body>
+
     <div class="controls">
         <h3 id="console">konsola: </h3>
         <label for="dirPicker">choose whole directory</label>
@@ -82,7 +84,7 @@
         <input type="file" id="dirPicker" webkitdirectory directory multiple>
         <input type="file" id="filePicker" multiple>
         <button id="deleteFiles">Usuń pliki</button>
-        <a href="unwarp.html">Unwarp</a>
+        <a href="unwarp.html">→ Unwarp</a>
     </div>
     <canvas></canvas>
     <script>
