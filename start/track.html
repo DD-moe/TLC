@@ -43,40 +43,95 @@
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
 
     <script>
-        // Funkcja do wstawienia obrazu na odpowiedni canvas
-        function loadImageToCanvas(dbName, storeName, key, canvasId) {
-            // Pobierz URL obrazu z IndexedDB
-            getImageUrlFromIndexedDB(dbName, storeName, key).then((imageUrl) => {
-                // Znajdź odpowiedni element canvas
-                const canvas = document.getElementById(canvasId);
-                if (canvas && imageUrl) {
-                    const img = new Image();
-                    img.onload = () => {
-                        // Ustaw rozmiar canvasu na rozmiar obrazu
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+        // Zmienne globalne
+        let baselines = null;
+        let draggable_coordinates = null;
 
-                        // Rysuj obraz na canvas
-                        const ctx = canvas.getContext("2d");
-                        ctx.drawImage(img, 0, 0);  // Wstaw obraz na canvas
-                    };
-                    img.src = imageUrl;  // Ustaw źródło obrazu
-                }
-            }).catch((error) => {
-                console.error('Błąd podczas ładowania obrazu:', error);
+        // Funkcja do pobrania i parsowania danych JSON z IndexedDB
+        function loadJsonDataFromIndexedDB(dbName, storeName, key) {
+            return new Promise((resolve, reject) => {
+                // Pobierz dane JSON z IndexedDB
+                getImageUrlFromIndexedDB(dbName, storeName, key).then((jsonData) => {
+                    try {
+                        // Parsowanie danych JSON
+                        const parsedData = JSON.parse(jsonData);
+
+                        // Przypisanie danych do odpowiednich zmiennych globalnych
+                        if (key === "baselines") {
+                            baselines = parsedData;
+                        } else if (key === "draggable_coordinates") {
+                            draggable_coordinates = parsedData;
+                        }
+
+                        // Zwróć Promise po udanym załadowaniu
+                        resolve();
+                    } catch (error) {
+                        reject(`Błąd podczas parsowania danych JSON: ${error}`);
+                    }
+                }).catch((error) => {
+                    console.error('Błąd podczas ładowania danych z IndexedDB:', error);
+                    reject(error);
+                });
             });
         }
 
+        // Funkcja do wstawienia obrazu na odpowiedni canvas
+        function loadImageToCanvas(dbName, storeName, key, canvasId) {
+            return new Promise((resolve, reject) => {
+                // Pobierz URL obrazu z IndexedDB
+                getImageUrlFromIndexedDB(dbName, storeName, key).then((imageUrl) => {
+                    // Znajdź odpowiedni element canvas
+                    const canvas = document.getElementById(canvasId);
+                    if (canvas && imageUrl) {
+                        const img = new Image();
+                        img.onload = () => {
+                            // Ustaw rozmiar canvasu na rozmiar obrazu
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+
+                            // Rysuj obraz na canvas
+                            const ctx = canvas.getContext("2d");
+                            ctx.drawImage(img, 0, 0);  // Wstaw obraz na canvas
+
+                            // Zwróć Promise po załadowaniu obrazu
+                            resolve();
+                        };
+                        img.src = imageUrl;  // Ustaw źródło obrazu
+                    } else {
+                        reject('Błąd przy ładowaniu obrazu.');
+                    }
+                }).catch((error) => {
+                    console.error('Błąd podczas ładowania obrazu:', error);
+                    reject(error);
+                });
+            });
+        }
+
+        // Funkcja, która ma być uruchomiona po załadowaniu obu obrazów
+        function onBothImagesLoaded() {
+            console.log("Obydwa obrazy zostały załadowane!");
+            // Tu można dodać dalszą logikę, która ma być uruchomiona po załadowaniu obrazów
+        }
 
         // Ładowanie obrazów na kanwasy po załadowaniu strony
         window.onload = () => {
             const dbName = "TLC";
             const storeName = "data";
 
-            // Załaduj obrazki do odpowiednich canvasów
-            loadImageToCanvas(dbName, storeName, "spots", "spots");
-            loadImageToCanvas(dbName, storeName, "background", "background");
+            // Ładowanie obu obrazów jednocześnie
+            Promise.all([
+                loadImageToCanvas(dbName, storeName, "spots", "spots"),
+                loadImageToCanvas(dbName, storeName, "background", "background"),
+                loadJsonDataFromIndexedDB(dbName, storeName, "baselines"),
+                loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates")
+            ]).then(() => {
+                // Po załadowaniu obu obrazów uruchom funkcję
+                onBothImagesLoaded();
+            }).catch((error) => {
+                console.error("Wystąpił błąd podczas ładowania obrazów:", error);
+            });
         };
+
     </script>     
 </body>
 </html>
