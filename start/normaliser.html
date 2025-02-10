@@ -112,6 +112,7 @@
 
         function removeSelectedElement() {
             if (selectedTrack) {
+                selectedTrack.moveable.controlBox.remove();
                 selectedTrack.moveable.destroy();
                 selectedTrack.target.remove();
                 selectedTrack = null;
@@ -243,7 +244,7 @@
                 resetDraggablesColor();
                 selectedTrack = {target: e.target, moveable: e.moveable};
                 e.target.style.backgroundColor = 'red';
-                console.log(e.moveable);
+                //console.log(e.moveable);
             });
         
             container.appendChild(element);
