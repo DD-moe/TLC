@@ -228,16 +228,18 @@
             const container = document.getElementById("cfc");
             if (!container) return;
             const containerWidth = canvas.getBoundingClientRect().width;
+            const containerHeight = canvas.getBoundingClientRect().height;
             const element = document.createElement("div");
             element.classList.add("baselines");
             // Obliczanie wartości w pikselach na podstawie procentów
             const elementWidth = (containerWidth * end) / 100;
-            const positionX = (containerWidth * start) / 100;
+            const positionX = (containerWidth * start) / 100;            
 
             element.style.position = "absolute";
             element.style.left = `${positionX}px`;
             element.style.top = `0px`;
             element.style.width = `${elementWidth}px`;
+            element.style.height = `${containerHeight}px`;
             container.appendChild(element);    
             const movable = new Moveable(container, {
                 target: element,
