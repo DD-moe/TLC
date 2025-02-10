@@ -34,11 +34,14 @@
     <div class="controls">
         <h3 id="konsola">konsola: </h3>
     </div>
-    <h2>Canvas 1 - Spots</h2>
+    <h2>Spots image</h2>
     <canvas id="spots" width="400" height="400"></canvas>
 
-    <h2>Canvas 2 - Background</h2>
+    <h2>Background image</h2>
     <canvas id="background" width="400" height="400"></canvas>
+
+    <h2>Normalised Canvas</h2>
+    <canvas id="normalised" width="400" height="400"></canvas>
 
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
 
@@ -108,9 +111,8 @@
         }
 
         // Funkcja, która ma być uruchomiona po załadowaniu obu obrazów
-        function onBothImagesLoaded() {
-            console.log("Obydwa obrazy zostały załadowane!");
-            // Tu można dodać dalszą logikę, która ma być uruchomiona po załadowaniu obrazów
+        function onAllDataLoaded() {
+            normalizeCanvasData();
         }
 
         // Ładowanie obrazów na kanwasy po załadowaniu strony
@@ -126,11 +128,64 @@
                 loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates")
             ]).then(() => {
                 // Po załadowaniu obu obrazów uruchom funkcję
-                onBothImagesLoaded();
+                onAllDataLoaded();
             }).catch((error) => {
                 console.error("Wystąpił błąd podczas ładowania obrazów:", error);
             });
         };
+
+        function normalizeCanvasData() {
+            // Pobierz referencje do canvasów
+            const spotsCanvas = document.getElementById("spots");
+            const backgroundCanvas = document.getElementById("background");
+
+            // Sprawdź, czy oba canvas mają takie same wymiary
+            if (spotsCanvas.width !== backgroundCanvas.width || spotsCanvas.height !== backgroundCanvas.height) {
+                alert("Canvas mają różne wymiary! Upewnij się, że oba canvas mają te same wymiary.");
+                return;
+            }
+
+            // Pobierz ImageData z obu canvasów
+            const spotsContext = spotsCanvas.getContext("2d");
+            const backgroundContext = backgroundCanvas.getContext("2d");
+
+            const spotsImageData = spotsContext.getImageData(0, 0, spotsCanvas.width, spotsCanvas.height);
+            const backgroundImageData = backgroundContext.getImageData(0, 0, backgroundCanvas.width, backgroundCanvas.height);
+
+            // Przygotuj nowy canvas na wynik
+            const normalizedCanvas = document.getElementById("normalised");
+            normalizedCanvas.width = spotsCanvas.width;
+            normalizedCanvas.height = spotsCanvas.height;
+            const normalizedContext = normalizedCanvas.getContext("2d");
+            const normalizedImageData = normalizedContext.createImageData(spotsCanvas.width, spotsCanvas.height);
+
+            // Przetwórz piksel po pikselu
+            for (let i = 0; i < spotsImageData.data.length; i += 4) {
+                const rSpots = spotsImageData.data[i];     // Czerwony kanał z spots
+                const rBackground = backgroundImageData.data[i]; // Czerwony kanał z background
+
+                // Podziel kanał czerwony spots przez kanał czerwony background i przemnóż przez 255
+                let rNormalized;
+                if (rBackground === 0) {
+                    rNormalized = 255; // Unikaj dzielenia przez zero
+                } else {
+                    rNormalized = (rSpots / rBackground) * 255;
+                }
+
+                // Ustaw ograniczenie na 255
+                rNormalized = Math.min(255, Math.max(0, rNormalized));
+
+                // Ustaw wynik dla wszystkich kanałów (RGB)
+                normalizedImageData.data[i] = rNormalized;        // R
+                normalizedImageData.data[i + 1] = rNormalized;    // G
+                normalizedImageData.data[i + 2] = rNormalized;    // B
+                normalizedImageData.data[i + 3] = 255;            // A (pełna przezroczystość)
+            }
+
+            // Wstaw ImageData do canvasu "normalised"
+            normalizedContext.putImageData(normalizedImageData, 0, 0);
+        }
+
 
     </script>     
 </body>
