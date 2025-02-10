@@ -93,6 +93,8 @@
         <button id="shareBtn" title="Udostępnij obraz">📋</button>
         <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
         <!-- datapush elementy -->
+        <label title="Nazwa ścieżki">Ścieżka: </label>
+        <input type="text" maxlength="10" oninput="updateTrackName(this.value)">
         <a href="unwarp.html">← Unwarp</a>
         <a href="track.html">→ Tracks analysis</a>
         <a href="setting.html">→ Settings</a>
@@ -255,6 +257,11 @@
             container.appendChild(element);
         }
 
+        function updateTrackName(newName) {
+            if (selectedTrack) {
+                selectedTrack.target.textContent = newName;
+            }
+        }
 
         function makeGray() {
             const coef_r = parseFloat(document.getElementById('coef_r').value);
@@ -513,7 +520,7 @@
 
                 // Dodawanie obiektu z danymi do tablicy
                 draggableData.push({
-                    name: draggable.name, // Zbieranie ID elementu, może być przydatne później
+                    name: draggable.textContent, // Zbieranie ID elementu, może być przydatne później
                     y: y,
                     height: height
                 });
