@@ -411,7 +411,7 @@
                     mountainDiv.style.backgroundColor = 'rgba(0, 0, 255, 0.3)'; // Przezroczysty kolor dla widoczności
 
                     newDiv.appendChild(mountainDiv);
-                    createDraggableElement(newDiv, mountainDiv);
+                    createDraggableElement(newDiv, mountainDiv, {left: newDivRect.left, right: newDivRect.right});
                 });
 
             });
@@ -420,6 +420,7 @@
         function addDraggableElement() {
             const element = selectedTrack.target;
             const container = element.parentElement;
+            const RectContainer = container.getBoundingClientRect();
             const mountainDiv = document.createElement('div');
                     
             mountainDiv.style.position = 'absolute';
@@ -429,11 +430,11 @@
             mountainDiv.style.height = element.style.height;
             mountainDiv.style.backgroundColor = 'rgba(0, 0, 255, 0.3)'; // Przezroczysty kolor dla widoczności
             container.appendChild(mountainDiv);
-            createDraggableElement(container, mountainDiv);
+            createDraggableElement(container, mountainDiv, {left: RectContaine.left, right: RectContaine.right});
         }
 
         // Moveable setup
-        function createDraggableElement(container, element) {
+        function createDraggableElement(container, element, bounds) {
             if (!container) return;
             const containerHeight = container.getBoundingClientRect().height;
             element.classList.add("draggable");
@@ -448,7 +449,8 @@
                 resizable: true,
                 keepRatio: false,
                 throttleResize: 1,
-                renderDirections:  ["w", "e"]        
+                renderDirections:  ["w", "e"],
+                bounds: bounds       
             });
             movable.on("drag", e => {
                 e.target.style.left = `${e.left}px`;
