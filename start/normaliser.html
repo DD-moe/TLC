@@ -104,6 +104,8 @@
         <!-- datapush elementy -->
         <label title="Nazwa ścieżki">Ścieżka: </label>
         <input type="text" maxlength="10" oninput="updateTrackName(this.value)" onfocus="loadTrackName(this)">
+        <label for="cm_width" title="Długość płytki w osi ścieżek w cm">📏</label>
+        <input type="number" id="cm_width" min="1" max="20" step="0.1">
         <a href="unwarp.html">← Unwarp</a>
         <a href="track.html">→ Tracks analysis</a>
         <a href="setting.html">→ Settings</a>
@@ -231,6 +233,7 @@
             const containerHeight = canvas.getBoundingClientRect().height;
             const element = document.createElement("div");
             element.classList.add("baselines");
+            element.id = 'baselines';
             // Obliczanie wartości w pikselach na podstawie procentów
             const elementWidth = (containerWidth * end) / 100;
             const positionX = (containerWidth * start) / 100;            
@@ -587,6 +590,12 @@
 
             const key = "draggable_coordinates"; // Klucz dla danych w IndexedDB
             saveToIndexedDB(dataURL, key); // Zapisz dane do IndexedDB
+            const baselines = document.getElementById('baselines');
+            const rect = baselines.getBoundingClientRect();
+            const cm_width = parseFloat(document.getElementById('plate_width').value);
+            const baselines_data = JSON.stringify({x: rect.left, width: rect.width, plate_width: cm_width})
+            saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
+
         }
 
         loadImageFromDB();
