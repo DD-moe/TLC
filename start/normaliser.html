@@ -34,7 +34,7 @@
             border: solid black 2px;
         }
 
-        #degree{
+        #degree, #cm_width{
             width: 3ch;
         }
         #coef_r, #coef_g, #coef_b{
@@ -105,7 +105,7 @@
         <label title="Nazwa ścieżki">Ścieżka: </label>
         <input type="text" maxlength="10" oninput="updateTrackName(this.value)" onfocus="loadTrackName(this)">
         <label for="cm_width" title="Długość płytki w osi ścieżek w cm">📏</label>
-        <input type="number" id="cm_width" min="1" max="20" step="0.1">
+        <input type="number" id="cm_width" min="1" max="20" step="0.1" value="10">
         <a href="unwarp.html">← Unwarp</a>
         <a href="track.html">→ Tracks analysis</a>
         <a href="setting.html">→ Settings</a>
