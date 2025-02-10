@@ -112,7 +112,8 @@
 
         function removeSelectedElement() {
             if (selectedTrack) {
-                selectedTrack.remove();
+                selectedTrack.moveable.destroy();
+                selectedTrack.target.remove();
                 selectedTrack = null;
             }
         }
@@ -239,7 +240,9 @@
                 e.target.style.transform = e.drag.transform;
             });
             movable.on("click", e => {
-                console.log(e.target, e.moveable);
+                resetDraggablesColor();
+                selectedTrack = {target: e.target, moveable: e.moveable};
+                e.target.style.backgroundColor = 'red';
             });
         
             container.appendChild(element);
