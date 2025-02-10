@@ -10,6 +10,10 @@
         canvas{
             border: solid black 1px;
         }
+
+        #canvas_space{
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -46,16 +50,18 @@
         <button onclick="unselectElement()" title="Odznacz wybrany element">❌</button>
         <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
         <button onclick="addDraggableElement()" title="Utwórz nową ścieżkę">➕</button>
+        <button id="toggleBtn" title="Pokaż/Ukryj obszar rysowania" onclick="toggle_CanvasSpace()">⇄</button>
+    </div>
+    <div id="canvas_space">
+        <h2>Spots image</h2>
+        <canvas id="spots" width="400" height="400"></canvas>
+
+        <h2>Background image</h2>
+        <canvas id="background" width="400" height="400"></canvas>
+
+        <h2>Normalised Canvas</h2>
+        <canvas id="normalised" width="400" height="400"></canvas>
     </div> 
-    <h2>Spots image</h2>
-    <canvas id="spots" width="400" height="400"></canvas>
-
-    <h2>Background image</h2>
-    <canvas id="background" width="400" height="400"></canvas>
-
-    <h2>Normalised Canvas</h2>
-    <canvas id="normalised" width="400" height="400"></canvas>
-
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
 
     <script>
@@ -64,6 +70,11 @@
         let draggable_coordinates = null;
         let selectedTrack = null;
         let manuals = false;
+
+        function toggle_CanvasSpace(){
+            const canvasSpace = document.getElementById("canvas_space");
+            canvasSpace.style.display = (canvasSpace.style.display === "none") ? "block" : "none";
+        }
 
         // Funkcja do pobrania i parsowania danych JSON z IndexedDB
         function loadJsonDataFromIndexedDB(dbName, storeName, key) {
