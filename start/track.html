@@ -208,7 +208,6 @@
             draggable_coordinates.forEach(coordinate => {
                 // Wydobywanie danych z ImageData dla podanych współrzędnych
                 const imageData = mainCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
-
                 // Tworzenie nowego canvas i kontekstu
                 const newCanvas = document.createElement('canvas');
                 const newCtx = newCanvas.getContext('2d');
@@ -243,25 +242,32 @@
                 // Dodanie atrybutu data-red-sums do div'a z 1D tablicą redSums
                 newDiv.dataset.redSums = JSON.stringify(redSums);  // Użycie data-* atrybutu
 
-                // Tworzenie SVG dla wykresu
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.setAttribute('width', newCanvas.width);
-                svg.setAttribute('height', 250);
+                // Tworzenie głównego canvas
+                const mainCanvas = document.createElement('canvas');
+                mainCanvas.width = newCanvas.width;
+                mainCanvas.height = 250;
+                const ctx = mainCanvas.getContext('2d');
 
-                // Rysowanie wykresu na SVG (prostokąty reprezentujące znormalizowane wartości)
-                const rectWidth = newCanvas.width / redSums.length; // Szerokość prostokąta dla każdej kolumny
+                // Rysowanie wykresu jako linia
+                ctx.beginPath();
+                ctx.strokeStyle = 'steelblue';
+                ctx.lineWidth = 2;
                 normalizedRedSums.forEach((value, index) => {
-                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    rect.setAttribute('x', index * rectWidth); // Pozycja X
-                    rect.setAttribute('y', 250 - value); // Pozycja Y (odwrócony, aby wartości większe były na górze)
-                    rect.setAttribute('width', rectWidth); // Szerokość prostokąta
-                    rect.setAttribute('height', value); // Wysokość prostokąta
-                    rect.setAttribute('fill', 'steelblue'); // Kolor prostokąta
-                    svg.appendChild(rect);
+                    const x = (index / (normalizedRedSums.length - 1)) * mainCanvas.width;
+                    const y = 250 - value;
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
                 });
+                ctx.stroke();
 
-                // Dodanie SVG do div'a
-                newDiv.appendChild(svg);
+                // Dodanie canvas z wykresem do div'a
+                newDiv.appendChild(mainCanvas);
+
+                // Dodanie br pomiędzy canvasami
+                newDiv.appendChild(document.createElement('br'));
 
                 // Dodanie canvas do div'a
                 newDiv.appendChild(newCanvas);
