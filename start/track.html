@@ -121,6 +121,7 @@
         // Funkcja, która ma być uruchomiona po załadowaniu obu obrazów
         function onAllDataLoaded() {
             normalizeCanvasData();
+            extractTrackData(draggable_coordinates, baselines);
         }
 
         function autostart() {
@@ -144,7 +145,6 @@
         // Ładowanie obrazów na kanwasy po załadowaniu strony
         window.onload = () => {
             autostart();
-            extractTrackData(draggable_coordinates, baselines);
         };
 
         function normalizeCanvasData() {
