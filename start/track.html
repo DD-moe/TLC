@@ -66,7 +66,7 @@
                     try {
                         // Parsowanie danych JSON
                         const parsedData = JSON.parse(jsonData);
-
+                        console.log(parsedData);
                         // Przypisanie danych do odpowiednich zmiennych globalnych
                         if (key === "baselines") {
                             baselines = parsedData;
@@ -144,7 +144,7 @@
         // Ładowanie obrazów na kanwasy po załadowaniu strony
         window.onload = () => {
             autostart();
-            extractTrackData(draggable_coordinates, baselines);
+            //extractTrackData(draggable_coordinates, baselines);
         };
 
         function normalizeCanvasData() {
