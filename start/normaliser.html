@@ -237,6 +237,7 @@
             element.style.position = "absolute";
             element.style.left = `${positionX}px`;
             element.style.width = `${elementWidth}px`;
+            element.style.backgroundColor = "gray"; // Domyślny kolor
             const movable = new Moveable(container, {
                 target: element,
                 resizable: true,
