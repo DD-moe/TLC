@@ -229,8 +229,9 @@
                     let sumRed = 0;
                     for (let y = 0; y < imageData.height; y++) {
                         const index = (y * imageData.width + x) * 4;
-                        sumRed += imageData.data[index]; // Kanał czerwony to pierwszy element w tablicy (index * 4)
+                        sumRed += 255 - imageData.data[index]; // Kanał czerwony to pierwszy element w tablicy (index * 4)
                     }
+
                     redSums.push(sumRed); // Zapisanie sumy kanału czerwonego dla każdej kolumny
                 }
 
