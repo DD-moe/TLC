@@ -460,13 +460,13 @@
             movable.on("click", e => {
                 resetDraggablesColor();
                 selectedTrack = {target: e.target, moveable: e.moveable};
-                e.target.style.backgroundColor = 'red';
+                e.target.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
             });
         }
 
         function resetDraggablesColor() {
             document.querySelectorAll(".draggable").forEach(el => {
-                el.style.backgroundColor = "gray";
+                el.style.backgroundColor = 'rgba(0, 0, 255, 0.3)';
             });
         }
 
