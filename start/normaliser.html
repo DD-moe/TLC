@@ -238,6 +238,7 @@
             element.style.left = `${positionX}px`;
             element.style.width = `${elementWidth}px`;
             element.style.backgroundColor = "gray"; // Domyślny kolor
+            container.appendChild(element);    
             const movable = new Moveable(container, {
                 target: element,
                 resizable: true,
@@ -248,8 +249,7 @@
             movable.on("resize", e => {
                 e.target.style.width = `${e.width}px`;
                 e.target.style.transform = e.drag.transform;
-            });
-            container.appendChild(element);            
+            });        
         }
 
         // Moveable setup
@@ -269,8 +269,7 @@
             element.style.position = "absolute";
             element.style.top = `${positionY}px`;
             element.style.height = `${elementHeight}px`;
-            element.style.backgroundColor = "gray"; // Domyślny kolor
-
+            container.appendChild(element);
             const movable = new Moveable(container, {
                 target: element,
                 draggable: true,
@@ -296,8 +295,6 @@
                 e.target.style.backgroundColor = 'red';
                 //console.log(e.moveable);
             });
-        
-            container.appendChild(element);
         }
 
         function updateTrackName(newName) {
