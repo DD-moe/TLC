@@ -43,6 +43,9 @@
         <label for="kernelSize" title="Kernel dla blurr - do wykrywania granic peaku">blur</label>
         <input type="number" id="kernelSize" min="1" max="20" step="1" value="5">
         <button onclick="autostart()" title="Ponowne przetwarzanie danych po korekcie">🔄</button>
+        <button onclick="unselectElement()" title="Odznacz wybrany element">❌</button>
+        <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
+        <button onclick="addDraggableElement()" title="Utwórz nową ścieżkę">➕</button>
     </div> 
     <h2>Spots image</h2>
     <canvas id="spots" width="400" height="400"></canvas>
@@ -59,6 +62,8 @@
         // Zmienne globalne
         let baselines = null;
         let draggable_coordinates = null;
+        let selectedTrack = null;
+        let manuals = false;
 
         // Funkcja do pobrania i parsowania danych JSON z IndexedDB
         function loadJsonDataFromIndexedDB(dbName, storeName, key) {
@@ -406,12 +411,78 @@
                     mountainDiv.style.backgroundColor = 'rgba(0, 0, 255, 0.3)'; // Przezroczysty kolor dla widoczności
 
                     newDiv.appendChild(mountainDiv);
+                    createDraggableElement(positionYPercent, elementHeightPercent, newDiv, mountainDiv);
                 });
 
             });
         }
 
+        function addDraggableElement() {
+            const element = selectedTrack.target;
+            const container = element.parentElement;
+            const mountainDiv = document.createElement('div');
+                    
+            mountainDiv.style.position = 'absolute';
+            mountainDiv.style.left = element.style.left;
+            mountainDiv.style.width = element.style.width;
+            mountainDiv.style.top = element.style.top;
+            mountainDiv.style.height = element.style.height;
+            mountainDiv.style.backgroundColor = 'rgba(0, 0, 255, 0.3)'; // Przezroczysty kolor dla widoczności
+            container.appendChild(mountainDiv);
+            createDraggableElement(container, element);
+        }
 
+        // Moveable setup
+        function createDraggableElement(container, element) {
+            if (!container) return;
+            const containerHeight = container.getBoundingClientRect().height;
+            element.classList.add("draggable");
+            
+            const movable = new Moveable(container, {
+                target: element,
+                draggable: true,
+                throttleDrag: 1,
+                edgeDraggable: false,
+                startDragRotate: 0,
+                throttleDragRotate: 0,
+                resizable: true,
+                keepRatio: false,
+                throttleResize: 1,
+                renderDirections:  ["w", "e"]        
+            });
+            movable.on("drag", e => {
+                e.target.style.left = `${e.left}px`;
+            });
+            movable.on("resize", e => {
+                e.target.style.width = `${e.width}px`;
+                e.target.style.transform = e.drag.transform;
+            });
+            movable.on("click", e => {
+                resetDraggablesColor();
+                selectedTrack = {target: e.target, moveable: e.moveable};
+                e.target.style.backgroundColor = 'red';
+            });
+        }
+
+        function resetDraggablesColor() {
+            document.querySelectorAll(".draggable").forEach(el => {
+                el.style.backgroundColor = "gray";
+            });
+        }
+
+        function unselectElement(){
+            selectedTrack = null;
+            resetDraggablesColor();
+        }
+
+        function removeSelectedElement() {
+            if (selectedTrack) {
+                selectedTrack.moveable.controlBox.remove();
+                selectedTrack.moveable.destroy();
+                selectedTrack.target.remove();
+                selectedTrack = null;
+            }
+        }
 
     </script>     
 </body>
