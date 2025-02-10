@@ -204,7 +204,7 @@
             // Uzyskanie dostępu do głównego canvas
             const mainCanvas = document.getElementById('normalised');
             const mainCtx = mainCanvas.getContext('2d');
-
+            console.log(draggable_coordinates, baselines);
             draggable_coordinates.forEach(coordinate => {
                 // Wydobywanie danych z ImageData dla podanych współrzędnych
                 const imageData = mainCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
