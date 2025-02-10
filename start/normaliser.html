@@ -55,11 +55,12 @@
 
     <div class="container" data-croffle-ref="element$0" id="cfc">
         <canvas id="canvas"></canvas>
+        <!-- 
         <div class="draggable" data-croffle-ref="targetRef0" style="top: 10%"></div>
         <div class="draggable" data-croffle-ref="targetRef1" style="top: 25%"></div>
         <div class="draggable" data-croffle-ref="targetRef2" style="top: 40%"></div>
         <div class="draggable" data-croffle-ref="targetRef3" style="top: 55%"></div>
-        <div class="draggable" data-croffle-ref="targetRef4" style="top: 70%"></div>
+        <div class="draggable" data-croffle-ref="targetRef4" style="top: 70%"></div>-->
     </div>
     <div class="controls">
         <h3 id="konsola">konsola: </h3>
@@ -110,12 +111,44 @@
         let rotation = 0;
         let flipX = 1, flipY = 1;
         const cfc = document.getElementById("cfc");
+        let selectedTrack = null;
+
+        function removeSelectedElement() {
+            if (selectedTrack) {
+                selectedTrack.remove();
+                selectedTrack = null;
+            }
+        }
+
+        function getLowestAvailableTrackNumber() {
+            const usedNumbers = Array.from(document.querySelectorAll('.draggable'))
+                .map(el => parseInt(el.textContent.replace("Track: ", "")))
+                .sort((a, b) => a - b);
+            
+            let trackNumber = 0;
+            while (usedNumbers.includes(trackNumber)) {
+                trackNumber++;
+            }
+            return trackNumber;
+        }
+
+        function resetDraggablesColor() {
+            document.querySelectorAll(".draggable").forEach(el => {
+                el.style.backgroundColor = "gray";
+            });
+        }
+
+        function unselectElement(){
+            selectedTrack = null;
+            resetDraggablesColor();
+        }
 
         async function loadImageFromDB() {
             try {
                 const imageUrl = await getImageUrlFromIndexedDB(dbName, storeName, key);
                 if (imageUrl) {
                     drawImage(imageUrl);
+                    createDraggableElement(500, 20, 50); 
                 } else {
                     console.error("Brak obrazu w bazie danych.");
                 }
@@ -171,7 +204,7 @@
         loadImageFromDB();
 
         // Moveable setup
-
+/*
         const element$0 = document.querySelector(`[data-croffle-ref="element$0"]`);
         for (let i = 0; i < 5; i++) {
             const target = document.querySelector(`[data-croffle-ref="targetRef${i}"]`);
@@ -195,7 +228,56 @@
                 e.target.style.transform = e.drag.transform;
             });
 
+        } */
+
+        function createDraggableElement(containerHeight, positionYPercent, elementHeightPercent) {
+            const container = document.getElementById("cfc");
+            if (!container) return;
+
+            const element = document.createElement("div");
+            element.classList.add("draggable");
+            element.textContent = `Track: ${getLowestAvailableTrackNumber()}`;
+            
+            // Obliczanie wartości w pikselach na podstawie procentów
+            const elementHeight = (containerHeight * elementHeightPercent) / 100;
+            const positionY = (containerHeight * positionYPercent) / 100;
+
+            element.style.position = "absolute";
+            element.style.top = `${positionY}px`;
+            element.style.height = `${elementHeight}px`;
+            element.style.width = "100px"; // Możesz dostosować szerokość
+            element.style.backgroundColor = "gray"; // Domyślny kolor
+
+            // Event listener do zaznaczania elementu
+            element.addEventListener("click", () => {
+                resetDraggablesColor();
+                selectedTrack = element;
+                element.style.backgroundColor = "green";
+            });
+
+            const movable = new Moveable(container, {
+                target: element,
+                draggable: true,
+                throttleDrag: 1,
+                edgeDraggable: false,
+                startDragRotate: 0,
+                throttleDragRotate: 0,
+                resizable: true,
+                keepRatio: false,
+                throttleResize: 1,
+                renderDirections:  ["n", "s"]        
+            });
+            movable.on("drag", e => {
+                e.target.style.top = `${e.top}px`;
+            });
+            movable.on("resize", e => {
+                e.target.style.height = `${e.height}px`;
+                e.target.style.transform = e.drag.transform;
+            });
+        
+            container.appendChild(element);
         }
+
 
         function makeGray() {
             const coef_r = parseFloat(document.getElementById('coef_r').value);
