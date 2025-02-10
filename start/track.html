@@ -6,6 +6,11 @@
     <title>Canvas z IndexedDB</title>
     <script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
     <link rel="stylesheet" href="pushdata.css">
+    <style>
+        canvas{
+            border: solid black 1px;
+        }
+    </style>
 </head>
 <body>
     <script>
@@ -34,7 +39,7 @@
     <div class="controls">
         <h3 id="konsola">konsola: </h3>
         <label for="treshold" title="Ustaw próg powyżej którego piksele będą zaliczone do tła i wybielone">Próg</label>
-        <input type="range" id="treshold" min="0" max="255" step="1" value="240">
+        <input type="number" id="treshold" min="0" max="255" step="1" value="240">
         <button onclick="autostart()" title="Ponowne przetwarzanie danych po korekcie">🔄</button>
     </div>
     <h2>Spots image</h2>
@@ -181,7 +186,7 @@
                 }
 
                 // Ustaw ograniczenie na wartość z input
-                rNormalized = Math.min(treshold, Math.max(0, rNormalized));
+                rNormalized = rNormalized > treshold ? 255 : rNormalized;
 
                 // Ustaw wynik dla wszystkich kanałów (RGB)
                 normalizedImageData.data[i] = rNormalized;        // R
