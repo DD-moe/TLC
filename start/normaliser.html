@@ -595,7 +595,7 @@
             saveToIndexedDB(dataURL, key); // Zapisz dane do IndexedDB
             const baselines = document.getElementById('baselines');
             const rect = baselines.getBoundingClientRect();
-            const cm_width = parseFloat(document.getElementById('plate_width').value);
+            const cm_width = parseFloat(document.getElementById('cm_width').value);
             const baselines_data = JSON.stringify({x: rect.left, width: rect.width, plate_width: cm_width})
             saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
 
