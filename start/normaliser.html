@@ -231,12 +231,12 @@
             const element = document.createElement("div");
             element.classList.add("baselines");
             // Obliczanie wartości w pikselach na podstawie procentów
-            const elementHeight = (containerHeight * elementHeightPercent) / 100;
-            const positionY = (containerHeight * positionYPercent) / 100;
+            const elementWidth = (containerWidth * end) / 100;
+            const positionX = (containerWidth * start) / 100;
 
             element.style.position = "absolute";
-            element.style.top = `${positionY}px`;
-            element.style.height = `${elementHeight}px`;
+            element.style.left = `${positionX}px`;
+            element.style.width = `${elementWidth}px`;
             const movable = new Moveable(container, {
                 target: element,
                 resizable: true,
@@ -245,7 +245,7 @@
                 renderDirections:  ["e", "w"]        
             });
             movable.on("resize", e => {
-                e.target.style.height = `${e.height}px`;
+                e.target.style.width = `${e.width}px`;
                 e.target.style.transform = e.drag.transform;
             });
             container.appendChild(element);            
