@@ -238,7 +238,7 @@
                 e.target.style.height = `${e.height}px`;
                 e.target.style.transform = e.drag.transform;
             });
-            movable.on("click", () => {
+            movable.on("click", e => {
                 console.log(e.target);
             });
         
