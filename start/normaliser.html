@@ -27,6 +27,13 @@
             opacity: 50%;
         }
 
+        .baselines{
+            position: absolute;
+            width: 5%;
+            height: 100%;
+            border: solid black 2px;
+        }
+
         #degree{
             width: 3ch;
         }
@@ -191,7 +198,7 @@
                 createDraggableElement(20, 10);
                 createDraggableElement(45, 10); 
                 createDraggableElement(80, 10);
-                createBaselines(start, end);
+                createBaselines(10, 80);
                 manuals = true; 
             }
         }
