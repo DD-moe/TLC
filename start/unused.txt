@@ -115,3 +115,31 @@
                 
                 return gaussianElimination(XTX, XTY);
             }
+
+
+
+            /*
+        const element$0 = document.querySelector(`[data-croffle-ref="element$0"]`);
+        for (let i = 0; i < 5; i++) {
+            const target = document.querySelector(`[data-croffle-ref="targetRef${i}"]`);
+            const movable = new Moveable(element$0, {
+                target: target,
+                draggable: true,
+                throttleDrag: 1,
+                edgeDraggable: false,
+                startDragRotate: 0,
+                throttleDragRotate: 0,
+                resizable: true,
+                keepRatio: false,
+                throttleResize: 1,
+                renderDirections:  ["n", "s"]        
+            });
+            movable.on("drag", e => {
+                e.target.style.top = `${e.top}px`;
+            });
+            movable.on("resize", e => {
+                e.target.style.height = `${e.height}px`;
+                e.target.style.transform = e.drag.transform;
+            });
+
+        } */
