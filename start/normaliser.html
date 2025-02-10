@@ -239,7 +239,7 @@
                 e.target.style.transform = e.drag.transform;
             });
             movable.on("click", e => {
-                console.log(e.target);
+                console.log(e.target, e.moveable);
             });
         
             container.appendChild(element);
