@@ -145,7 +145,7 @@
                 const imageUrl = await getImageUrlFromIndexedDB(dbName, storeName, key);
                 if (imageUrl) {
                     drawImage(imageUrl);
-                    createDraggableElement(20, 50);
+                    createDraggableElement(20, 10);
                     createDraggableElement(45, 10); 
                     createDraggableElement(80, 10); 
                 } else {
@@ -238,7 +238,7 @@
                 e.target.style.height = `${e.height}px`;
                 e.target.style.transform = e.drag.transform;
             });
-            moveable.on("click", () => {
+            movable.on("click", () => {
                 resetDraggablesColor();
                 selectedTrack = target;
                 target.style.backgroundColor = "red";
