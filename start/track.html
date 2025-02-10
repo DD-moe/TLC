@@ -200,11 +200,111 @@
             normalizedContext.putImageData(normalizedImageData, 0, 0);
         }
 
+        // Function to blur an array using a kernel size
+        function blurArray(inputArray, kernelSize) {
+            const outputArray = new Array(inputArray.length).fill(0);
+            const halfKernel = Math.floor(kernelSize / 2);
+
+            for (let i = 0; i < inputArray.length; i++) {
+                let sum = 0;
+                let count = 0;
+
+                for (let k = -halfKernel; k <= halfKernel; k++) {
+                    const idx = i + k;
+                    if (idx >= 0 && idx < inputArray.length) {
+                        sum += inputArray[idx];
+                        count++;
+                    }
+                }
+                if (inputArray[i] === 0) {
+                outputArray[i] = 0;
+                }
+                else{
+                outputArray[i] = sum / count;
+                }
+            }
+            return outputArray;
+        }
+
+        function analyzeArrayWithKernel(array, kernelSize, height) {
+            const mountains = [];
+            let status = "constant"; // Possible values: "constant", "ascending", "descending"
+            let mountainStart = null;
+            let mountainEnd = null;
+
+            for (let i = 0; i < array.length; i++) {
+                // Get neighbors to the right based on kernel size
+                const neighbors = [];
+                for (let k = 1; k <= kernelSize; k++) {
+                    if (i + k < array.length) {
+                        neighbors.push(array[i + k]);
+                    }
+                }
+
+                // Calculate the average of neighbors
+                const average = neighbors.length > 0 
+                    ? neighbors.reduce((sum, val) => sum + val, 0) / neighbors.length
+                    : 0;
+
+                // Determine the new status based on comparison with average
+                let newStatus;
+                if (array[i] > average) {
+                    newStatus = "descending";
+                } else if (array[i] < average) {
+                    newStatus = "ascending";
+                } else {
+                    newStatus = "constant";
+                }
+
+                // Handle status change logic
+                if (newStatus !== status) {
+                    if ((status === "constant" || status === "descending") && newStatus === "ascending" ) {
+                    if (mountainStart !== null) {
+                        mountainEnd = i;
+                        mountains.push({ start: mountainStart, end: mountainEnd });
+                        mountainStart = i;
+                        mountainEnd = null;                
+                    }
+                    else{
+                        mountainStart = mountainStart === null ? i : mountainStart;
+                    }
+                        
+                    } 
+                    else if (status === "descending" && mountainStart !== null && (newStatus === "constant" )) {
+                        mountainEnd = i;
+                        mountains.push({ start: mountainStart, end: mountainEnd });
+                        mountainStart = null;
+                        mountainEnd = null;
+                    }          
+
+                    // Update status
+                    //console.log(status, newStatus);
+                    status = newStatus;
+                    
+                }
+            }
+            // Find the global minimum and maximum values in arr
+            const globalMin = Math.min(...array);
+            const globalMax = Math.max(...array);
+            const globalDistance = globalMax - globalMin;
+            // Validate and extract real mountains
+            const realMountains = mountains.filter(({ start, end }) => {
+            const fragment = array.slice(start, end + 1); // Get the fragment of arr
+            const fragmentMin = Math.min(...fragment);
+            const fragmentMax = Math.max(...fragment);
+            const fragmentDistance = fragmentMax - fragmentMin;
+
+            // Compare fragment distance to x% of global distance
+            return fragmentDistance >= (height / 100) * globalDistance;
+            });
+            return realMountains;
+        }
+
         function extractTrackData(draggable_coordinates, baselines) {
             // Uzyskanie dostępu do głównego canvas
             const mainCanvas = document.getElementById('normalised');
             const mainCtx = mainCanvas.getContext('2d');
-            console.log(draggable_coordinates, baselines);
+            const kernelSize = parseInt(document.getElementById('kernelSize').value);
             draggable_coordinates.forEach(coordinate => {
                 // Wydobywanie danych z ImageData dla podanych współrzędnych
                 const imageData = mainCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
@@ -224,7 +324,7 @@
                 newDiv.id = coordinate.name;  // Ustawianie id div'a na podstawie 'name' w draggable_coordinates
 
                 // Tworzenie tablicy 1D z sumami kanału czerwonego dla każdej kolumny
-                const redSums = [];
+                const RedSums = [];
                 for (let x = 0; x < imageData.width; x++) {
                     let sumRed = 0;
                     for (let y = 0; y < imageData.height; y++) {
@@ -232,17 +332,20 @@
                         sumRed += 255 - imageData.data[index]; // Kanał czerwony to pierwszy element w tablicy (index * 4)
                     }
 
-                    redSums.push(sumRed); // Zapisanie sumy kanału czerwonego dla każdej kolumny
+                    RedSums.push(sumRed); // Zapisanie sumy kanału czerwonego dla każdej kolumny
                 }
-
-                // Normalizacja redSums (zakładając, że minimalna wartość to 0, a maksymalna to 250)
-                const min = Math.min(...redSums);
-                const max = Math.max(...redSums);
-                const normalizedRedSums = redSums.map(value => (value - min) / (max - min) * 250);
-
-                // Dodanie atrybutu data-red-sums do div'a z 1D tablicą redSums
-                newDiv.dataset.redSums = JSON.stringify(redSums);  // Użycie data-* atrybutu
-
+                
+                const blurredRedSums = blurArray(RedSums, kernelSize);
+                const mountains = analyzeArrayWithKernel(blurredRedSums, 1, 1);
+                console.log(mountains);
+                // Normalizacja RedSums (zakładając, że minimalna wartość to 0, a maksymalna to 250)
+                const min = Math.min(...RedSums);
+                const max = Math.max(...RedSums);
+                const normalizedRedSums = RedSums.map(value => (value - min) / (max - min) * 250);
+                
+                // Dodanie atrybutu data-red-sums do div'a z 1D tablicą RedSums
+                newDiv.dataset.RedSums = JSON.stringify(RedSums);  // Użycie data-* atrybutu
+                newDiv.dataset.blurRedredSums = JSON.stringify(blurredRedSums); 
                 // Tworzenie głównego canvas
                 const mainCanvas = document.createElement('canvas');
                 mainCanvas.width = newCanvas.width;
