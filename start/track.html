@@ -144,6 +144,7 @@
         // Ładowanie obrazów na kanwasy po załadowaniu strony
         window.onload = () => {
             autostart();
+            extractTrackData(draggable_coordinates, baselines);
         };
 
         function normalizeCanvasData() {
@@ -198,6 +199,78 @@
             // Wstaw ImageData do canvasu "normalised"
             normalizedContext.putImageData(normalizedImageData, 0, 0);
         }
+
+        function extractTrackData(draggable_coordinates, baselines) {
+            // Uzyskanie dostępu do głównego canvas
+            const mainCanvas = document.getElementById('normalised');
+            const mainCtx = mainCanvas.getContext('2d');
+
+            draggable_coordinates.forEach(coordinate => {
+                // Wydobywanie danych z ImageData dla podanych współrzędnych
+                const imageData = mainCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
+
+                // Tworzenie nowego canvas i kontekstu
+                const newCanvas = document.createElement('canvas');
+                const newCtx = newCanvas.getContext('2d');
+
+                // Ustawianie rozmiaru nowego canvas
+                newCanvas.width = baselines.width;
+                newCanvas.height = coordinate.height;
+
+                // Wstawianie ImageData do nowego canvas
+                newCtx.putImageData(imageData, 0, 0);
+
+                // Tworzenie nowego div'a z odpowiednim id
+                const newDiv = document.createElement('div');
+                newDiv.id = coordinate.name;  // Ustawianie id div'a na podstawie 'name' w draggable_coordinates
+
+                // Tworzenie tablicy 1D z sumami kanału czerwonego dla każdej kolumny
+                const redSums = [];
+                for (let x = 0; x < imageData.width; x++) {
+                    let sumRed = 0;
+                    for (let y = 0; y < imageData.height; y++) {
+                        const index = (y * imageData.width + x) * 4;
+                        sumRed += imageData.data[index]; // Kanał czerwony to pierwszy element w tablicy (index * 4)
+                    }
+                    redSums.push(sumRed); // Zapisanie sumy kanału czerwonego dla każdej kolumny
+                }
+
+                // Normalizacja redSums (zakładając, że minimalna wartość to 0, a maksymalna to 250)
+                const min = Math.min(...redSums);
+                const max = Math.max(...redSums);
+                const normalizedRedSums = redSums.map(value => (value - min) / (max - min) * 250);
+
+                // Dodanie atrybutu data-red-sums do div'a z 1D tablicą redSums
+                newDiv.dataset.redSums = JSON.stringify(redSums);  // Użycie data-* atrybutu
+
+                // Tworzenie SVG dla wykresu
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('width', newCanvas.width);
+                svg.setAttribute('height', 250);
+
+                // Rysowanie wykresu na SVG (prostokąty reprezentujące znormalizowane wartości)
+                const rectWidth = newCanvas.width / redSums.length; // Szerokość prostokąta dla każdej kolumny
+                normalizedRedSums.forEach((value, index) => {
+                    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    rect.setAttribute('x', index * rectWidth); // Pozycja X
+                    rect.setAttribute('y', 250 - value); // Pozycja Y (odwrócony, aby wartości większe były na górze)
+                    rect.setAttribute('width', rectWidth); // Szerokość prostokąta
+                    rect.setAttribute('height', value); // Wysokość prostokąta
+                    rect.setAttribute('fill', 'steelblue'); // Kolor prostokąta
+                    svg.appendChild(rect);
+                });
+
+                // Dodanie SVG do div'a
+                newDiv.appendChild(svg);
+
+                // Dodanie canvas do div'a
+                newDiv.appendChild(newCanvas);
+
+                // Dodanie div'a do dokumentu (np. do body)
+                document.body.appendChild(newDiv);
+            });
+        }
+
 
 
     </script>     
