@@ -219,13 +219,6 @@
             element.style.height = `${elementHeight}px`;
             element.style.backgroundColor = "gray"; // Domyślny kolor
 
-            // Event listener do zaznaczania elementu
-            element.addEventListener("click", () => {
-                resetDraggablesColor();
-                selectedTrack = element;
-                element.style.backgroundColor = "red";
-            });
-
             const movable = new Moveable(container, {
                 target: element,
                 draggable: true,
@@ -244,6 +237,11 @@
             movable.on("resize", e => {
                 e.target.style.height = `${e.height}px`;
                 e.target.style.transform = e.drag.transform;
+            });
+            moveable.on("click", () => {
+                resetDraggablesColor();
+                selectedTrack = target;
+                target.style.backgroundColor = "red";
             });
         
             container.appendChild(element);
