@@ -376,13 +376,37 @@
                 newDiv.appendChild(mainCanvas);
 
                 // Dodanie br pomiędzy canvasami
-                newDiv.appendChild(document.createElement('br'));
+                const br = document.createElement('br');
+                newDiv.appendChild(br);
 
                 // Dodanie canvas do div'a
                 newDiv.appendChild(newCanvas);
 
                 // Dodanie div'a do dokumentu (np. do body)
                 document.body.appendChild(newDiv);
+
+                // Pobranie pozycji newDiv
+                const newDivRect = newDiv.getBoundingClientRect();
+                const mainCanvasRect = mainCanvas.getBoundingClientRect();
+                const newCanvasRect = newCanvas.getBoundingClientRect();
+
+                // Obliczenie wysokości od góry mainCanvas do dołu newCanvas względem newDiv
+                const totalHeight = newCanvasRect.bottom - mainCanvasRect.top;
+
+                // Tworzenie divów dla każdego obiektu w mountains
+                mountains.forEach(({ start, end }) => {
+                    const mountainDiv = document.createElement('div');
+                    
+                    mountainDiv.style.position = 'absolute';
+                    mountainDiv.style.left = `${start - newDivRect.left}px`;  // Względem newDiv
+                    mountainDiv.style.width = `${end - start}px`;
+                    mountainDiv.style.top = `${mainCanvasRect.top - newDivRect.top}px`; // Względem newDiv
+                    mountainDiv.style.height = `${totalHeight}px`;
+                    mountainDiv.style.backgroundColor = 'rgba(0, 0, 255, 0.3)'; // Przezroczysty kolor dla widoczności
+
+                    newDiv.appendChild(mountainDiv);
+                });
+
             });
         }
 
