@@ -604,8 +604,11 @@
             saveToIndexedDB(dataURL, key); // Zapisz dane do IndexedDB
             const baselines = document.getElementById('baselines');
             const rect = baselines.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
             const cm_width = parseFloat(document.getElementById('cm_width').value);
-            const baselines_data = JSON.stringify({x: Math.round(rect.left), width: Math.round(rect.width), plate_width: cm_width})
+            const baselines_data = JSON.stringify({x: Math.round((rect.left - canvasRect.left) / canvasRect.width * canvas.width),
+                width: Math.round(rect.width / canvasRect.width * canvas.width),
+                plate_width: cm_width});
             saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
 
         }
