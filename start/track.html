@@ -1005,7 +1005,7 @@
 
             if (surfaceValue !== undefined && concentrationValue !== undefined) {
                 concentrationData.push({ surface: surfaceValue, concentration: concentrationValue });
-                saveToIndexedDB(concentrationData, 'concentrationData');
+                saveToIndexedDB(JSON.stringify(concentrationData), 'concentrationData');
             }
             displayConcentrationData();
         }
