@@ -573,8 +573,9 @@
                     let redSums = JSON.parse(track.dataset.RedSums);
                     let canvas = track.querySelector(".chart");
                     let ctx = canvas.getContext("2d");
+                    console.log('track');
                 track.querySelectorAll(".draggable").forEach(draggable => {
-                    
+                    console.log('draggable');
                     let start = parseInt(draggable.style.left) || 0;
                     let end = parseInt(draggable.style.right) || redSums.length;
                     let data = redSums.slice(start, end);
@@ -589,7 +590,7 @@
                     ctx.lineWidth = 2;
                     
                     normalizedData.forEach((val, i) => {
-                        let x = (i / normalizedData.length) * canvas.width + result.start;
+                        let x = (i / normalizedData.length) * canvas.width + result.newStart;
                         let y = canvas.height - val;
                         if (i === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
