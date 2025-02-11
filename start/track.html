@@ -68,7 +68,7 @@
         <canvas id="normalised" width="400" height="400"></canvas>
     </div>
     <div id="track_space"></div>
-    <div id="parameter_Box"></div>
+    <div id="parameterBox"></div>
 
     </div> 
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
@@ -724,8 +724,8 @@
         }
 
         function updateParameterBox() {
-            const parameter_Box = document.getElementById('parameter_Box');
-            parameter_Box.innerHTML = "";
+            const parameterBox = document.getElementById('parameterBox');
+            parameterBox.innerHTML = "";
 
             if (!selectedTrack || !selectedTrack.target) return;
             
