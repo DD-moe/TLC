@@ -340,7 +340,7 @@
                 // Tworzenie nowego div'a z odpowiednim id
                 const newDiv = document.createElement('div');
                 newDiv.style.position = 'relative';
-                element.classList.add("track");
+                newDiv.classList.add("track");
                 newDiv.id = coordinate.name;  // Ustawianie id div'a na podstawie 'name' w draggable_coordinates
 
                 // Tworzenie tablicy 1D z sumami kanału czerwonego dla każdej kolumny
@@ -368,6 +368,7 @@
                 //newDiv.dataset.blurredSums = JSON.stringify(blurredRedSums); 
                 // Tworzenie głównego canvas
                 const mainCanvas = document.createElement('canvas');
+                mainCanvas.classList.add('chart');
                 mainCanvas.width = newCanvas.width;
                 mainCanvas.height = 250;
                 const ctx = mainCanvas.getContext('2d');
