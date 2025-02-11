@@ -51,6 +51,9 @@
         <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
         <button onclick="addDraggableElement()" title="Utwórz nową ścieżkę">➕</button>
         <button id="toggleBtn" title="Pokaż/Ukryj obszar rysowania" onclick="toggle_CanvasSpace()">⇄</button>
+        <button id="calculate" title="Uruchamia obliczenia" onclick="extendPeaks()">🔢</button>
+        <label for="degree"  title="Stopień wielomianu">Stopień</label>
+        <input id="degree" type="number" min="3" value="4" max="6" step="1">
     </div>
     <div id="canvas_space">
         <h2>Spots image</h2>
@@ -564,6 +567,37 @@
             
             return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
         }
+
+        function extendPeaks(){
+            document.querySelectorAll(".track").forEach(track => {
+                    let redSums = JSON.parse(track.dataset.redsums);
+                    let canvas = track.querySelector(".chart");
+                    let ctx = canvas.getContext("2d");
+                track.querySelectorAll(".draggable").forEach(draggable => {
+                    
+                    let start = parseInt(draggable.style.left) || 0;
+                    let end = parseInt(draggable.style.right) || redSums.length;
+                    let data = redSums.slice(left, right);
+                    let degree = parseInt(document.getElementById("degree").value);
+                    
+                    let result = polynomialRegressionAndExtrapolate(data, degree, start, end);
+                    let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
+                    
+                    ctx.beginPath();
+                    ctx.strokeStyle = "red";
+                    ctx.lineWidth = 2;
+                    
+                    normalizedData.forEach((val, i) => {
+                        let x = (i / normalizedData.length) * canvas.width;
+                        let y = canvas.height - val;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    });
+                    ctx.stroke();
+                }); 
+            });        
+        }
+    
 
     </script>     
 </body>
