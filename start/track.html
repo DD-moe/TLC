@@ -582,14 +582,14 @@
                     
                     let result = polynomialRegressionAndExtrapolate(data, degree, start, end);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
-                    draggable.dataset.normalizedData = normalizedData;
+                    draggable.dataset.result = result;
                     
                     ctx.beginPath();
                     ctx.strokeStyle = "red";
                     ctx.lineWidth = 2;
                     
                     normalizedData.forEach((val, i) => {
-                        let x = (i / normalizedData.length) * canvas.width;
+                        let x = (i / normalizedData.length) * canvas.width + result.start;
                         let y = canvas.height - val;
                         if (i === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
