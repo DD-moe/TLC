@@ -134,7 +134,12 @@
                             draggable_coordinates = parsedData;
                         }
                         else if (key === "concentrationData") {
-                            concentrationData = parsedData;
+                            if (parsedData === null || parsedData === undefined) {
+                                concentrationData = [];
+                            }
+                            else{
+                                concentrationData = parsedData;
+                            }
                         }
 
                         // Zwróć Promise po udanym załadowaniu
