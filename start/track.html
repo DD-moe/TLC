@@ -767,7 +767,7 @@
                         value: baselines.plate_width, // globalna zmienna
                         description: "Plate width in cm"
                     };
-                    console.log(params);
+                    
                     const spotsElement = document.getElementById('spots');
                     if (spotsElement) {
                         params.track_width = { 
@@ -932,7 +932,7 @@
                             };
                         }
                     }               
-                    
+                    console.log(params);
                     draggable.dataset.params = JSON.stringify(params); // Zapisanie zmian
                 });
             });
