@@ -110,7 +110,7 @@
         <label for="cm_width" title="Długość płytki w osi ścieżek w cm">📏</label>
         <input type="number" id="cm_width" min="1" max="20" step="0.1" value="10">
         <label for="sharpness" title="Ostrość podglądu płytki - ułatwia wybranie ścieżek">Ostrość: </label>
-        <input type="range" id="sharpness" min="100" max="400" value="100">
+        <input type="range" id="sharpness" min="25" max="400" value="100">
         <a href="unwarp.html">← Unwarp</a>
         <a href="track.html">→ Tracks analysis</a>
         <a href="setting.html">→ Settings</a>
@@ -137,7 +137,7 @@
         // Aktualizacja filtru na canvas
         slider.addEventListener("input", () => {
             let sharpness = slider.value / 100;
-            canvas.style.filter = `saturate(${sharpness})`;
+            canvas.style.filter = `contrast(${sharpness})`;
         });
 
         function removeSelectedElement() {
