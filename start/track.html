@@ -626,7 +626,7 @@
                     ctx.lineWidth = 2;
                     
                     normalizedData.forEach((val, i) => {
-                        let x = (i / normalizedData.length) * canvas.width + result.newStart;
+                        let x = (i / normalizedData.length) * canvas.width;
                         let y = canvas.height - val;
                         if (i === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
