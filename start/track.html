@@ -731,8 +731,7 @@
 
                 track.querySelectorAll(".draggable").forEach(draggable => {
 
-                    let params = JSON.parse(draggable.dataset.params);
-                    console.log(draggable_coordinates);
+                    let params = JSON.parse(baselines.dataset.params);
                     params.plate_width = { 
                         value: draggable_coordinates.plate_width, // globalna zmienna
                         description: "Plate width in cm"
