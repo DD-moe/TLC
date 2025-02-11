@@ -570,18 +570,18 @@
 
         function extendPeaks(){
             document.querySelectorAll(".track").forEach(track => {
-                    let redSums = JSON.parse(track.dataset.RedSums);
-                    let canvas = track.querySelector(".chart");
-                    let ctx = canvas.getContext("2d");
-                    console.log('track');
+                let redSums = JSON.parse(track.dataset.RedSums);
+                let canvas = track.querySelector(".chart");
+                let ctx = canvas.getContext("2d");
+
                 track.querySelectorAll(".draggable").forEach(draggable => {
-                    console.log('draggable');
                     let start = parseInt(draggable.style.left) || 0;
                     let end = parseInt(draggable.style.right) || redSums.length;
                     let data = redSums.slice(start, end);
                     let degree = parseInt(document.getElementById("degree").value);
                     
                     let result = polynomialRegressionAndExtrapolate(data, degree, start, end);
+                    console.log(result);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
                     draggable.dataset.result = result;
                     
