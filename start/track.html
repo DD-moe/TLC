@@ -618,6 +618,7 @@
                     let degree = parseInt(document.getElementById("degree").value);
                     
                     let result = cubicSplineInterpolationAndExtrapolate(redSums, start, end, degree);
+                    console.log(result);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
                     draggable.dataset.result = result;
                     
