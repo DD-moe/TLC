@@ -14,6 +14,37 @@
         #canvas_space{
             display: none;
         }
+
+        #parameterBox ul {
+            list-style-type: none; /* Usunięcie domyślnych kropek */
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        #parameterBox li {
+            display: flex;
+            justify-content: space-between; /* Rozdziela label i input */
+            align-items: center;
+            padding: 5px 10px;
+            border-bottom: 1px solid #ddd; /* Opcjonalna linia oddzielająca */
+        }
+
+        #parameterBox label {
+            flex: 1; /* Pozwala na dynamiczne dostosowanie szerokości */
+            text-align: left;
+            font-weight: bold;
+        }
+
+        #parameterBox input {
+            flex: 0.5; /* Mniejsza szerokość dla inputa */
+            text-align: right;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80px; /* Stała szerokość inputa */
+        }
+
     </style>
 </head>
 <body>
@@ -736,7 +767,7 @@
                         value: baselines.plate_width, // globalna zmienna
                         description: "Plate width in cm"
                     };
-                    consloe.log(params);
+                    console.log(params);
                     const spotsElement = document.getElementById('spots');
                     if (spotsElement) {
                         params.track_width = { 
