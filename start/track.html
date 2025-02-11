@@ -771,7 +771,7 @@
                     const spotsElement = document.getElementById('spots');
                     if (spotsElement) {
                         params.track_width = { 
-                            value: (redSums.length / spotsElement.width) * params.plate_width, 
+                            value: (redSums.length / spotsElement.width) * params.plate_width.value, 
                             description: "Track width in cm"
                         };
                     } else {
@@ -779,47 +779,47 @@
                     }
 
                     params.RF = { 
-                        value: params.midpointIndex / redSums.length, 
+                        value: params.midpointIndex.value / redSums.length, 
                         description: "Retention Factor"
                     };
 
                     params.k = { 
-                        value: (1 - params.RF) / params.RF, 
+                        value: (1 - params.RF.value) / params.RF.value, 
                         description: "K param" 
                     };
 
                     params.RM = { 
-                        value: Math.log10(params.k), 
+                        value: Math.log10(params.k.value), 
                         description: "RM param"
                     };
 
                     params.HobsBAS = { 
-                        value: (params.Wbas ** 2) / (5.54 * params.RF), 
+                        value: (params.Wbas.value ** 2) / (5.54 * params.RF.value), 
                         description: "Hobs at basis - United States Pharmacopeia" 
                     };
 
                     params.Hobs05 = { 
-                        value: (params.W50 ** 2) / (16 * params.RF), 
+                        value: (params.W50.value ** 2) / (16 * params.RF.value), 
                         description: "Hobs at 50% of height - European Pharmacopeia" 
                     };
 
                     params.NobsBAS = { 
-                        value: (16 * params.RF) / params.Wbas, 
+                        value: (16 * params.RF.value) / params.Wbas.value, 
                         description: "Nobs at basis - United States Pharmacopeia" 
                     };
 
                     params.Nobs05 = { 
-                        value: (params.RF / params.W50) ** 2 * 5.54, 
+                        value: (params.RF.value / params.W50.value) ** 2 * 5.54, 
                         description: "Nobs at 50% of height - European Pharmacopeia" 
                     };
 
                     params.N_mBAS = { 
-                        value: params.NobsBAS / params.track_width, 
+                        value: params.NobsBAS.value / params.track_width.value, 
                         description: "N/m at basis - United States Pharmacopeia" 
                     };
 
                     params.N_m05 = { 
-                        value: params.Nobs05 / params.track_width, 
+                        value: params.Nobs05.value / params.track_width.value, 
                         description: "N/m at 50% of height - European Pharmacopeia" 
                     };
 
