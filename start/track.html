@@ -614,8 +614,8 @@
 
                 track.querySelectorAll(".draggable").forEach(draggable => {
                     const Rect = draggable.getBoundingClientRect();
-                    let start = parseInt(Rect.style.left) || 0;
-                    let end = parseInt(Rect.style.width) + parseInt(Rect.style.left) || redSums.length;
+                    let start = parseInt(Rect.left) || 0;
+                    let end = parseInt(Rect.width) + parseInt(Rect.left) || redSums.length;
                     //let degree = parseInt(document.getElementById("degree").value);
                     
                     let result = cubicSplineInterpolationAndExtrapolate(redSums, start, end);
