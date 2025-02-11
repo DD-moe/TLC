@@ -502,71 +502,87 @@
             }
         }
 
-        // Rozwiązywanie układu równań metodą eliminacji Gaussa
-        function gaussianElimination(A, B) {
-            const n = A.length;
-            const M = A.map((row, i) => [...row, B[i][0]]);
+        // Implementacja interpolacji splajnów kubicznych w czystym JS
+        class CubicSpline {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.n = x.length - 1;
+                this.h = [];
+                this.b = [];
+                this.c = new Array(this.n + 1).fill(0);
+                this.d = new Array(this.n).fill(0);
 
-            for (let i = 0; i < n; i++) {
-                let maxRow = i;
-                for (let k = i + 1; k < n; k++) {
-                    if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) {
-                        maxRow = k;
-                    }
+                for (let i = 0; i < this.n; i++) {
+                    this.h[i] = x[i + 1] - x[i];
                 }
-                [M[i], M[maxRow]] = [M[maxRow], M[i]];
 
-                for (let k = i + 1; k < n; k++) {
-                    const factor = M[k][i] / M[i][i];
-                    for (let j = i; j <= n; j++) {
-                        M[k][j] -= factor * M[i][j];
-                    }
+                let alpha = new Array(this.n).fill(0);
+                for (let i = 1; i < this.n; i++) {
+                    alpha[i] = (3 / this.h[i]) * (y[i + 1] - y[i]) - (3 / this.h[i - 1]) * (y[i] - y[i - 1]);
+                }
+
+                let l = new Array(this.n + 1).fill(1);
+                let mu = new Array(this.n).fill(0);
+                let z = new Array(this.n + 1).fill(0);
+
+                for (let i = 1; i < this.n; i++) {
+                    l[i] = 2 * (x[i + 1] - x[i - 1]) - this.h[i - 1] * mu[i - 1];
+                    mu[i] = this.h[i] / l[i];
+                    z[i] = (alpha[i] - this.h[i - 1] * z[i - 1]) / l[i];
+                }
+
+                for (let j = this.n - 1; j >= 0; j--) {
+                    this.c[j] = z[j] - mu[j] * this.c[j + 1];
+                    this.b[j] = (y[j + 1] - y[j]) / this.h[j] - this.h[j] * (this.c[j + 1] + 2 * this.c[j]) / 3;
+                    this.d[j] = (this.c[j + 1] - this.c[j]) / (3 * this.h[j]);
                 }
             }
 
-            const X = Array(n).fill(0);
-            for (let i = n - 1; i >= 0; i--) {
-                let sum = M[i][n];
-                for (let j = i + 1; j < n; j++) {
-                    sum -= M[i][j] * X[j];
+            at(xi) {
+                if (xi < this.x[0]) {
+                    return this.y[0]; // Jeśli xi jest poza zakresem, zwróć wartość na początku
                 }
-                X[i] = sum / M[i][i];
+                if (xi > this.x[this.n]) {
+                    return this.y[this.n]; // Jeśli xi jest poza zakresem, zwróć wartość na końcu
+                }
+
+                let i = this.x.findIndex((val, index) => index < this.n && this.x[index + 1] > xi);
+                if (i === -1) i = this.n - 1;
+
+                let dx = xi - this.x[i];
+                return this.y[i] + this.b[i] * dx + this.c[i] * dx ** 2 + this.d[i] * dx ** 3;
             }
-            return X;
         }
 
-        function polynomialRegressionAndExtrapolate(data, degree, start, end) {
-            function generateMatrix(x, degree) {
-                return x.map(xi => Array.from({ length: degree + 1 }, (_, j) => xi ** j));
-            }
-            
+        function cubicSplineInterpolationAndExtrapolate(data, start, end) {
             const x = Array.from({ length: end - start + 1 }, (_, i) => start + i);
             const y = x.map(i => data[i]);
-            
-            const X = generateMatrix(x, degree);
-            const Y = y.map(v => [v]);
-            
-            const coeffs = gaussianElimination(X, Y);
-            
+
+            const spline = new CubicSpline(x, y);
+
             function predict(xi) {
-                return coeffs.reduce((sum, c, j) => sum + c * (xi ** j), 0);
+                return spline.at(xi);
             }
-            
+
             let extendedData = [...data];
             let nextIndex = end + 1;
+
             while (predict(nextIndex) > 0) {
                 extendedData[nextIndex] = predict(nextIndex);
                 nextIndex++;
             }
-            
+
             let prevIndex = start - 1;
+
             while (prevIndex >= 0 && predict(prevIndex) > 0) {
                 extendedData[prevIndex] = predict(prevIndex);
                 prevIndex--;
             }
-            
+
             return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
         }
+
 
         function extendPeaks(){
             document.querySelectorAll(".track").forEach(track => {
@@ -580,7 +596,7 @@
                     let data = redSums.slice(start, end);
                     let degree = parseInt(document.getElementById("degree").value);
                     
-                    let result = polynomialRegressionAndExtrapolate(data, degree, start, end);
+                    let result = cubicSplineInterpolationAndExtrapolate(data, start, end);
                     console.log(result);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
                     draggable.dataset.result = result;
