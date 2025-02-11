@@ -51,7 +51,7 @@
         <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
         <button onclick="addDraggableElement()" title="Utwórz nową ścieżkę">➕</button>
         <button id="toggleBtn" title="Pokaż/Ukryj obszar rysowania" onclick="toggle_CanvasSpace()">⇄</button>
-        <button id="calculate" title="Uruchamia obliczenia" onclick="extendPeaks()">🔢</button>
+        <button id="calculate" title="Uruchamia obliczenia" onclick="countParams()">🔢</button>
         <label for="degree"  title="Stopień wielomianu">Stopień</label>
         <input id="degree" type="number" min="3" value="4" max="6" step="1">
         <a href="normaliser.html">← Normalise</a>
@@ -68,6 +68,7 @@
         <canvas id="normalised" width="400" height="400"></canvas>
     </div>
     <div id="track_space">
+    <div id="parameterBox"></div>
 
     </div> 
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
@@ -486,6 +487,7 @@
                 resetDraggablesColor();
                 selectedTrack = {target: e.target, moveable: e.moveable};
                 e.target.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+                updateParameterBox();
             });
         }
 
@@ -645,6 +647,118 @@
             });        
         }
     
+        function countParams() {
+            document.querySelectorAll(".track").forEach(track => {
+                let redSums = JSON.parse(track.dataset.RedSums);
+                const maxHeight = Math.max(...redSums); // Maksymalna wartość w redSums
+
+                track.querySelectorAll(".draggable").forEach(draggable => {
+                    const rect = draggable.getBoundingClientRect();
+                    let start = parseInt(rect.left) || 0;
+                    let end = parseInt(rect.width) + parseInt(rect.left) || redSums.length;
+                    const data = redSums.slice(start, end);
+                    const midpointIndex = findMidpointIndex(redSums, start, end);
+                    const peakMaxHeight = Math.max(...data);
+                    const peakMaxHeightPercent = (peakMaxHeight / maxHeight) * 100;
+
+                    const getWidthAtHeight = (heightFraction) => {
+                        let threshold = peakMaxHeight * heightFraction;
+                        let left = start;
+                        let right = end - 1;
+                        
+                        while (left < end && redSums[left] < threshold) left++;
+                        while (right > start && redSums[right] < threshold) right--;
+                        
+                        return right - left;
+                    };
+
+                    const Wbas = getWidthAtHeight(0);
+                    const W50 = getWidthAtHeight(0.5);
+                    const W10 = getWidthAtHeight(0.1);
+                    const W05 = getWidthAtHeight(0.05);
+                    const surface = data.reduce((sum, val) => sum + val, 0);
+
+                    const getDistanceAtHeight = (heightFraction) => {
+                        let threshold = peakMaxHeight * heightFraction;
+                        let left = start;
+                        let right = end - 1;
+                        
+                        while (left < end && redSums[left] < threshold) left++;
+                        while (right > start && redSums[right] < threshold) right--;
+                        
+                        return {
+                            A: midpointIndex - left,
+                            B: right - midpointIndex
+                        };
+                    };
+
+                    const A05 = getDistanceAtHeight(0.05).A;
+                    const A10 = getDistanceAtHeight(0.10).A;
+                    const B05 = getDistanceAtHeight(0.05).B;
+                    const B10 = getDistanceAtHeight(0.10).B;
+                    const asymmetryFactor = B10 / A10;
+                    const tailingFactor = W05 / (2 * A05);
+
+                    const params = JSON.stringify([
+                        { value: midpointIndex, description: "Index of midpoint" },
+                        { value: maxHeight, description: "Maximal height on track" },
+                        { value: peakMaxHeight, description: "Maximal height of peak" },
+                        { value: peakMaxHeightPercent, description: "Maximal height of peak / Maximal height on track * 100%" },
+                        { value: Wbas, description: "Width of peak at 0% of height" },
+                        { value: W50, description: "Width of peak at 50% of height" },
+                        { value: W10, description: "Width of peak at 10% of height" },
+                        { value: W05, description: "Width of peak at 5% of height" },
+                        { value: surface, description: "Surface of spot" },
+                        { value: A05, description: "Start to midpoint distance at 5% of height" },
+                        { value: A10, description: "Start to midpoint distance at 10% of height" },
+                        { value: B05, description: "Midpoint to end distance at 5% of height" },
+                        { value: B10, description: "Midpoint to end distance at 10% of height" },
+                        { value: asymmetryFactor, description: "Asymmetry factor" },
+                        { value: tailingFactor, description: "Tailing factor" }
+                    ]);
+
+                    draggable.dataset.params = params;
+                });
+            });
+        }
+
+        function updateParameterBox() {
+            const parameterBox = document.getElementById("parameterBox");
+            parameterBox.innerHTML = "";
+
+            if (!selectedTrack || !selectedTrack.target) return;
+            
+            const paramsData = selectedTrack.target.dataset.params;
+            if (!paramsData) return;
+            
+            try {
+                const paramsArray = JSON.parse(paramsData);
+                if (!Array.isArray(paramsArray)) return;
+                
+                const list = document.createElement("ul");
+                
+                paramsArray.forEach(param => {
+                    if (!param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
+                    
+                    const listItem = document.createElement("li");
+                    const label = document.createElement("label");
+                    label.textContent = param.description;
+                    
+                    const input = document.createElement("input");
+                    input.type = "number";
+                    input.value = param.value;
+                    
+                    listItem.appendChild(label);
+                    listItem.appendChild(input);
+                    list.appendChild(listItem);
+                });
+                
+                parameterBox.appendChild(list);
+            } catch (e) {
+                console.error("Invalid JSON format in dataset.params", e);
+            }
+        }
+
 
     </script>     
 </body>
