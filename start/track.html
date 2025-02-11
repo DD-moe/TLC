@@ -556,33 +556,53 @@
         }
 
         function cubicSplineInterpolationAndExtrapolate(data, start, end) {
-            const x = Array.from({ length: end - start + 1 }, (_, i) => start + i);
-            const y = x.map(i => data[i]);
+            const midpoint = findMidpointIndex(data, start, end);
 
-            const spline = new CubicSpline(x, y);
+            const xLeft = Array.from({ length: midpoint - start + 1 }, (_, i) => start + i);
+            const yLeft = xLeft.map(i => data[i]);
+            const splineLeft = new CubicSpline(xLeft, yLeft);
 
-            function predict(xi) {
-                return spline.at(xi);
+            const xRight = Array.from({ length: end - midpoint + 1 }, (_, i) => midpoint + i);
+            const yRight = xRight.map(i => data[i]);
+            const splineRight = new CubicSpline(xRight, yRight);
+
+            function predictLeft(xi) {
+                return splineLeft.at(xi);
+            }
+
+            function predictRight(xi) {
+                return splineRight.at(xi);
             }
 
             let extendedData = [...data];
-            let nextIndex = end + 1;
 
-            while (predict(nextIndex) > 0) {
-                extendedData[nextIndex] = predict(nextIndex);
+            let nextIndex = end + 1;
+            while (predictRight(nextIndex) > 0) {
+                extendedData[nextIndex] = predictRight(nextIndex);
                 nextIndex++;
             }
 
             let prevIndex = start - 1;
-
-            while (prevIndex >= 0 && predict(prevIndex) > 0) {
-                extendedData[prevIndex] = predict(prevIndex);
+            while (prevIndex >= 0 && predictLeft(prevIndex) > 0) {
+                extendedData[prevIndex] = predictLeft(prevIndex);
                 prevIndex--;
             }
 
             return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
         }
 
+        function findMidpointIndex(data, start, end) {
+            const maxVal = Math.max(...data.slice(start, end + 1));
+            const maxIndices = [];
+
+            for (let i = start; i <= end; i++) {
+                if (data[i] === maxVal) {
+                    maxIndices.push(i);
+                }
+            }
+
+            return Math.round(maxIndices.reduce((sum, i) => sum + i, 0) / maxIndices.length);
+        }        
 
         function extendPeaks(){
             document.querySelectorAll(".track").forEach(track => {
