@@ -700,23 +700,23 @@
                     const asymmetryFactor = B10 / A10;
                     const tailingFactor = W05 / (2 * A05);
 
-                    const params = JSON.stringify([
-                        { value: midpointIndex, description: "Index of midpoint" },
-                        { value: maxHeight, description: "Maximal height on track" },
-                        { value: peakMaxHeight, description: "Maximal height of peak" },
-                        { value: peakMaxHeightPercent, description: "Maximal height of peak / Maximal height on track * 100%" },
-                        { value: Wbas, description: "Width of peak at 0% of height" },
-                        { value: W50, description: "Width of peak at 50% of height" },
-                        { value: W10, description: "Width of peak at 10% of height" },
-                        { value: W05, description: "Width of peak at 5% of height" },
-                        { value: surface, description: "Surface of spot" },
-                        { value: A05, description: "Start to midpoint distance at 5% of height" },
-                        { value: A10, description: "Start to midpoint distance at 10% of height" },
-                        { value: B05, description: "Midpoint to end distance at 5% of height" },
-                        { value: B10, description: "Midpoint to end distance at 10% of height" },
-                        { value: asymmetryFactor, description: "Asymmetry factor" },
-                        { value: tailingFactor, description: "Tailing factor" }
-                    ]);
+                    const params = JSON.stringify({
+                        midpointIndex: { value: midpointIndex, description: "Index of midpoint" },
+                        maxHeight: { value: maxHeight, description: "Maximal height on track" },
+                        peakMaxHeight: { value: peakMaxHeight, description: "Maximal height of peak" },
+                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Maximal height of peak / Maximal height on track * 100%" },
+                        Wbas: { value: Wbas, description: "Width of peak at 0% of height" },
+                        W50: { value: W50, description: "Width of peak at 50% of height" },
+                        W10: { value: W10, description: "Width of peak at 10% of height" },
+                        W05: { value: W05, description: "Width of peak at 5% of height" },
+                        surface: { value: surface, description: "Surface of spot" },
+                        A05: { value: A05, description: "Start to midpoint distance at 5% of height" },
+                        A10: { value: A10, description: "Start to midpoint distance at 10% of height" },
+                        B05: { value: B05, description: "Midpoint to end distance at 5% of height" },
+                        B10: { value: B10, description: "Midpoint to end distance at 10% of height" },
+                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry factor" },
+                        tailingFactor: { value: tailingFactor, description: "Tailing factor" }
+                    });
 
                     draggable.dataset.params = params;
                 });
@@ -731,8 +731,7 @@
 
                 track.querySelectorAll(".draggable").forEach(draggable => {
 
-                    let params = JSON.parse(draggable.dataset.params);/*
-                    console.log(params);
+                    let params = JSON.parse(draggable.dataset.params);
                     params.plate_width = { 
                         value: draggable_coordinates.plate_width, // globalna zmienna
                         description: "Plate width in cm"
@@ -793,7 +792,7 @@
                         description: "N/m at 50% of height - European Pharmacopeia" 
                     };
 
-                    draggable.dataset.params = JSON.stringify(params);*/
+                    draggable.dataset.params = JSON.stringify(params);
                 });
             });
         }
@@ -809,32 +808,34 @@
             if (!paramsData) return;
             
             try {
-                const paramsArray = JSON.parse(paramsData);
-                if (!Array.isArray(paramsArray)) return;
-                
+                const paramsObject = JSON.parse(paramsData);
+                if (typeof paramsObject !== "object" || paramsObject === null) return; // Ensure it's an object
+
                 const list = document.createElement("ul");
-                
-                paramsArray.forEach(param => {
-                    if (!param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
-                    
+
+                Object.entries(paramsObject).forEach(([key, param]) => {
+                    if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
+
                     const listItem = document.createElement("li");
                     const label = document.createElement("label");
                     label.textContent = param.description;
-                    
+
                     const input = document.createElement("input");
                     input.type = "number";
                     input.value = param.value;
-                    
+                    input.dataset.paramKey = key; // Store key for later updates if needed
+
                     listItem.appendChild(label);
                     listItem.appendChild(input);
                     list.appendChild(listItem);
                 });
-                
+
                 parameterBox.appendChild(list);
             } catch (e) {
-                console.error(e);
+                console.error("Error parsing paramsData:", e);
             }
         }
+
 
 
     </script>     
