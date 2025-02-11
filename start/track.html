@@ -556,13 +556,19 @@
         }
 
         function cubicSplineInterpolationAndExtrapolate(data, start, end) {
+            const degree = parseInt(document.getElementById('degree').value); // Pobranie wartości x z input
             const midpoint = findMidpointIndex(data, start, end);
 
-            const xLeft = Array.from({ length: midpoint - start + 1 }, (_, i) => start + i);
+            const leftLength = Math.floor(degree / 100 * (midpoint - start + 1)); // x% długości danych po lewej stronie
+            const rightLength = Math.floor(degree / 100 * (end - midpoint + 1)); // x% długości danych po prawej stronie
+
+            // Dane do lewej strony
+            const xLeft = Array.from({ length: leftLength }, (_, i) => midpoint - leftLength + i);
             const yLeft = xLeft.map(i => data[i]);
             const splineLeft = new CubicSpline(xLeft, yLeft);
 
-            const xRight = Array.from({ length: end - midpoint + 1 }, (_, i) => midpoint + i);
+            // Dane do prawej strony
+            const xRight = Array.from({ length: rightLength }, (_, i) => midpoint + i);
             const yRight = xRight.map(i => data[i]);
             const splineRight = new CubicSpline(xRight, yRight);
 
@@ -590,6 +596,8 @@
 
             return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
         }
+
+
 
         function findMidpointIndex(data, start, end) {
             const maxVal = Math.max(...data.slice(start, end + 1));
