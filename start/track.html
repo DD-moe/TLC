@@ -83,8 +83,8 @@
         <button onclick="addDraggableElement()" title="Utwórz nową ścieżkę">➕</button>
         <button id="toggleBtn" title="Pokaż/Ukryj obszar rysowania" onclick="toggle_CanvasSpace()">⇄</button>
         <button id="calculate" title="Uruchamia obliczenia" onclick="countParams()">🔢</button>
-        <label for="degree"  title="Stopień wielomianu">Stopień</label>
-        <input id="degree" type="number" min="3" value="4" max="6" step="1">
+        <button onclick="addConcentration()" title="Dodaj pomiar stężenia">➕🧪</button>
+        <button onclick="clearConcentration()" title="Wyczyść wszystkie stężenia">🗑️🧪</button>
         <a href="normaliser.html">← Normalise</a>
         <a href="setting.html">→ Settings</a>
     </div>
@@ -110,6 +110,7 @@
         let draggable_coordinates = null;
         let selectedTrack = null;
         let manuals = false;
+        let concentrationData = [];
 
         function toggle_CanvasSpace(){
             const canvasSpace = document.getElementById("canvas_space");
@@ -130,6 +131,9 @@
                             baselines = parsedData;
                         } else if (key === "draggable_coordinates") {
                             draggable_coordinates = parsedData;
+                        }
+                        else if (key === "concentrationData") {
+                            concentrationData = parsedData;
                         }
 
                         // Zwróć Promise po udanym załadowaniu
@@ -192,7 +196,8 @@
                 loadImageToCanvas(dbName, storeName, "spots", "spots"),
                 loadImageToCanvas(dbName, storeName, "background", "background"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "baselines"),
-                loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates")
+                loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates"),
+                loadJsonDataFromIndexedDB(dbName, storeName, "concentrationData")
             ]).then(() => {
                 // Po załadowaniu obu obrazów uruchom funkcję
                 onAllDataLoaded();
@@ -657,7 +662,6 @@
                     const Rect = draggable.getBoundingClientRect();
                     let start = parseInt(Rect.left) || 0;
                     let end = parseInt(Rect.width) + parseInt(Rect.left) || redSums.length;
-                    //let degree = parseInt(document.getElementById("degree").value);
                     
                     let result = cubicSplineInterpolationAndExtrapolate(redSums, start, end);
                     result.data = result.data.slice(result.newStart, result.newEnd);
@@ -982,6 +986,27 @@
         }
 
 
+        // Funkcja dodająca stężenie
+        function addConcentration() {
+            if (!selectedTrack || !selectedTrack.target) return;
+            
+            const paramsData = selectedTrack.target.dataset.params;
+            const paramsObject = JSON.parse(paramsData);
+
+            const surfaceValue = paramsObject.surface?.value;
+            const concentrationValue = paramsObject.concentration?.value;
+
+            if (surfaceValue !== undefined && concentrationValue !== undefined) {
+                concentrationData.push({ surface: surfaceValue, concentration: concentrationValue });
+                saveToIndexedDB(concentrationData, 'concentrationData');
+            }
+        }
+
+        // Funkcja czyszcząca dane o stężeniach
+        function clearConcentration() {
+            concentrationData = [];
+            saveToIndexedDB(concentrationData, 'concentrationData');
+        }
 
     </script>     
 </body>
