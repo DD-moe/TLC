@@ -731,7 +731,7 @@
 
                 track.querySelectorAll(".draggable").forEach(draggable => {
 
-                    let params = JSON.parse(draggable.dataset.params);
+                    let params = JSON.parse(draggable.dataset.params);/*
                     console.log(params);
                     params.plate_width = { 
                         value: draggable_coordinates.plate_width, // globalna zmienna
@@ -793,7 +793,7 @@
                         description: "N/m at 50% of height - European Pharmacopeia" 
                     };
 
-                    draggable.dataset.params = JSON.stringify(params);
+                    draggable.dataset.params = JSON.stringify(params);*/
                 });
             });
         }
