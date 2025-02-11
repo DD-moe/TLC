@@ -620,7 +620,7 @@
 
                 track.querySelectorAll(".draggable").forEach(draggable => {
                     let start = parseInt(draggable.style.left) || 0;
-                    let end = parseInt(draggable.style.right) || redSums.length;
+                    let end = parseInt(draggable.style.width + draggable.style.left) || redSums.length;
                     let data = redSums.slice(start, end);
                     let degree = parseInt(document.getElementById("degree").value);
                     
