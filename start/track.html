@@ -64,6 +64,9 @@
 
         <h2>Normalised Canvas</h2>
         <canvas id="normalised" width="400" height="400"></canvas>
+    </div>
+    <div id="track_space">
+
     </div> 
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
 
@@ -326,6 +329,8 @@
             const normCanvas = document.getElementById('normalised');
             const normCtx = normCanvas.getContext('2d');
             const kernelSize = parseInt(document.getElementById('kernelSize').value);
+            const track_space = document.getElementById('track_space');
+            track_space.innerHTML = '';
             draggable_coordinates.forEach(coordinate => {
                 // Wydobywanie danych z ImageData dla podanych współrzędnych
                 const imageData = normCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
@@ -405,7 +410,7 @@
                 newDiv.appendChild(newCanvas);
 
                 // Dodanie div'a do dokumentu (np. do body)
-                document.body.appendChild(newDiv);
+                track_space.appendChild(newDiv);
 
                 // Pobranie pozycji newDiv
                 const newDivRect = newDiv.getBoundingClientRect();
