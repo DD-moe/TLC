@@ -137,7 +137,7 @@
         // Aktualizacja filtru na canvas
         slider.addEventListener("input", () => {
             let sharpness = slider.value / 100;
-            canvas.style.filter = `contrast(${sharpness})`;
+            canvas.style.filter = `brightness(${sharpness})`;
         });
 
         function removeSelectedElement() {
