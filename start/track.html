@@ -570,7 +570,7 @@
 
         function extendPeaks(){
             document.querySelectorAll(".track").forEach(track => {
-                    let redSums = JSON.parse(track.dataset.redsums);
+                    let redSums = JSON.parse(track.dataset.RedSums);
                     let canvas = track.querySelector(".chart");
                     let ctx = canvas.getContext("2d");
                 track.querySelectorAll(".draggable").forEach(draggable => {
@@ -582,6 +582,7 @@
                     
                     let result = polynomialRegressionAndExtrapolate(data, degree, start, end);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
+                    draggable.dataset.normalizedData = normalizedData;
                     
                     ctx.beginPath();
                     ctx.strokeStyle = "red";
