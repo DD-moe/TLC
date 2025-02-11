@@ -556,40 +556,40 @@
         }
 
         function cubicSplineInterpolationAndExtrapolate(data, start, end) {
-    const midpoint = findMidpointIndex(data, start, end);
+            const midpoint = findMidpointIndex(data, start, end);
 
-    const xLeft = Array.from({ length: midpoint - start + 1 }, (_, i) => start + i);
-    const yLeft = xLeft.map(i => data[i]);
-    const splineLeft = new CubicSpline(xLeft, yLeft);
+            const xLeft = Array.from({ length: midpoint - start + 1 }, (_, i) => start + i);
+            const yLeft = xLeft.map(i => data[i]);
+            const splineLeft = new CubicSpline(xLeft, yLeft);
 
-    const xRight = Array.from({ length: end - midpoint + 1 }, (_, i) => midpoint + i);
-    const yRight = xRight.map(i => data[i]);
-    const splineRight = new CubicSpline(xRight, yRight);
+            const xRight = Array.from({ length: end - midpoint + 1 }, (_, i) => midpoint + i);
+            const yRight = xRight.map(i => data[i]);
+            const splineRight = new CubicSpline(xRight, yRight);
 
-    function predictLeft(xi) {
-        return splineLeft.at(xi);
-    }
+            function predictLeft(xi) {
+                return splineLeft.at(xi);
+            }
 
-    function predictRight(xi) {
-        return splineRight.at(xi);
-    }
+            function predictRight(xi) {
+                return splineRight.at(xi);
+            }
 
-    let extendedData = [...data];
+            let extendedData = [...data];
 
-    let nextIndex = end + 1;
-    while (predictRight(nextIndex) > 0) {
-        extendedData[nextIndex] = predictRight(nextIndex);
-        nextIndex++;
-    }
+            let nextIndex = end + 1;
+            while (predictRight(nextIndex) > 0) {
+                extendedData[nextIndex] = predictRight(nextIndex);
+                nextIndex++;
+            }
 
-    let prevIndex = start - 1;
-    while (prevIndex >= 0 && predictLeft(prevIndex) > 0) {
-        extendedData[prevIndex] = predictLeft(prevIndex);
-        prevIndex--;
-    }
+            let prevIndex = start - 1;
+            while (prevIndex >= 0 && predictLeft(prevIndex) > 0) {
+                extendedData[prevIndex] = predictLeft(prevIndex);
+                prevIndex--;
+            }
 
-    return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
-}
+            return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
+        }
 
 
 
@@ -615,19 +615,19 @@
                 track.querySelectorAll(".draggable").forEach(draggable => {
                     let start = parseInt(draggable.style.left) || 0;
                     let end = parseInt(draggable.style.width) + parseInt(draggable.style.left) || redSums.length;
-                    let degree = parseInt(document.getElementById("degree").value);
+                    //let degree = parseInt(document.getElementById("degree").value);
                     
-                    let result = cubicSplineInterpolationAndExtrapolate(redSums, start, end, degree);
-                    console.log(result);
+                    let result = cubicSplineInterpolationAndExtrapolate(redSums, start, end);
+                    result.data = result.data.slice(result.newStart, result.newEnd);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
-                    draggable.dataset.result = result;
+                    draggable.dataset.result = JSON.stringify(result);
                     
                     ctx.beginPath();
                     ctx.strokeStyle = "red";
                     ctx.lineWidth = 2;
                     
                     normalizedData.forEach((val, i) => {
-                        let x = (i / normalizedData.length) * canvas.width;
+                        let x = (i / normalizedData.length) * canvas.width + result.newStart;
                         let y = canvas.height - val;
                         if (i === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
