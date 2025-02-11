@@ -626,8 +626,8 @@
                     ctx.strokeStyle = "red";
                     ctx.lineWidth = 2;
                     
-                    normalizedData.forEach((val, i) => {
-                        let x = (i / normalizedData.length) * canvas.width + result.newStart;
+                    result.data.forEach((val, i) => {
+                        let x = i + result.newStart;
                         let y = canvas.height - val;
                         if (i === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
