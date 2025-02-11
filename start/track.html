@@ -124,7 +124,7 @@
                     try {
                         // Parsowanie danych JSON
                         const parsedData = JSON.parse(jsonData);
-                        console.log(parsedData);
+                        //console.log(parsedData);
                         // Przypisanie danych do odpowiednich zmiennych globalnych
                         if (key === "baselines") {
                             baselines = parsedData;
@@ -400,7 +400,7 @@
                 
                 const blurredRedSums = blurArray(RedSums, kernelSize);
                 const mountains = analyzeArrayWithKernel(blurredRedSums, 1, 1);
-                console.log(mountains);
+                //console.log(mountains);
                 // Normalizacja RedSums (zakładając, że minimalna wartość to 0, a maksymalna to 250)
                 const min = Math.min(...RedSums);
                 const max = Math.max(...RedSums);
@@ -861,6 +861,11 @@
                         value: maxSurface,  
                         description: "Greatest peak surface for track"  
                     };
+
+                    params.concentration = {  
+                        value: 0,  
+                        description: "Substance concentration"  
+                    };                    
                     
                     if (maxSurface > 0) {
                         params.percentSurface = {  
@@ -932,7 +937,6 @@
                             };
                         }
                     }               
-                    console.log(params);
                     draggable.dataset.params = JSON.stringify(params); // Zapisanie zmian
                 });
             });
