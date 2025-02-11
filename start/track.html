@@ -826,6 +826,116 @@
                     draggable.dataset.params = JSON.stringify(params);
                 });
             });
+            countTertiaryParams();
+        }
+
+        function countTertiaryParams() {
+            document.querySelectorAll(".track").forEach(track => {
+
+                let draggableData = [];
+                let maxSurface = 0; // Przechowuje największą wartość surface.value w danym track
+
+                // 1. Iterujemy i zbieramy dane
+                track.querySelectorAll(".draggable").forEach(draggable => {
+                    const rect = draggable.getBoundingClientRect();
+                    let start = parseInt(rect.left) || 0;
+                    let end = parseInt(rect.width) + parseInt(rect.left) || redSums.length;
+                    let center = (start + end) / 2;
+
+                    let params = JSON.parse(draggable.dataset.params);
+                    
+                    // Sprawdzenie, czy surface.value istnieje
+                    if (params.surface && params.surface.value) {
+                        maxSurface = Math.max(maxSurface, params.surface.value);
+                    }
+
+                    draggableData.push({ draggable, params, center });
+                });
+
+                // 2. Sortowanie draggable według środka
+                draggableData.sort((a, b) => a.center - b.center);
+
+                // 3. Dodanie maxSurface do każdego draggable i zapisanie
+                draggableData.forEach(({ draggable, params }, index) => {
+                    params.maxSurface = {  
+                        value: maxSurface,  
+                        description: "Greatest peak surface for track"  
+                    };
+                    
+                    if (maxSurface > 0) {
+                        params.percentSurface = {  
+                            value: (params.surface.value / maxSurface) * 100,  
+                            description: "% of greatest peak surface"  
+                        };
+                    }
+                    
+                    if (index < draggableData.length - 1) { // dla każdego, ale nie ostatniego
+                        let nextParams = draggableData[index + 1].params;
+                        
+                        if (params.k && nextParams.k) {
+                            params.alpha = {  
+                                value: Math.max(params.k.value, nextParams.k.value) / Math.min(params.k.value, nextParams.k.value),  
+                                description: "alpha param"  
+                            };
+                        }
+
+                        if (params.RF && nextParams.RF && params.Wbas && nextParams.Wbas) {
+                            params.RSz = {  
+                                value: (nextParams.RF.value - params.RF.value) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
+                                description: "RSz param"  
+                            };
+                        }
+
+                        if (params.k && nextParams.k) {
+                            params.selectivity = {  
+                                value: 0.25 * (nextParams.k.value / params.k.value - 1),  
+                                description: "selectivity param"  
+                            };
+                        }
+
+                        if (params.RF && nextParams.RF) {
+                            params.RFavg = {  
+                                value: (params.RF.value + nextParams.RF.value) / 2,  
+                                description: "Average Retention Factor"  
+                            };
+                            params.retention = {  
+                                value: 1 - params.RFavg.value,  
+                                description: "retention param"  
+                            };
+                        }
+
+                        if (params.NobsBAS && nextParams.NobsBAS && params.RFavg) {
+                            params.efficacyBAS = {  
+                                value: Math.sqrt(params.RFavg.value * (params.NobsBAS.value + nextParams.NobsBAS.value) / 2),  
+                                description: "efficacyBAS param - United States Pharmacopeia"  
+                            };
+                        }
+                        
+                        if (params.Nobs05 && nextParams.Nobs05 && params.RFavg) {
+                            params.efficacy50 = {  
+                                value: Math.sqrt(params.RFavg.value * (params.Nobs05.value + nextParams.Nobs05.value) / 2),  
+                                description: "efficacy50 param - European Pharmacopeia"  
+                            };
+                        }
+
+                        if (params.selectivity && params.retention && params.efficacyBAS) {
+                            params.RSssrBAS = {  
+                                value: params.selectivity.value * params.retention.value * params.efficacyBAS.value,  
+                                description: "RSssrBAS param - United States Pharmacopeia"  
+                            };
+                        }
+                        
+                        if (params.selectivity && params.retention && params.efficacy50) {
+                            params.RSssr50 = {  
+                                value: params.selectivity.value * params.retention.value * params.efficacy50.value,  
+                                description: "RSssr50 param - European Pharmacopeia"  
+                            };
+                        }
+                    }               
+                    
+                    draggable.dataset.params = JSON.stringify(params); // Zapisanie zmian
+                });
+            });
         }
 
 
