@@ -615,10 +615,9 @@
                 track.querySelectorAll(".draggable").forEach(draggable => {
                     let start = parseInt(draggable.style.left) || 0;
                     let end = parseInt(draggable.style.width) + parseInt(draggable.style.left) || redSums.length;
-                    let data = redSums.slice(start, end);
                     let degree = parseInt(document.getElementById("degree").value);
                     
-                    let result = cubicSplineInterpolationAndExtrapolate(data, start, end, degree);
+                    let result = cubicSplineInterpolationAndExtrapolate(redSums, start, end, degree);
                     let normalizedData = result.data.map(v => (v / Math.max(...redSums)) * 250);
                     draggable.dataset.result = result;
                     
