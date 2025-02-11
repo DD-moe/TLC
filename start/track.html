@@ -320,12 +320,12 @@
 
         function extractTrackData(draggable_coordinates, baselines) {
             // Uzyskanie dostępu do głównego canvas
-            const mainCanvas = document.getElementById('normalised');
-            const mainCtx = mainCanvas.getContext('2d');
+            const normCanvas = document.getElementById('normalised');
+            const normCtx = normCanvas.getContext('2d');
             const kernelSize = parseInt(document.getElementById('kernelSize').value);
             draggable_coordinates.forEach(coordinate => {
                 // Wydobywanie danych z ImageData dla podanych współrzędnych
-                const imageData = mainCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
+                const imageData = normCtx.getImageData(baselines.x, coordinate.y, baselines.width, coordinate.height);
                 // Tworzenie nowego canvas i kontekstu
                 const newCanvas = document.createElement('canvas');
                 const newCtx = newCanvas.getContext('2d');
@@ -340,6 +340,7 @@
                 // Tworzenie nowego div'a z odpowiednim id
                 const newDiv = document.createElement('div');
                 newDiv.style.position = 'relative';
+                element.classList.add("track");
                 newDiv.id = coordinate.name;  // Ustawianie id div'a na podstawie 'name' w draggable_coordinates
 
                 // Tworzenie tablicy 1D z sumami kanału czerwonego dla każdej kolumny
@@ -364,7 +365,7 @@
                 
                 // Dodanie atrybutu data-red-sums do div'a z 1D tablicą RedSums
                 newDiv.dataset.RedSums = JSON.stringify(RedSums);  // Użycie data-* atrybutu
-                newDiv.dataset.blurRedredSums = JSON.stringify(blurredRedSums); 
+                //newDiv.dataset.blurredSums = JSON.stringify(blurredRedSums); 
                 // Tworzenie głównego canvas
                 const mainCanvas = document.createElement('canvas');
                 mainCanvas.width = newCanvas.width;
@@ -495,6 +496,72 @@
                 selectedTrack.target.remove();
                 selectedTrack = null;
             }
+        }
+
+        // Rozwiązywanie układu równań metodą eliminacji Gaussa
+        function gaussianElimination(A, B) {
+            const n = A.length;
+            const M = A.map((row, i) => [...row, B[i][0]]);
+
+            for (let i = 0; i < n; i++) {
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) {
+                    if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) {
+                        maxRow = k;
+                    }
+                }
+                [M[i], M[maxRow]] = [M[maxRow], M[i]];
+
+                for (let k = i + 1; k < n; k++) {
+                    const factor = M[k][i] / M[i][i];
+                    for (let j = i; j <= n; j++) {
+                        M[k][j] -= factor * M[i][j];
+                    }
+                }
+            }
+
+            const X = Array(n).fill(0);
+            for (let i = n - 1; i >= 0; i--) {
+                let sum = M[i][n];
+                for (let j = i + 1; j < n; j++) {
+                    sum -= M[i][j] * X[j];
+                }
+                X[i] = sum / M[i][i];
+            }
+            return X;
+        }
+
+        function polynomialRegressionAndExtrapolate(data, degree, start, end) {
+            function generateMatrix(x, degree) {
+                return x.map(xi => Array.from({ length: degree + 1 }, (_, j) => xi ** j));
+            }
+            
+            const x = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+            const y = x.map(i => data[i]);
+            
+            const X = generateMatrix(x, degree);
+            const Y = y.map(v => [v]);
+            
+            const coeffs = gaussianElimination(X, Y);
+            
+            function predict(xi) {
+                return coeffs.reduce((sum, c, j) => sum + c * (xi ** j), 0);
+            }
+            
+            let extendedData = [...data];
+            let nextIndex = end + 1;
+            while (predict(nextIndex) > 0) {
+                extendedData[nextIndex] = predict(nextIndex);
+                nextIndex++;
+            }
+            
+            let prevIndex = start - 1;
+            while (prevIndex >= 0 && predict(prevIndex) > 0) {
+                extendedData[prevIndex] = predict(prevIndex);
+                prevIndex--;
+            }
+            
+            return { data: extendedData, newStart: prevIndex + 1, newEnd: nextIndex - 1 };
         }
 
     </script>     

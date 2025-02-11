@@ -534,29 +534,29 @@
 
 
             
-            for (let x = 0; x < canvas.width; x++) {
-                const column = getColumn(data, canvas.width, canvas.height, x);
-                const mask = createMask(column);
-                const intervals = findIntervals(mask);
-                const processedColumn = fillMissingDataUsingIntervals(column, intervals);
+                for (let x = 0; x < canvas.width; x++) {
+                    const column = getColumn(data, canvas.width, canvas.height, x);
+                    const mask = createMask(column);
+                    const intervals = findIntervals(mask);
+                    const processedColumn = fillMissingDataUsingIntervals(column, intervals);
 
-                /*
-                const processedDiference = processColumn(difference, mask, deg + 1);
-                const final = addColumns(processedColumn, processedDiference);
-                const postDiference = subtractColumns(column, final);
-                const processedPost = processColumn(postDiference, mask, deg + 2);
-                const out = addColumns(processedPost, final);
-                */
+                    /*
+                    const processedDiference = processColumn(difference, mask, deg + 1);
+                    const final = addColumns(processedColumn, processedDiference);
+                    const postDiference = subtractColumns(column, final);
+                    const processedPost = processColumn(postDiference, mask, deg + 2);
+                    const out = addColumns(processedPost, final);
+                    */
 
-                for (let y = 0; y < canvas.height; y++) {
-                    const index = (y * canvas.width + x) * 4;
-                    data[index] = data[index + 1] = data[index + 2] = processedColumn[y];
+                    for (let y = 0; y < canvas.height; y++) {
+                        const index = (y * canvas.width + x) * 4;
+                        data[index] = data[index + 1] = data[index + 2] = processedColumn[y];
+                    }
                 }
-            }
             
-            ctx.putImageData(imageData, 0, 0);
-            saveDraggableDataToIndexedDB();
-        }
+                ctx.putImageData(imageData, 0, 0);
+                saveDraggableDataToIndexedDB();
+            }
 
         // Funkcja do zbierania współrzędnych z draggable
         function collectDraggableCoordinates() {
