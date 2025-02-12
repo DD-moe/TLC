@@ -1036,6 +1036,7 @@
 
         // Funkcja dodająca stężenie
         function addConcentration() {
+            saveParameterValues();
             if (!selectedTrack || !selectedTrack.target) return;
             
             const paramsData = selectedTrack.target.dataset.params;
@@ -1054,7 +1055,7 @@
         // Funkcja czyszcząca dane o stężeniach
         function clearConcentration() {
             concentrationData = [];
-            saveToIndexedDB(concentrationData, 'concentrationData');
+            saveToIndexedDB(JSON.stringify(concentrationData), 'concentrationData');
             displayConcentrationData();
         }
 
