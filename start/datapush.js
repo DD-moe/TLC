@@ -7,7 +7,7 @@ const imageInput = document.getElementById('imageInput');
 const konsola = document.getElementById('konsola');
 
 function do_konsoli(text) {
-    konsola.textContent = `konsola: ${text}`;
+    konsola.textContent = `🔳: ${text}`;
 }
 
 if (downloadBtn) {
