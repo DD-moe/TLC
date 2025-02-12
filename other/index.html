@@ -1,29 +1,103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantitative TLC Analysis</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Dane Testowe - TLC</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
-    <link rel="icon" href="/favicon-64x64.png" sizes="64x64" type="image/png">
+    <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
+    <style>
+        /* Ogólne style dla galerii */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsywne kolumny */
+            gap: 16px; /* Odstępy pomiędzy obrazkami */
+            padding: 20px;
+            justify-items: center; /* Wyrównanie obrazów do środka */
+        }
+
+        .image-item {
+            text-align: center; /* Wyrównanie tekstu i obrazka do środka */
+            border: 2px solid #ddd; /* Obramowanie obrazków */
+            border-radius: 8px; /* Zaokrąglone rogi */
+            padding: 10px;
+            background-color: #f9f9f9; /* Tło dla każdego obrazka */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animacja na hover */
+        }
+
+        .image-item:hover {
+            transform: scale(1.05); /* Powiększenie obrazka przy najechaniu */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Cień przy najechaniu */
+        }
+
+        .image-item img {
+            width: 100%; /* Dopasowanie szerokości do kontenera */
+            height: auto; /* Zachowanie proporcji */
+            border-radius: 4px; /* Zaokrąglenie rogów obrazka */
+        }
+
+        .image-item p {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Quantitative TLC Analysis</h1>
-        <p>Analyze your Thin Layer Chromatography (TLC) plates with precision.</p>
+        <h1>Dane Testowe TLC</h1>
+        <p>Wybierz i pobierz obrazy testowe, aby sprawdzić działanie aplikacji analitycznej TLC.</p>
     </header>
     <nav>
         <ul>
-            <li><a href="./start/index.html">Start</a></li>
+            <li><a href="./start/uploader.html">TLC</a></li>
             <li><a href="./wiki/index.html">Wiki</a></li>
-            <li><a href="./other/index.html">Other</a></li>
+            <li><a href="./other/">Stona główna</a></li>
         </ul>
     </nav>
     <main>
-        <h2>Welcome to the TLC Analysis Web App</h2>
-        <p>Upload and analyze TLC plate images effortlessly.</p>
+        <h2>Obrazy do testowania</h2>
+        <p>Wybierz jeden z poniższych obrazów, aby pobrać go na swoje urządzenie.</p>
+        
+        <section class="image-gallery">
+            <div class="image-item">
+                <a href="/TLC/other/config.jpg" download="config.jpg">
+                    <img src="/TLC/other/config.jpg" alt="pusta płytka">
+                    <p>Pobierz testowy obraz 1</p>
+                </a>
+            </div>
+            <div class="image-item">
+                <a href="/TLC/other/data.jpg" download="data.jpg">
+                    <img src="/TLC/other/data.jpg" alt="płytka niebieska">
+                    <p>Pobierz testowy obraz 2</p>
+                </a>
+            </div>
+            <div class="image-item">
+                <a href="/TLC/other/data.png" download="data.png">
+                    <img src="/TLC/other/data.png" alt="płytka niebieska">
+                    <p>Pobierz testowy obraz 3</p>
+                </a>
+            </div>
+            <div class="image-item">
+                <a href="/TLC/other/greenplate.jpg" download="greenplate.jpg">
+                    <img src="/TLC/other/greenplate.jpg" alt="płytka zielona">
+                    <p>Pobierz testowy obraz 4</p>
+                </a>
+            </div>
+            <div class="image-item">
+                <a href="/TLC/other/multi_background.png" download="multi_background.png">
+                    <img src="/TLC/other/multi_background.png" alt="płytka niebieska syntetyczna pusta">
+                    <p>Pobierz testowy obraz 5</p>
+                </a>
+            <div class="image-item">
+                <a href="/TLC/other/multi_data.png" download="multi_data.png">
+                    <img src="/TLC/other/multi_data.png" alt="płytka niebieska syntetyczna rozwinięta">
+                    <p>Pobierz testowy obraz 6</p>
+                </a>                
+            </div>
+        </section>
     </main>
 </body>
 </html>
