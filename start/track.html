@@ -86,6 +86,8 @@
         <button onclick="addConcentration()" title="Dodaj pomiar stężenia">➕🧪</button>
         <button onclick="clearConcentration()" title="Wyczyść wszystkie stężenia">🗑️🧪</button>
         <button onclick="saveParameterValues()" title="Zapisz zmiany w peaku">💾🧪</button>
+        <button onclick="calculateLinearRegression()" title="Stwórz krzywą koncentracji">📈</button>
+        <div id="LinearRegression"></div>
         <a href="normaliser.html">← Normalise</a>
         <a href="setting.html">→ Settings</a>
     </div>
@@ -142,7 +144,15 @@
                             else{
                                 concentrationData = parsedData;
                             }
-                        }
+                        } 
+                        else if (key === "concentrationCurve") {
+                            if (parsedData === null || parsedData === undefined) {
+                                concentrationCurve = { slope : 0, intercept: 0, rSquared: 0 };
+                            }
+                            else{
+                                concentrationCurve = parsedData;
+                            }
+                        }                     
 
                         // Zwróć Promise po udanym załadowaniu
                         resolve();
@@ -194,6 +204,7 @@
             extractTrackData(draggable_coordinates, baselines);
             countParams();
             displayConcentrationData();
+            showConcentrationCurve();
         }
 
         function autostart() {
@@ -206,7 +217,8 @@
                 loadImageToCanvas(dbName, storeName, "background", "background"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "baselines"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates"),
-                loadJsonDataFromIndexedDB(dbName, storeName, "concentrationData")
+                loadJsonDataFromIndexedDB(dbName, storeName, "concentrationData"),
+                loadJsonDataFromIndexedDB(dbName, storeName, "concentrationCurve")
             ]).then(() => {
                 // Po załadowaniu obu obrazów uruchom funkcję
                 onAllDataLoaded();
@@ -1057,6 +1069,42 @@
                 item.innerHTML = `<p>Surface: ${entry.surface}</p><strong>Concentration: ${entry.concentration}</strong>`;
                 container.appendChild(item);
             });
+        }
+
+        function calculateLinearRegression() {
+            if (concentrationData.length < 2) return;
+            
+            const x = concentrationData.map(d => d.surface);
+            const y = concentrationData.map(d => d.concentration);
+            
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.map((xi, i) => xi * y[i]).reduce((a, b) => a + b, 0);
+            const sumX2 = x.map(xi => xi ** 2).reduce((a, b) => a + b, 0);
+            
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX ** 2);
+            const intercept = (sumY - slope * sumX) / n;
+            
+            const meanY = sumY / n;
+            const ssTot = y.map(yi => (yi - meanY) ** 2).reduce((a, b) => a + b, 0);
+            const ssRes = y.map((yi, i) => (yi - (slope * x[i] + intercept)) ** 2).reduce((a, b) => a + b, 0);
+            const rSquared = 1 - ssRes / ssTot;
+            
+            concentrationCurve = { slope, intercept, rSquared };
+            saveToIndexedDB(JSON.stringify(concentrationCurve), 'concentrationCurve');
+            
+            showConcentrationCurve();
+        }
+
+        function showConcentrationCurve() {
+            const equationDiv = document.getElementById('LinearRegression');
+            equationDiv.innerHTML = `<math><mrow><mi>y</mi><mo>=</mo><mn>${slope.toFixed(4)}</mn><mo>&#183;</mo><mi>x</mi><mo>+</mo><mn>${intercept.toFixed(4)}</mn></mrow></math>`;
+        }
+
+        function predictConcentration(surface) {
+            if (!concentrationCurve.slope || !concentrationCurve.intercept) return null;
+            return concentrationCurve.slope * surface + concentrationCurve.intercept;
         }
 
     </script>     
