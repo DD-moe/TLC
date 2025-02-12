@@ -888,7 +888,7 @@
                     };
 
                     params.concentration = {  
-                        value: 0,  
+                        value: predictConcentration(params.surface.value),  
                         description: "Substance concentration"  
                     };                    
                     
@@ -1099,8 +1099,26 @@
 
         function showConcentrationCurve() {
             const equationDiv = document.getElementById('LinearRegression');
-            equationDiv.innerHTML = `<math><mrow><mi>y</mi><mo>=</mo><mn>${concentrationCurve.slope.toFixed(4)}</mn><mo>&#183;</mo><mi>x</mi><mo>+</mo><mn>${concentrationCurve.intercept.toFixed(4)}</mn></mrow></math>`;
+            equationDiv.innerHTML = `
+                <math>
+                    <mrow>
+                        <mi>y</mi><mo>=</mo>
+                        <mn>${concentrationCurve.slope.toFixed(4)}</mn>
+                        <mo>&#183;</mo><mi>x</mi>
+                        <mo>+</mo><mn>${concentrationCurve.intercept.toFixed(4)}</mn>
+                    </mrow>
+                </math>
+                <br>
+                <math>
+                    <mrow>
+                        <msup><mi>R</mi><mn>2</mn></msup>
+                        <mo>=</mo>
+                        <mn>${concentrationCurve.rSquared.toFixed(4)}</mn>
+                    </mrow>
+                </math>
+            `;
         }
+
 
         function predictConcentration(surface) {
             if (!concentrationCurve.slope || !concentrationCurve.intercept) return null;
