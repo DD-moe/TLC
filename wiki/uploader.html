@@ -7,10 +7,34 @@
     <link rel="manifest" href="/TLC/manifest.json">
     <link rel="stylesheet" href="/TLC/styles.css">
     <link rel="stylesheet" href="/TLC/start/pushdata.css">
+    <link rel="stylesheet" href="/TLC/wiki/wiki.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
 </head>
 <body>
+    <script>
+        // starter script
+        function setBodyClassBasedOnScreenSize() {
+            const dpi = window.devicePixelRatio || 1;
+            const screenWidthInches = (window.innerWidth / dpi) / 96; // 96 dpi as standard
+            const screenHeightInches = (window.innerHeight / dpi) / 96;
+            const screenDiagonalInches = Math.sqrt(Math.pow(screenWidthInches, 2) + Math.pow(screenHeightInches, 2));
+            const screenDiagonalMM = screenDiagonalInches * 25.4; // Convert inches to millimeters
+            
+            document.body.classList.remove("small-screen", "medium-screen", "large-screen");
+            
+            if (screenDiagonalMM < 180) { 
+                document.body.classList.add("small-screen");
+            } else if (screenDiagonalMM >= 180 && screenDiagonalMM < 330) { 
+                document.body.classList.add("medium-screen");
+            } else {
+                document.body.classList.add("large-screen");
+            }
+        }
+        window.onresize = setBodyClassBasedOnScreenSize;
+        setBodyClassBasedOnScreenSize();
+    </script>
+
     <header>
         <h1>Wiki - Ilościowa Analiza TLC</h1>
         <p>Instrukcja obsługi aplikacji do analizy płytek Thin Layer Chromatography (TLC).</p>
