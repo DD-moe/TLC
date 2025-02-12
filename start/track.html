@@ -1099,7 +1099,7 @@
 
         function showConcentrationCurve() {
             const equationDiv = document.getElementById('LinearRegression');
-            equationDiv.innerHTML = `<math><mrow><mi>y</mi><mo>=</mo><mn>${slope.toFixed(4)}</mn><mo>&#183;</mo><mi>x</mi><mo>+</mo><mn>${intercept.toFixed(4)}</mn></mrow></math>`;
+            equationDiv.innerHTML = `<math><mrow><mi>y</mi><mo>=</mo><mn>${concentrationCurve.slope.toFixed(4)}</mn><mo>&#183;</mo><mi>x</mi><mo>+</mo><mn>${concentrationCurve.intercept.toFixed(4)}</mn></mrow></math>`;
         }
 
         function predictConcentration(surface) {
