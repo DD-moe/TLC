@@ -6,6 +6,7 @@
     <title>Wiki - Ilościowa Analiza TLC</title>
     <link rel="manifest" href="/TLC/manifest.json">
     <link rel="stylesheet" href="/TLC/styles.css">
+    <link rel="stylesheet" href="/TLC/start/pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
 </head>
@@ -24,7 +25,125 @@
     </nav>
     <main>
         <h2>Instrukcja obsługi</h2>
-        <p>Zapoznaj się z poniższymi sekcjami, aby dowiedzieć się, jak korzystać z aplikacji.</p>
+
+        <div class="controls">
+            <table>
+                <tr>
+                    <th>Przycisk</th>
+                    <th>Funkcja</th>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="dirPicker" title="załaduj wszystkie obrazy z folderu">📂</label>
+                        <input type="file" id="dirPicker" webkitdirectory directory multiple>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Pozwala na załadowanie wszystkich obrazów z wybranego folderu.</li>
+                            <li>Obsługuje jednoczesne dodawanie wielu plików.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="filePicker" title="załaduj obrazy manualnie">🗂️</label>
+                        <input type="file" id="filePicker" multiple>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Umożliwia ręczne załadowanie wybranych plików graficznych.</li>
+                            <li>Obsługuje wybór wielu plików naraz.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="deleteFiles" title="Usuń pliki z wybranego folderu">🗑</button>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Usuwa wszystkie pliki z wybranego folderu.</li>
+                            <li>Wymaga wcześniejszego wskazania folderu.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h3 id="konsola">📋 Konsola</h3>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Wyświetla komunikaty systemowe, status operacji i błędy.</li>
+                            <li>Informuje o zakończeniu operacji na plikach.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <select id="fileType" title="Wybierz format zapisu obrazu">
+                            <option value="png">PNG</option>
+                            <option value="jpeg">JPG</option>
+                        </select>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Pozwala na wybór formatu pliku wyjściowego: <strong>PNG</strong> lub <strong>JPG</strong>.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Pobiera aktualnie przetwarzany obraz jako plik.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="DirdownloadBtn" title="Zapisz obraz jako plik na dysku">📂💾</button>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Pozwala na zapisanie obrazu bezpośrednio do wybranego folderu.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Kopiuje przetworzony obraz do schowka, umożliwiając jego szybkie wklejenie w inne aplikacje.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="shareBtn" title="Udostępnij obraz">📋</button>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Umożliwia wysłanie obrazu poprzez dostępne opcje systemowe (np. e-mail, komunikatory).</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>Pozwala na wklejenie obrazu skopiowanego wcześniej do schowka.</li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
         
         <ul>
             <li><a href="uploader.html" title="panel ładowania zdjęć">1️⃣🖼️ Panel ładowania zdjęć</a></li>
