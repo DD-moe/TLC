@@ -85,6 +85,7 @@
         <button id="calculate" title="Uruchamia obliczenia" onclick="countParams()">🔢</button>
         <button onclick="addConcentration()" title="Dodaj pomiar stężenia">➕🧪</button>
         <button onclick="clearConcentration()" title="Wyczyść wszystkie stężenia">🗑️🧪</button>
+        <button onclick="saveParameterValues()" title="Zapisz zmiany w peaku">💾🧪</button>
         <a href="normaliser.html">← Normalise</a>
         <a href="setting.html">→ Settings</a>
     </div>
@@ -966,7 +967,7 @@
             
             try {
                 const paramsObject = JSON.parse(paramsData);
-                if (typeof paramsObject !== "object" || paramsObject === null) return; // Ensure it's an object
+                if (typeof paramsObject !== "object" || paramsObject === null) return;
 
                 const list = document.createElement("ul");
 
@@ -980,8 +981,12 @@
                     const input = document.createElement("input");
                     input.type = "number";
                     input.value = param.value;
-                    input.dataset.paramKey = key; // Store key for later updates if needed
-
+                    input.dataset.paramKey = key;
+                    
+                    input.addEventListener("input", () => {
+                        saveParameterValues();
+                    });
+                    
                     listItem.appendChild(label);
                     listItem.appendChild(input);
                     list.appendChild(listItem);
@@ -992,6 +997,29 @@
                 console.error("Error parsing paramsData:", e);
             }
         }
+
+        function saveParameterValues() {
+            if (!selectedTrack || !selectedTrack.target) return;
+
+            const parameterBox = document.getElementById('parameterBox');
+            const inputs = parameterBox.querySelectorAll("input");
+            
+            try {
+                const paramsObject = JSON.parse(selectedTrack.target.dataset.params);
+                
+                inputs.forEach(input => {
+                    const key = input.dataset.paramKey;
+                    if (paramsObject[key]) {
+                        paramsObject[key].value = parseFloat(input.value);
+                    }
+                });
+                
+                selectedTrack.target.dataset.params = JSON.stringify(paramsObject);
+            } catch (e) {
+                console.error("Error saving paramsData:", e);
+            }
+        }
+
 
 
         // Funkcja dodająca stężenie
