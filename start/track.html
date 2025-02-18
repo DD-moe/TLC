@@ -861,47 +861,47 @@
 
                     params.RF = { 
                         value: params.midpointIndex.value / redSums.length, 
-                        description: "Retention Factor"
+                        description: "Retention factor (RF)"
                     };
 
                     params.k = { 
                         value: (1 - params.RF.value) / params.RF.value, 
-                        description: "K param" 
+                        description: "Retention factor (k)" 
                     };
 
                     params.RM = { 
                         value: Math.log10(params.k.value), 
-                        description: "RM param"
+                        description: "logarithmic retention factor (RM)"
                     };
 
                     params.HobsBAS = { 
                         value: (params.Wbas.value ** 2) / (5.54 * params.RF.value), 
-                        description: "Hobs at basis - United States Pharmacopeia" 
+                        description: "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia" 
                     };
 
                     params.Hobs05 = { 
                         value: (params.W50.value ** 2) / (16 * params.RF.value), 
-                        description: "Hobs at 50% of height - European Pharmacopeia" 
+                        description: "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia" 
                     };
 
                     params.NobsBAS = { 
                         value: (16 * params.RF.value) / params.Wbas.value, 
-                        description: "Nobs at basis - United States Pharmacopeia" 
+                        description: "Number of theoretical plates (N) - United States Pharmacopeia" 
                     };
 
                     params.Nobs05 = { 
                         value: (params.RF.value / params.W50.value) ** 2 * 5.54, 
-                        description: "Nobs at 50% of height - European Pharmacopeia" 
+                        description: "Number of theoretical plates (N) - European Pharmacopeia" 
                     };
 
                     params.N_mBAS = { 
                         value: params.NobsBAS.value / params.track_width.value, 
-                        description: "N/m at basis - United States Pharmacopeia" 
+                        description: "Number of theoretical plates per meter  (N/m) - United States Pharmacopeia" 
                     };
 
                     params.N_m05 = { 
                         value: params.Nobs05.value / params.track_width.value, 
-                        description: "N/m at 50% of height - European Pharmacopeia" 
+                        description: "Number of theoretical plates per meter (N/m) - European Pharmacopeia" 
                     };
 
                     draggable.dataset.params = JSON.stringify(params);
@@ -945,7 +945,8 @@
 
                     params.concentration = {  
                         value: predictConcentration(params.surface.value / referenceSurface),  
-                        description: "Substance concentration"  
+                        description: "Substance concentration",
+                        color: 'white'
                     };                  
                     
                     if (maxSurface > 0) {
@@ -961,21 +962,21 @@
                         if (params.k && nextParams.k) {
                             params.alpha = {  
                                 value: Math.max(params.k.value, nextParams.k.value) / Math.min(params.k.value, nextParams.k.value),  
-                                description: "alpha param"  
+                                description: "Separation factor (α)"  
                             };
                         }
 
                         if (params.RF && nextParams.RF && params.Wbas && nextParams.Wbas) {
                             params.RSz = {  
                                 value: (nextParams.RF.value - params.RF.value) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
-                                description: "RSz param"  
+                                description: "Resolution (RS)"  
                             };
                         }
 
                         if (params.k && nextParams.k) {
                             params.selectivity = {  
                                 value: 0.25 * (nextParams.k.value / params.k.value - 1),  
-                                description: "selectivity param"  
+                                description: "selectivity"  
                             };
                         }
 
@@ -986,35 +987,35 @@
                             };
                             params.retention = {  
                                 value: 1 - params.RFavg.value,  
-                                description: "retention param"  
+                                description: "retention"  
                             };
                         }
 
                         if (params.NobsBAS && nextParams.NobsBAS && params.RFavg) {
                             params.efficacyBAS = {  
                                 value: Math.sqrt(params.RFavg.value * (params.NobsBAS.value + nextParams.NobsBAS.value) / 2),  
-                                description: "efficacyBAS param - United States Pharmacopeia"  
+                                description: "efficacy- United States Pharmacopeia"  
                             };
                         }
                         
                         if (params.Nobs05 && nextParams.Nobs05 && params.RFavg) {
                             params.efficacy50 = {  
                                 value: Math.sqrt(params.RFavg.value * (params.Nobs05.value + nextParams.Nobs05.value) / 2),  
-                                description: "efficacy50 param - European Pharmacopeia"  
+                                description: "efficacy - European Pharmacopeia"  
                             };
                         }
 
                         if (params.selectivity && params.retention && params.efficacyBAS) {
                             params.RSssrBAS = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacyBAS.value,  
-                                description: "RSssrBAS param - United States Pharmacopeia"  
+                                description: "Resolution (RS) - United States Pharmacopeia"  
                             };
                         }
                         
                         if (params.selectivity && params.retention && params.efficacy50) {
                             params.RSssr50 = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacy50.value,  
-                                description: "RSssr50 param - European Pharmacopeia"  
+                                description: "Resolution (RS) - European Pharmacopeia"  
                             };
                         }
                     }               
@@ -1043,6 +1044,9 @@
                     if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
 
                     const listItem = document.createElement("li");
+                    if (param.hasOwnProperty("color")) {
+                        listItem.style.backgroundColor = param.color;
+                    }
                     const label = document.createElement("label");
                     label.textContent = param.description;
 
