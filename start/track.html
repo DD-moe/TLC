@@ -944,14 +944,9 @@
                     };
 
                     params.concentration = {  
-                        value: predictConcentration(params.surface.value),  
-                        description: "Substance concentration"  
-                    };
-                    
-                    params.concentrationRef = {  
                         value: predictConcentration(params.surface.value / referenceSurface),  
-                        description: "Substance concentration with reference spot"  
-                    };                      
+                        description: "Substance concentration"  
+                    };                  
                     
                     if (maxSurface > 0) {
                         params.percentSurface = {  
@@ -1136,7 +1131,7 @@
         function calculateLinearRegression() {
             if (concentrationData.length < 2) return;
             
-            const x = concentrationData.map(d => d.surface);
+            const x = concentrationData.map(d => d.surface / referenceSurface);
             const y = concentrationData.map(d => d.concentration);
             
             const n = x.length;
