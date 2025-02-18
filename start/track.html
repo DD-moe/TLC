@@ -89,7 +89,9 @@
         <button onclick="clearConcentration()" title="Wyczyść wszystkie stężenia">🗑️🧪</button>
         <button onclick="saveParameterValues()" title="Zapisz zmiany w peaku">💾🧪</button>
         <button onclick="calculateLinearRegression()" title="Stwórz krzywą koncentracji">📈</button>
+        <button onclick="getSpotReference()" title="Użyj jako odnosnika stężenia">🎯</button>
         <div id="LinearRegression"></div>
+        <div id="surfaceRef"></div>
         <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>
         <a href="setting.html" title="ustawienia">⚙️</a>
         <a href="../index.html" title="strona startowa">🏠</a>
@@ -119,10 +121,52 @@
         let selectedTrack = null;
         let manuals = false;
         let concentrationData = [];
+        let referenceSurface = 1;
 
         function toggle_CanvasSpace(){
             const canvasSpace = document.getElementById("canvas_space");
             canvasSpace.style.display = (canvasSpace.style.display === "none") ? "block" : "none";
+        }
+
+        function getSpotReference(){
+
+            if (!selectedTrack || !selectedTrack.target) return;
+            
+            const paramsData = selectedTrack.target.dataset.params;
+            if (!paramsData) return;
+            
+            try {
+                const paramsObject = JSON.parse(paramsData);
+                if (typeof paramsObject !== "object" || paramsObject === null) return;
+                const param = paramsObject.surface;
+                if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
+                referenceSurface = param.value;
+                saveToIndexedDB(JSON.stringify(referenceSurface), 'referenceSurface');
+                setSurfaceReference(referenceSurface);
+            }
+            catch{
+                console.error(err);
+            }            
+        }
+
+        function setSurfaceReference(referenceValue) {
+            let surfaceRefDiv = document.getElementById("surfaceRef");
+            if (!surfaceRefDiv) {
+                console.error("Element with id 'surfaceRef' not found.");
+                return;
+            }
+
+            let mathML = `
+                <math xmlns="http://www.w3.org/1998/Math/MathML">
+                    <mrow>
+                        <mi>I</mi>
+                        <mo>=</mo>
+                        <mn>${referenceValue.toFixed(3)}</mn>
+                    </mrow>
+                </math>
+            `;
+
+            surfaceRefDiv.innerHTML = mathML;
         }
 
         // Funkcja do pobrania i parsowania danych JSON z IndexedDB
@@ -156,7 +200,14 @@
                                 concentrationCurve = parsedData;
                             }
                         }                     
-
+                        else if (key === "referenceSurface") {
+                            if (parsedData === null || parsedData === undefined) {
+                                referenceSurface = 1;
+                            }
+                            else{
+                                referenceSurface = parsedData;
+                            }
+                        }  
                         // Zwróć Promise po udanym załadowaniu
                         resolve();
                     } catch (error) {
@@ -208,6 +259,7 @@
             countParams();
             displayConcentrationData();
             showConcentrationCurve();
+            setSurfaceReference(referenceSurface);
         }
 
         function autostart() {
@@ -221,7 +273,8 @@
                 loadJsonDataFromIndexedDB(dbName, storeName, "baselines"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "concentrationData"),
-                loadJsonDataFromIndexedDB(dbName, storeName, "concentrationCurve")
+                loadJsonDataFromIndexedDB(dbName, storeName, "concentrationCurve"),
+                loadJsonDataFromIndexedDB(dbName, storeName, "referenceSurface")
             ]).then(() => {
                 // Po załadowaniu obu obrazów uruchom funkcję
                 onAllDataLoaded();
@@ -893,7 +946,12 @@
                     params.concentration = {  
                         value: predictConcentration(params.surface.value),  
                         description: "Substance concentration"  
-                    };                    
+                    };
+                    
+                    params.concentrationRef = {  
+                        value: predictConcentration(params.surface.value / referenceSurface),  
+                        description: "Substance concentration with reference spot"  
+                    };                      
                     
                     if (maxSurface > 0) {
                         params.percentSurface = {  
