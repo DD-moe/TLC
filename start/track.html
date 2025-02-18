@@ -813,19 +813,19 @@
                     const tailingFactor = W05 / (2 * A05);
 
                     const params = JSON.stringify({
-                        midpointIndex: { value: midpointIndex, description: "Index of midpoint" },
-                        maxHeight: { value: maxHeight, description: "Maximal height on track" },
+                        midpointIndex: { value: midpointIndex, description: "Index of midpoint", color: 'bisque'},
+                        maxHeight: { value: maxHeight, description: "Maximal height on track", color: 'bisque' },
                         peakMaxHeight: { value: peakMaxHeight, description: "Maximal height of peak" },
                         peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Maximal height of peak / Maximal height on track * 100%" },
-                        Wbas: { value: Wbas, description: "Width of peak at 0% of height" },
-                        W50: { value: W50, description: "Width of peak at 50% of height" },
-                        W10: { value: W10, description: "Width of peak at 10% of height" },
-                        W05: { value: W05, description: "Width of peak at 5% of height" },
-                        surface: { value: surface, description: "Surface of spot" },
-                        A05: { value: A05, description: "Start to midpoint distance at 5% of height" },
-                        A10: { value: A10, description: "Start to midpoint distance at 10% of height" },
-                        B05: { value: B05, description: "Midpoint to end distance at 5% of height" },
-                        B10: { value: B10, description: "Midpoint to end distance at 10% of height" },
+                        Wbas: { value: Wbas, description: "Width of peak at 0% of height", color: 'bisque' },
+                        W50: { value: W50, description: "Width of peak at 50% of height", color: 'bisque' },
+                        W10: { value: W10, description: "Width of peak at 10% of height", color: 'bisque' },
+                        W05: { value: W05, description: "Width of peak at 5% of height", color: 'bisque' },
+                        surface: { value: surface, description: "Surface of spot", color: 'white' },
+                        A05: { value: A05, description: "Start to midpoint distance at 5% of height", color: 'bisque' },
+                        A10: { value: A10, description: "Start to midpoint distance at 10% of height", color: 'bisque' },
+                        B05: { value: B05, description: "Midpoint to end distance at 5% of height", color: 'bisque' },
+                        B10: { value: B10, description: "Midpoint to end distance at 10% of height", color: 'bisque' },
                         asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry factor" },
                         tailingFactor: { value: tailingFactor, description: "Tailing factor" }
                     });
@@ -846,14 +846,16 @@
                     let params = JSON.parse(draggable.dataset.params);
                     params.plate_width = { 
                         value: baselines.plate_width, // globalna zmienna
-                        description: "Plate width in cm"
+                        description: "Plate width in cm", 
+                        color: 'bisque'
                     };
                     
                     const spotsElement = document.getElementById('spots');
                     if (spotsElement) {
                         params.track_width = { 
                             value: (redSums.length / spotsElement.width) * params.plate_width.value, 
-                            description: "Track width in cm"
+                            description: "Track width in cm",
+                            color: 'bisque'
                         };
                     } else {
                         console.error("Element #spots nie istnieje");
@@ -876,32 +878,38 @@
 
                     params.HobsBAS = { 
                         value: (params.Wbas.value ** 2) / (5.54 * params.RF.value), 
-                        description: "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia" 
+                        description: "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia",
+                        color: 'thistle'
                     };
 
                     params.Hobs05 = { 
                         value: (params.W50.value ** 2) / (16 * params.RF.value), 
-                        description: "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia" 
+                        description: "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia",
+                        color: 'lavender'   
                     };
 
                     params.NobsBAS = { 
                         value: (16 * params.RF.value) / params.Wbas.value, 
-                        description: "Number of theoretical plates (N) - United States Pharmacopeia" 
+                        description: "Number of theoretical plates (N) - United States Pharmacopeia",
+                        color: 'thistle'
                     };
 
                     params.Nobs05 = { 
                         value: (params.RF.value / params.W50.value) ** 2 * 5.54, 
-                        description: "Number of theoretical plates (N) - European Pharmacopeia" 
+                        description: "Number of theoretical plates (N) - European Pharmacopeia",
+                        color: 'lavender'   
                     };
 
                     params.N_mBAS = { 
                         value: params.NobsBAS.value / params.track_width.value, 
-                        description: "Number of theoretical plates per meter  (N/m) - United States Pharmacopeia" 
+                        description: "Number of theoretical plates per meter  (N/m) - United States Pharmacopeia",
+                        color: 'thistle'
                     };
 
                     params.N_m05 = { 
                         value: params.Nobs05.value / params.track_width.value, 
-                        description: "Number of theoretical plates per meter (N/m) - European Pharmacopeia" 
+                        description: "Number of theoretical plates per meter (N/m) - European Pharmacopeia",
+                        color: 'lavender'   
                     };
 
                     draggable.dataset.params = JSON.stringify(params);
@@ -940,7 +948,8 @@
                 draggableData.forEach(({ draggable, params }, index) => {
                     params.maxSurface = {  
                         value: maxSurface,  
-                        description: "Greatest peak surface for track"  
+                        description: "Greatest peak surface for track", 
+                        color: 'bisque' 
                     };
 
                     params.concentration = {  
@@ -994,28 +1003,32 @@
                         if (params.NobsBAS && nextParams.NobsBAS && params.RFavg) {
                             params.efficacyBAS = {  
                                 value: Math.sqrt(params.RFavg.value * (params.NobsBAS.value + nextParams.NobsBAS.value) / 2),  
-                                description: "efficacy- United States Pharmacopeia"  
+                                description: "efficacy- United States Pharmacopeia",
+                                color: 'thistle'
                             };
                         }
                         
                         if (params.Nobs05 && nextParams.Nobs05 && params.RFavg) {
                             params.efficacy50 = {  
                                 value: Math.sqrt(params.RFavg.value * (params.Nobs05.value + nextParams.Nobs05.value) / 2),  
-                                description: "efficacy - European Pharmacopeia"  
+                                description: "efficacy - European Pharmacopeia",
+                                color: 'lavender'    
                             };
                         }
 
                         if (params.selectivity && params.retention && params.efficacyBAS) {
                             params.RSssrBAS = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacyBAS.value,  
-                                description: "Resolution (RS) - United States Pharmacopeia"  
+                                description: "Resolution (RS) - United States Pharmacopeia",
+                                color: 'thistle'
                             };
                         }
                         
                         if (params.selectivity && params.retention && params.efficacy50) {
                             params.RSssr50 = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacy50.value,  
-                                description: "Resolution (RS) - European Pharmacopeia"  
+                                description: "Resolution (RS) - European Pharmacopeia",
+                                color: 'lavender'  
                             };
                         }
                     }               
