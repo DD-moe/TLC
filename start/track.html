@@ -1237,6 +1237,7 @@
             for (let i = 0; i < iterations; i++) {
                 let gradients = { a: 0, b: 0, c: 0, d: 0 };
                 for (const point of data) {
+                    console.log(point);
                     const pred = concentrationModel(point.Surface, point.X, point.Y, params);
                     const error = pred - point.Concentration;
                     
@@ -1261,6 +1262,7 @@
             if (concentrationData.length < 2) return;
 
             const data = concentrationData;
+            console.log(data);
 
             // Początkowe wartości parametrów
             const initialParams = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
