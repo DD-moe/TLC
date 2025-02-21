@@ -1275,7 +1275,7 @@
 
             // Przykładowe przewidywanie wartości w (0.5, 0.5)
             console.log("Krzywa normalizacji: ", normalizationParams);
-            saveToIndexedDB(JSON.parse(normalizationParams), 'normalizationParams');
+            saveToIndexedDB(JSON.stringify(normalizationParams), 'normalizationParams');
         }
 
     </script>     
