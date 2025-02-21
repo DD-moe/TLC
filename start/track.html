@@ -212,7 +212,7 @@
                         } 
                         else if (key === "normalizationParams") {
                             if (parsedData === null || parsedData === undefined) {
-                                normalizationParams  = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
+                                normalizationParams  = {};
                             }
                             else{
                                 normalizationParams  = parsedData;
@@ -974,11 +974,13 @@
                         color: 'bisque' 
                     };
 
-                    params.NormalizedSurface = {  
-                        value: evaluateSpline2D(normalizationParams, params.Xcentral.value, params.Ycentral.value), 
-                        description: "Normalized surface",
-                        color: 'white'
-                    }; 
+                    if ('grid' in normalizationParams) {
+                        params.NormalizedSurface = {  
+                            value: evaluateSpline2D(normalizationParams, params.Xcentral.value, params.Ycentral.value), 
+                            description: "Normalized surface",
+                            color: 'white'
+                        };                         
+                    }
                     
                     params.concentration = {  
                         value: predictConcentration(params.surface.value / referenceSurface),  
@@ -1273,6 +1275,7 @@
 
             // Przykładowe przewidywanie wartości w (0.5, 0.5)
             console.log("Krzywa normalizacji: ", normalizationParams);
+            saveToIndexedDB(JSON.parse(normalizationParams), 'normalizationParams');
         }
 
     </script>     
