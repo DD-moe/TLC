@@ -123,6 +123,7 @@
         let manuals = false;
         let concentrationData = [];
         let referenceSurface = 1;
+        let normalizationParams = {};
 
         function toggle_CanvasSpace(){
             const canvasSpace = document.getElementById("canvas_space");
@@ -208,7 +209,15 @@
                             else{
                                 referenceSurface = parsedData;
                             }
-                        }  
+                        } 
+                        else if (key === "normalizationParams") {
+                            if (parsedData === null || parsedData === undefined) {
+                                normalizationParams  = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
+                            }
+                            else{
+                                normalizationParams  = parsedData;
+                            }
+                        }                         
                         // Zwróć Promise po udanym załadowaniu
                         resolve();
                     } catch (error) {
@@ -275,7 +284,8 @@
                 loadJsonDataFromIndexedDB(dbName, storeName, "draggable_coordinates"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "concentrationData"),
                 loadJsonDataFromIndexedDB(dbName, storeName, "concentrationCurve"),
-                loadJsonDataFromIndexedDB(dbName, storeName, "referenceSurface")
+                loadJsonDataFromIndexedDB(dbName, storeName, "referenceSurface"),
+                loadJsonDataFromIndexedDB(dbName, storeName, "normalizationParams")
             ]).then(() => {
                 // Po załadowaniu obu obrazów uruchom funkcję
                 onAllDataLoaded();
@@ -1261,14 +1271,14 @@
             if (concentrationData.length < 2) return;
 
             const data = concentrationData;
-            console.log(data);
+            //console.log(data);
             // Początkowe wartości parametrów
             const initialParams = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
 
             // Optymalizacja
             const optimizedParams = optimizeParams(data, initialParams);
-
-            console.log("Dopasowane parametry:", optimizedParams);
+            normalizationParams = optimizedParams;
+            //console.log("Dopasowane parametry:", optimizedParams);
         }
 
     </script>     
