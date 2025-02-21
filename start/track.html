@@ -1247,7 +1247,7 @@
         }
 
         // Optymalizacja parametrami (gradient descent)
-        function optimizeParams(data, initialParams, learningRate = 0.0001, iterations = 10000) {
+        function optimizeParams(data, initialParams, learningRate = 0.0001, iterations = 1) {
             let params = { ...initialParams };
 
             for (let i = 0; i < iterations; i++) {
