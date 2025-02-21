@@ -1224,7 +1224,7 @@
         function costFunction(params, data) {
             let error = 0;
             for (const point of data) {
-                const predicted = concentrationModel(point.Surface, point.X, point.Y, params);
+                const predicted = concentrationModel(point.Surface, point.XPosPos, point.YPos, params);
                 error += (predicted - point.Concentration) ** 2;
             }
             return error / data.length;
@@ -1237,15 +1237,14 @@
             for (let i = 0; i < iterations; i++) {
                 let gradients = { a: 0, b: 0, c: 0, d: 0 };
                 for (const point of data) {
-                    console.log(point);
-                    const pred = concentrationModel(point.Surface, point.X, point.Y, params);
+                    const pred = concentrationModel(point.Surface, point.XPos, point.YPos, params);
                     const error = pred - point.Concentration;
                     
                     // Obliczamy pochodne cząstkowe względem parametrów
-                    gradients.a += 2 * error * (point.Surface / ((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d));
-                    gradients.b += -2 * error * params.a * point.Surface * 2 * (point.X + params.b) / (((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d) ** 2);
-                    gradients.c += -2 * error * params.a * point.Surface * 2 * (point.Y + params.c) / (((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d) ** 2);
-                    gradients.d += -2 * error * params.a * point.Surface / (((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d) ** 2);
+                    gradients.a += 2 * error * (point.Surface / ((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d));
+                    gradients.b += -2 * error * params.a * point.Surface * 2 * (point.XPos + params.b) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
+                    gradients.c += -2 * error * params.a * point.Surface * 2 * (point.YPos + params.c) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
+                    gradients.d += -2 * error * params.a * point.Surface / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
                 }
 
                 // Uaktualnienie parametrów
@@ -1262,7 +1261,6 @@
             if (concentrationData.length < 2) return;
 
             const data = concentrationData;
-            console.log(data);
 
             // Początkowe wartości parametrów
             const initialParams = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
