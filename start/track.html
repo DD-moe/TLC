@@ -1233,7 +1233,7 @@
         // Funkcja modelu
         function concentrationModel(Surface, X, Y, params) {
             const { a, b, c, d } = params;
-            return a * Surface;
+            return a * Surface / ((X + b) ** 2 + (Y + c) ** 2 + d);
         }
 
         // Funkcja kosztu (MSE - Mean Squared Error)
