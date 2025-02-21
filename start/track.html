@@ -89,6 +89,7 @@
         <button onclick="clearConcentration()" title="Wyczyść wszystkie stężenia">🗑️🧪</button>
         <button onclick="saveParameterValues()" title="Zapisz zmiany w peaku">💾🧪</button>
         <button onclick="calculateLinearRegression()" title="Stwórz krzywą koncentracji">📈</button>
+        <button onclick="PreparePositionalCurve()" title="Stwórz krzywą normalizacji">〰️</button> 
         <button onclick="getSpotReference()" title="Użyj jako odnosnika stężenia">🎯</button>
         <div id="LinearRegression"></div>
         <div id="surfaceRef"></div>
@@ -1211,6 +1212,63 @@
         function predictConcentration(surface) {
             if (!concentrationCurve.slope || !concentrationCurve.intercept) return null;
             return concentrationCurve.slope * surface + concentrationCurve.intercept;
+        }
+
+        // Funkcja modelu
+        function concentrationModel(Surface, X, Y, params) {
+            const { a, b, c, d } = params;
+            return a * Surface / ((X + b) ** 2 + (Y + c) ** 2 + d);
+        }
+
+        // Funkcja kosztu (MSE - Mean Squared Error)
+        function costFunction(params, data) {
+            let error = 0;
+            for (const point of data) {
+                const predicted = concentrationModel(point.Surface, point.X, point.Y, params);
+                error += (predicted - point.Concentration) ** 2;
+            }
+            return error / data.length;
+        }
+
+        // Optymalizacja parametrami (gradient descent)
+        function optimizeParams(data, initialParams, learningRate = 0.001, iterations = 10000) {
+            let params = { ...initialParams };
+
+            for (let i = 0; i < iterations; i++) {
+                let gradients = { a: 0, b: 0, c: 0, d: 0 };
+                for (const point of data) {
+                    const pred = concentrationModel(point.Surface, point.X, point.Y, params);
+                    const error = pred - point.Concentration;
+                    
+                    // Obliczamy pochodne cząstkowe względem parametrów
+                    gradients.a += 2 * error * (point.Surface / ((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d));
+                    gradients.b += -2 * error * params.a * point.Surface * 2 * (point.X + params.b) / (((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d) ** 2);
+                    gradients.c += -2 * error * params.a * point.Surface * 2 * (point.Y + params.c) / (((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d) ** 2);
+                    gradients.d += -2 * error * params.a * point.Surface / (((point.X + params.b) ** 2 + (point.Y + params.c) ** 2 + params.d) ** 2);
+                }
+
+                // Uaktualnienie parametrów
+                params.a -= learningRate * gradients.a / data.length;
+                params.b -= learningRate * gradients.b / data.length;
+                params.c -= learningRate * gradients.c / data.length;
+                params.d -= learningRate * gradients.d / data.length;
+            }
+
+            return params;
+        }
+
+        function PreparePositionalCurve(){
+            if (concentrationData.length < 2) return;
+
+            const data = concentrationData;
+
+            // Początkowe wartości parametrów
+            const initialParams = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
+
+            // Optymalizacja
+            const optimizedParams = optimizeParams(data, initialParams);
+
+            console.log("Dopasowane parametry:", optimizedParams);
         }
 
     </script>     
