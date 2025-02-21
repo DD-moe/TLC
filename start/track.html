@@ -1233,7 +1233,7 @@
         // Funkcja modelu
         function concentrationModel(Surface, X, Y, params) {
             const { a, b, c, d } = params;
-            return a * Surface / ((X + b) ** 2 + (Y + c) ** 2 + d);
+            return a * Surface / ((X -0.5) ** 2 * b + (Y - 0.5) ** 2 * c + d);
         }
 
         // Funkcja kosztu (MSE - Mean Squared Error)
@@ -1277,14 +1277,13 @@
             if (concentrationData.length < 2) return;
 
             const data = concentrationData;
-            //console.log(data);
             // Początkowe wartości parametrów
             const initialParams = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
 
             // Optymalizacja
             const optimizedParams = optimizeParams(data, initialParams);
             normalizationParams = optimizedParams;
-            //console.log("Dopasowane parametry:", optimizedParams);
+            console.log("Dopasowane parametry:", optimizedParams);
         }
 
     </script>     
