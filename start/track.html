@@ -1232,51 +1232,68 @@
             return concentrationCurve.slope * surface + concentrationCurve.intercept;
         }
 
-        function createBicubicSpline2D(points) {
+        // Tworzenie siatki 3D na podstawie punktów (XPos, YPos, surface)
+        function createBicubicSpline3D(points) {
             const xs = [...new Set(points.map(p => p.XPos))].sort((a, b) => a - b);
             const ys = [...new Set(points.map(p => p.YPos))].sort((a, b) => a - b);
+            const surfaces = [...new Set(points.map(p => p.surface))].sort((a, b) => a - b);
             const grid = {};
 
             points.forEach(p => {
                 if (!grid[p.XPos]) grid[p.XPos] = {};
-                grid[p.XPos][p.YPos] = p.concentration;
+                if (!grid[p.XPos][p.YPos]) grid[p.XPos][p.YPos] = {};
+                grid[p.XPos][p.YPos][p.surface] = p.concentration;
             });
 
-            return { xs, ys, grid };
+            return { xs, ys, surfaces, grid };
         }
 
-        function evaluateSpline2D(spline, x, y) {
-            const { xs, ys, grid } = spline;
+        // Funkcja interpolacji trójwymiarowej (XPos, YPos, surface)
+        function evaluateSpline3D(spline, x, y, surface) {
+            const { xs, ys, surfaces, grid } = spline;
 
-            // Znajdujemy sąsiednie punkty X i Y
+            // Znajdujemy sąsiednie punkty X, Y i surface
             let x1 = xs.find(xp => xp >= x) || xs[xs.length - 1];
             let x0 = xs[xs.indexOf(x1) - 1] || x1;
             let y1 = ys.find(yp => yp >= y) || ys[ys.length - 1];
             let y0 = ys[ys.indexOf(y1) - 1] || y1;
+            let surface1 = surfaces.find(s => s >= surface) || surfaces[surfaces.length - 1];
+            let surface0 = surfaces[surfaces.indexOf(surface1) - 1] || surface1;
 
-            // Pobieramy wartości concentration dla (x0, y0), (x0, y1), (x1, y0), (x1, y1)
-            let Q11 = grid[x0]?.[y0] ?? 0;
-            let Q12 = grid[x0]?.[y1] ?? 0;
-            let Q21 = grid[x1]?.[y0] ?? 0;
-            let Q22 = grid[x1]?.[y1] ?? 0;
+            // Pobieramy wartości concentration dla sąsiednich punktów
+            let Q111 = grid[x0]?.[y0]?.[surface0] ?? 0;
+            let Q112 = grid[x0]?.[y0]?.[surface1] ?? 0;
+            let Q121 = grid[x0]?.[y1]?.[surface0] ?? 0;
+            let Q122 = grid[x0]?.[y1]?.[surface1] ?? 0;
+            let Q211 = grid[x1]?.[y0]?.[surface0] ?? 0;
+            let Q212 = grid[x1]?.[y0]?.[surface1] ?? 0;
+            let Q221 = grid[x1]?.[y1]?.[surface0] ?? 0;
+            let Q222 = grid[x1]?.[y1]?.[surface1] ?? 0;
 
-            // Interpolacja biliniowa
-            let r1 = ((x1 - x) / (x1 - x0)) * Q11 + ((x - x0) / (x1 - x0)) * Q21;
-            let r2 = ((x1 - x) / (x1 - x0)) * Q12 + ((x - x0) / (x1 - x0)) * Q22;
+            // Interpolacja trójwymiarowa: najpierw interpolacja po powierzchni (surface)
+            let R11 = ((surface1 - surface) / (surface1 - surface0)) * Q111 + ((surface - surface0) / (surface1 - surface0)) * Q112;
+            let R12 = ((surface1 - surface) / (surface1 - surface0)) * Q121 + ((surface - surface0) / (surface1 - surface0)) * Q122;
+            let R21 = ((surface1 - surface) / (surface1 - surface0)) * Q211 + ((surface - surface0) / (surface1 - surface0)) * Q212;
+            let R22 = ((surface1 - surface) / (surface1 - surface0)) * Q221 + ((surface - surface0) / (surface1 - surface0)) * Q222;
+
+            // Następnie interpolacja po X i Y
+            let r1 = ((x1 - x) / (x1 - x0)) * R11 + ((x - x0) / (x1 - x0)) * R21;
+            let r2 = ((x1 - x) / (x1 - x0)) * R12 + ((x - x0) / (x1 - x0)) * R22;
             return ((y1 - y) / (y1 - y0)) * r1 + ((y - y0) / (y1 - y0)) * r2;
         }
 
-        // Główna funkcja do przygotowania splajnu
+        // Główna funkcja do przygotowania splajnu 3D
         function PreparePositionalCurve() {
             if (concentrationData.length < 2) return;
 
-            normalizationParams = createBicubicSpline2D(concentrationData);
-            console.log("Splajn 2D stworzony!");
+            normalizationParams = createBicubicSpline3D(concentrationData);
+            console.log("Splajn 3D stworzony!");
 
-            // Przykładowe przewidywanie wartości w (0.5, 0.5)
+            // Przykładowe przewidywanie wartości w (0.5, 0.5, 0.5)
             console.log("Krzywa normalizacji: ", normalizationParams);
             saveToIndexedDB(JSON.stringify(normalizationParams), 'normalizationParams');
         }
+
 
     </script>     
 </body>
