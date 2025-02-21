@@ -1224,8 +1224,8 @@
         function costFunction(params, data) {
             let error = 0;
             for (const point of data) {
-                const predicted = concentrationModel(point.Surface, point.XPosPos, point.YPos, params);
-                error += (predicted - point.Concentration) ** 2;
+                const predicted = concentrationModel(point.surface, point.XPosPos, point.YPos, params);
+                error += (predicted - point.concentration) ** 2;
             }
             return error / data.length;
         }
@@ -1237,14 +1237,14 @@
             for (let i = 0; i < iterations; i++) {
                 let gradients = { a: 0, b: 0, c: 0, d: 0 };
                 for (const point of data) {
-                    const pred = concentrationModel(point.Surface, point.XPos, point.YPos, params);
-                    const error = pred - point.Concentration;
+                    const pred = concentrationModel(point.surface, point.XPos, point.YPos, params);
+                    const error = pred - point.concentration;
                     
                     // Obliczamy pochodne cząstkowe względem parametrów
-                    gradients.a += 2 * error * (point.Surface / ((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d));
-                    gradients.b += -2 * error * params.a * point.Surface * 2 * (point.XPos + params.b) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
-                    gradients.c += -2 * error * params.a * point.Surface * 2 * (point.YPos + params.c) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
-                    gradients.d += -2 * error * params.a * point.Surface / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
+                    gradients.a += 2 * error * (point.surface / ((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d));
+                    gradients.b += -2 * error * params.a * point.surface * 2 * (point.XPos + params.b) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
+                    gradients.c += -2 * error * params.a * point.surface * 2 * (point.YPos + params.c) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
+                    gradients.d += -2 * error * params.a * point.surface / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
                 }
 
                 // Uaktualnienie parametrów
