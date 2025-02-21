@@ -974,11 +974,17 @@
                         color: 'bisque' 
                     };
 
+                    params.NormalizedSurface = {  
+                        value: concentrationModel(params.surface.value, params.Xcentral.value, params.Ycentral.value, normalizationParams),  
+                        description: "Normalized surface",
+                        color: 'white'
+                    }; 
+                    
                     params.concentration = {  
                         value: predictConcentration(params.surface.value / referenceSurface),  
                         description: "Substance concentration",
                         color: 'white'
-                    };                  
+                    };                     
                     
                     if (maxSurface > 0) {
                         params.percentSurface = {  
