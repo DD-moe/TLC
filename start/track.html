@@ -1291,6 +1291,7 @@
 
             // Przykładowe przewidywanie wartości w (0.5, 0.5, 0.5)
             console.log("Krzywa normalizacji: ", normalizationParams);
+            console.log("Krzywa normalizacji: ", evaluateSpline3D(normalizationParams, 0.5, 0.5, 90000));
             saveToIndexedDB(JSON.stringify(normalizationParams), 'normalizationParams');
         }
 
