@@ -1247,7 +1247,7 @@
         }
 
         // Optymalizacja parametrami (gradient descent)
-        function optimizeParams(data, initialParams, learningRate = 0.001, iterations = 10000) {
+        function optimizeParams(data, initialParams, learningRate = 0.0001, iterations = 10000) {
             let params = { ...initialParams };
 
             for (let i = 0; i < iterations; i++) {
@@ -1255,13 +1255,15 @@
                 for (const point of data) {
                     const pred = concentrationModel(point.surface, point.XPos, point.YPos, params);
                     const error = pred - point.concentration;
+                    const denominator = ((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d);
                     
-                    // Obliczamy pochodne cząstkowe względem parametrów
-                    gradients.a += 2 * error * (point.surface / ((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d));
-                    gradients.b += -2 * error * params.a * point.surface * 2 * (point.XPos + params.b) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
-                    gradients.c += -2 * error * params.a * point.surface * 2 * (point.YPos + params.c) / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
-                    gradients.d += -2 * error * params.a * point.surface / (((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d) ** 2);
+                    // Gradienty po parametrach
+                    gradients.a += 2 * error * (point.surface / denominator);
+                    gradients.b += 2 * error * params.a * point.surface * 2 * (point.XPos + params.b) / (denominator ** 2);
+                    gradients.c += 2 * error * params.a * point.surface * 2 * (point.YPos + params.c) / (denominator ** 2);
+                    gradients.d += 2 * error * params.a * point.surface / (denominator ** 2);
                 }
+
 
                 // Uaktualnienie parametrów
                 params.a -= learningRate * gradients.a / data.length;
