@@ -454,7 +454,9 @@
                 // Tworzenie nowego canvas i kontekstu
                 const newCanvas = document.createElement('canvas');
                 const newCtx = newCanvas.getContext('2d');
-
+                
+                // spot position params preparation
+                const Ycentral = (coordinate.y + coordinate.height / 2) / normCanvas.height;
                 // Ustawianie rozmiaru nowego canvas
                 newCanvas.width = baselines.width;
                 newCanvas.height = coordinate.height;
@@ -467,6 +469,9 @@
                 newDiv.style.position = 'relative';
                 newDiv.classList.add("track");
                 newDiv.id = coordinate.name;  // Ustawianie id div'a na podstawie 'name' w draggable_coordinates
+                newDiv.dataset.Ypos = JSON.stringify(Ycentral);
+                newDiv.dataset.Xstart = JSON.stringify(baselines.x);
+                newDiv.dataset.Xwidth = JSON.stringify(normCanvas.width);
 
                 // Tworzenie tablicy 1D z sumami kanału czerwonego dla każdej kolumny
                 const RedSums = [];
@@ -764,6 +769,9 @@
             document.querySelectorAll(".track").forEach(track => {
                 let redSums = JSON.parse(track.dataset.RedSums);
                 const maxHeight = Math.max(...redSums); // Maksymalna wartość w redSums
+                const Ypos = JSON.parse(track.dataset.Ypos);
+                const Xstart = JSON.parse(track.dataset.Xstart);
+                const Xwidth = JSON.parse(track.dataset.Xwidth);
 
                 track.querySelectorAll(".draggable").forEach(draggable => {
                     const rect = draggable.getBoundingClientRect();
@@ -771,6 +779,7 @@
                     let end = parseInt(rect.width) + parseInt(rect.left) || redSums.length;
                     const data = redSums.slice(start, end);
                     const midpointIndex = findMidpointIndex(redSums, start, end);
+                    const Xpos = (Xstart + midpointIndex ) / Xwidth;
                     const peakMaxHeight = Math.max(...data);
                     const peakMaxHeightPercent = (peakMaxHeight / maxHeight) * 100;
 
@@ -827,7 +836,9 @@
                         B05: { value: B05, description: "Midpoint to end distance at 5% of height", color: 'bisque' },
                         B10: { value: B10, description: "Midpoint to end distance at 10% of height", color: 'bisque' },
                         asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry factor" },
-                        tailingFactor: { value: tailingFactor, description: "Tailing factor" }
+                        tailingFactor: { value: tailingFactor, description: "Tailing factor" },
+                        Ycentral: {value: Ypos, description: "Y position 0-1 range of spot centrum"},
+                        Xcentral: {value: Xpos, description: "X position 0-1 range of spot centrum"},
                     });
 
                     draggable.dataset.params = params;
