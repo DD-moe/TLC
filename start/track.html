@@ -975,7 +975,7 @@
                     };
 
                     params.NormalizedSurface = {  
-                        value: concentrationModel(params.surface.value, params.Xcentral.value, params.Ycentral.value, normalizationParams),  
+                        value: evaluateSpline2D(normalizationParams, params.Xcentral.value, params.Ycentral.value), 
                         description: "Normalized surface",
                         color: 'white'
                     }; 
@@ -1230,62 +1230,49 @@
             return concentrationCurve.slope * surface + concentrationCurve.intercept;
         }
 
-        // Funkcja modelu
-        function concentrationModel(Surface, X, Y, params) {
-            const { a, b, c, d } = params;
-            return a * Surface / ((X + b) ** 2 + (Y + c) ** 2 + d);
+        function createBicubicSpline2D(points) {
+            const xs = [...new Set(points.map(p => p.XPos))].sort((a, b) => a - b);
+            const ys = [...new Set(points.map(p => p.YPos))].sort((a, b) => a - b);
+            const grid = {};
+
+            points.forEach(p => {
+                if (!grid[p.XPos]) grid[p.XPos] = {};
+                grid[p.XPos][p.YPos] = p.concentration;
+            });
+
+            return { xs, ys, grid };
         }
 
-        // Funkcja kosztu (MSE - Mean Squared Error)
-        function costFunction(params, data) {
-            let error = 0;
-            for (const point of data) {
-                const predicted = concentrationModel(point.surface, point.XPosPos, point.YPos, params);
-                error += (predicted - point.concentration) ** 2;
-            }
-            return error / data.length;
+        function evaluateSpline2D(spline, x, y) {
+            const { xs, ys, grid } = spline;
+
+            // Znajdujemy sąsiednie punkty X i Y
+            let x1 = xs.find(xp => xp >= x) || xs[xs.length - 1];
+            let x0 = xs[xs.indexOf(x1) - 1] || x1;
+            let y1 = ys.find(yp => yp >= y) || ys[ys.length - 1];
+            let y0 = ys[ys.indexOf(y1) - 1] || y1;
+
+            // Pobieramy wartości concentration dla (x0, y0), (x0, y1), (x1, y0), (x1, y1)
+            let Q11 = grid[x0]?.[y0] ?? 0;
+            let Q12 = grid[x0]?.[y1] ?? 0;
+            let Q21 = grid[x1]?.[y0] ?? 0;
+            let Q22 = grid[x1]?.[y1] ?? 0;
+
+            // Interpolacja biliniowa
+            let r1 = ((x1 - x) / (x1 - x0)) * Q11 + ((x - x0) / (x1 - x0)) * Q21;
+            let r2 = ((x1 - x) / (x1 - x0)) * Q12 + ((x - x0) / (x1 - x0)) * Q22;
+            return ((y1 - y) / (y1 - y0)) * r1 + ((y - y0) / (y1 - y0)) * r2;
         }
 
-        // Optymalizacja parametrami (gradient descent)
-        function optimizeParams(data, initialParams, learningRate = 0.0001, iterations = 1) {
-            let params = { ...initialParams };
-
-            for (let i = 0; i < iterations; i++) {
-                let gradients = { a: 0, b: 0, c: 0, d: 0 };
-                for (const point of data) {
-                    const pred = concentrationModel(point.surface, point.XPos, point.YPos, params);
-                    const error = pred - point.concentration;
-                    const denominator = ((point.XPos + params.b) ** 2 + (point.YPos + params.c) ** 2 + params.d);
-                    
-                    // Gradienty po parametrach
-                    gradients.a += 2 * error * (point.surface / denominator);
-                    gradients.b += 2 * error * params.a * point.surface * 2 * (point.XPos + params.b) / (denominator ** 2);
-                    gradients.c += 2 * error * params.a * point.surface * 2 * (point.YPos + params.c) / (denominator ** 2);
-                    gradients.d += 2 * error * params.a * point.surface / (denominator ** 2);
-                }
-
-
-                // Uaktualnienie parametrów
-                params.a -= learningRate * gradients.a / data.length;
-                params.b -= learningRate * gradients.b / data.length;
-                params.c -= learningRate * gradients.c / data.length;
-                params.d -= learningRate * gradients.d / data.length;
-            }
-
-            return params;
-        }
-
-        function PreparePositionalCurve(){
+        // Główna funkcja do przygotowania splajnu
+        function PreparePositionalCurve() {
             if (concentrationData.length < 2) return;
 
-            const data = concentrationData;
-            // Początkowe wartości parametrów
-            const initialParams = { a: 1000, b: -0.5, c: -0.5, d: 0.1 };
+            normalizationParams = createBicubicSpline2D(concentrationData);
+            console.log("Splajn 2D stworzony!");
 
-            // Optymalizacja
-            const optimizedParams = optimizeParams(data, initialParams);
-            normalizationParams = optimizedParams;
-            console.log("Dopasowane parametry:", optimizedParams);
+            // Przykładowe przewidywanie wartości w (0.5, 0.5)
+            console.log("Krzywa normalizacji: ", normalizationParams);
         }
 
     </script>     
