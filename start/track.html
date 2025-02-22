@@ -1248,39 +1248,52 @@
             return { xs, ys, surfaces, grid };
         }
 
-        // Funkcja interpolacji trójwymiarowej (XPos, YPos, surface)
         function evaluateSpline3D(spline, x, y, surface) {
-            const { xs, ys, surfaces, grid } = spline;
+    const { xs, ys, surfaces, grid } = spline;
 
-            // Znajdujemy sąsiednie punkty X, Y i surface
-            let x1 = xs.find(xp => xp >= x) || xs[xs.length - 1];
-            let x0 = xs[xs.indexOf(x1) - 1] || x1;
-            let y1 = ys.find(yp => yp >= y) || ys[ys.length - 1];
-            let y0 = ys[ys.indexOf(y1) - 1] || y1;
-            let surface1 = surfaces.find(s => s >= surface) || surfaces[surfaces.length - 1];
-            let surface0 = surfaces[surfaces.indexOf(surface1) - 1] || surface1;
-
-            // Pobieramy wartości concentration dla sąsiednich punktów
-            let Q111 = grid[x0]?.[y0]?.[surface0] ?? 0;
-            let Q112 = grid[x0]?.[y0]?.[surface1] ?? 0;
-            let Q121 = grid[x0]?.[y1]?.[surface0] ?? 0;
-            let Q122 = grid[x0]?.[y1]?.[surface1] ?? 0;
-            let Q211 = grid[x1]?.[y0]?.[surface0] ?? 0;
-            let Q212 = grid[x1]?.[y0]?.[surface1] ?? 0;
-            let Q221 = grid[x1]?.[y1]?.[surface0] ?? 0;
-            let Q222 = grid[x1]?.[y1]?.[surface1] ?? 0;
-
-            // Interpolacja trójwymiarowa: najpierw interpolacja po powierzchni (surface)
-            let R11 = ((surface1 - surface) / (surface1 - surface0)) * Q111 + ((surface - surface0) / (surface1 - surface0)) * Q112;
-            let R12 = ((surface1 - surface) / (surface1 - surface0)) * Q121 + ((surface - surface0) / (surface1 - surface0)) * Q122;
-            let R21 = ((surface1 - surface) / (surface1 - surface0)) * Q211 + ((surface - surface0) / (surface1 - surface0)) * Q212;
-            let R22 = ((surface1 - surface) / (surface1 - surface0)) * Q221 + ((surface - surface0) / (surface1 - surface0)) * Q222;
-
-            // Następnie interpolacja po X i Y
-            let r1 = ((x1 - x) / (x1 - x0)) * R11 + ((x - x0) / (x1 - x0)) * R21;
-            let r2 = ((x1 - x) / (x1 - x0)) * R12 + ((x - x0) / (x1 - x0)) * R22;
-            return ((y1 - y) / (y1 - y0)) * r1 + ((y - y0) / (y1 - y0)) * r2;
+    function getBoundingPoints(array, value) {
+        if (value <= array[0]) {
+            return [array[0], array[1] ?? array[0]]; // Ekstrapolacja dolna
+        } else if (value >= array[array.length - 1]) {
+            return [array[array.length - 2] ?? array[array.length - 1], array[array.length - 1]]; // Ekstrapolacja górna
+        } else {
+            let i = array.findIndex(v => v >= value);
+            return [array[i - 1], array[i]];
         }
+    }
+
+    let [x0, x1] = getBoundingPoints(xs, x);
+    let [y0, y1] = getBoundingPoints(ys, y);
+    let [surface0, surface1] = getBoundingPoints(surfaces, surface);
+
+    function getValue(x, y, s) {
+        return grid[x]?.[y]?.[s] ?? 0;
+    }
+
+    let Q111 = getValue(x0, y0, surface0);
+    let Q112 = getValue(x0, y0, surface1);
+    let Q121 = getValue(x0, y1, surface0);
+    let Q122 = getValue(x0, y1, surface1);
+    let Q211 = getValue(x1, y0, surface0);
+    let Q212 = getValue(x1, y0, surface1);
+    let Q221 = getValue(x1, y1, surface0);
+    let Q222 = getValue(x1, y1, surface1);
+
+    function interpolate(v0, v1, x0, x1, x) {
+        return v0 + ((v1 - v0) / (x1 - x0)) * (x - x0);
+    }
+
+    let R11 = interpolate(Q111, Q112, surface0, surface1, surface);
+    let R12 = interpolate(Q121, Q122, surface0, surface1, surface);
+    let R21 = interpolate(Q211, Q212, surface0, surface1, surface);
+    let R22 = interpolate(Q221, Q222, surface0, surface1, surface);
+
+    let r1 = interpolate(R11, R21, x0, x1, x);
+    let r2 = interpolate(R12, R22, x0, x1, x);
+
+    return interpolate(r1, r2, y0, y1, y);
+}
+
 
         // Główna funkcja do przygotowania splajnu 3D
         function PreparePositionalCurve() {
