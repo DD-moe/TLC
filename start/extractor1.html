@@ -41,12 +41,15 @@
     </div>
   </form>
 
-  <div id="share-container" class="d-none d-flex flex-column align-items-center mt-3 text-primary fw-medium" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz" style="cursor:pointer; user-select:none;">
+<div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
+  
+<div id="share-container" class="d-none d-flex flex-column align-items-center mt-3 text-primary fw-medium" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz" style="cursor:pointer; user-select:none;">
     <div id="share-icon" class="fs-2 mb-1">📤</div>
     <div>Udostępnij przetworzony obraz</div>
   </div>
 
   <button id="next-button" class="btn btn-success d-none mt-3">Przejdź dalej</button>
+</div>
 
 <div class="row">
   <div class="col-12 mb-3 text-center">
@@ -432,7 +435,7 @@ function loadImageFromIndexedDB() {
 
   async function shareCanvas() {
 
-    canvas.toBlob(async blob => {
+    lastCanvas.toBlob(async blob => {
       if (!blob) {
         alert('Błąd podczas tworzenia obrazu.');
         return;
@@ -456,7 +459,7 @@ function loadImageFromIndexedDB() {
 
   nextButton.addEventListener('click', async () => {
     const db = await openDB();
-    canvas.toBlob(blob => {
+    lastCanvas.toBlob(blob => {
       if (!blob) return;
       const transaction = db.transaction('images', 'readwrite');
       const store = transaction.objectStore('images');
