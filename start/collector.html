@@ -215,7 +215,7 @@
       const store = transaction.objectStore('images');
       store.put(blob, 'averaged');
       transaction.oncomplete = () => {
-        window.location.href = 'kolejna_strona.html'; // ZMIEŃ jeśli inna strona
+        window.location.href = './collector1.html'; // ZMIEŃ jeśli inna strona
       };
     }, 'image/png');
   });
