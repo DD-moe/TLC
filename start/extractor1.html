@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detekcja i otaczający czworokąt z przesuniętymi wierzchołkami</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <input type="file" id="imageLoader" accept="image/*" />
+  <input type="number" id="thresholdInput" placeholder="Tolerancja koloru" value="50" />
+  <input type="number" id="numPoints" placeholder="Liczba punktów" value="100000" />
+  <button id="processBtn">Dodaj punkty i rysuj granice</button>
+  <br /><br />
+  <canvas id="canvasOriginal"></canvas>
+  <canvas id="canvasProcessed"></canvas>
+
+  <script>
+    const imageLoader = document.getElementById("imageLoader");
+    const canvasOriginal = document.getElementById("canvasOriginal");
+    const ctxOriginal = canvasOriginal.getContext("2d");
+
+    const canvasProcessed = document.getElementById("canvasProcessed");
+    const ctxProcessed = canvasProcessed.getContext("2d");
+
+    const processBtn = document.getElementById("processBtn");
+    const thresholdInput = document.getElementById("thresholdInput");
+    const numPointsInput = document.getElementById("numPoints");
+
+    let imageDataOriginal;
+    let redPoints = [];
+    let referenceColor = null; // wzorcowy kolor RGB
+
+    imageLoader.addEventListener("change", function (e) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          canvasOriginal.width = img.width;
+          canvasOriginal.height = img.height;
+          canvasProcessed.width = img.width;
+          canvasProcessed.height = img.height;
+
+          ctxOriginal.drawImage(img, 0, 0);
+          imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
+
+          // Wyznacz wzorcowy kolor po załadowaniu obrazu
+          referenceColor = getReferenceColor(imageDataOriginal);
+          console.log("Wzorcowy kolor (RGB):", referenceColor);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    processBtn.addEventListener("click", () => {
+      if (!imageDataOriginal || !referenceColor) return;
+
+      const threshold = parseInt(thresholdInput.value);
+      const numPoints = parseInt(numPointsInput.value);
+
+      // Skopiuj obraz na canvasProcessed
+      ctxProcessed.putImageData(imageDataOriginal, 0, 0);
+
+      const data = imageDataOriginal.data;
+      const width = imageDataOriginal.width;
+      const height = imageDataOriginal.height;
+
+      const selected = [];
+
+      for (let i = 0; i < width * height; i++) {
+        const idx = i * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+
+        if (colorDistance({r,g,b}, referenceColor) <= threshold) {
+          selected.push({ x: i % width, y: Math.floor(i / width) });
+        }
+      }
+
+      redPoints.length = 0; // clear previous
+      for (let i = 0; i < Math.min(numPoints, selected.length); i++) {
+        const p = selected[Math.floor(Math.random() * selected.length)];
+        redPoints.push(p);
+        drawRedDot(p.x, p.y);
+      }
+
+      drawBoundingBox(redPoints);
+    });
+
+    function drawRedDot(x, y) {
+      ctxProcessed.fillStyle = "red";
+      ctxProcessed.fillRect(x - 1, y - 1, 3, 3);
+    }
+
+    function drawBoundingBox(points) {
+      if (points.length < 3) return;
+
+      const hull = convexHull(points);
+      if (hull.length < 3) return;
+
+      let minArea = Infinity;
+      let bestRect = [];
+
+      for (let i = 0; i < hull.length; i++) {
+        const p1 = hull[i];
+        const p2 = hull[(i + 1) % hull.length];
+
+        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        const cos = Math.cos(-angle);
+        const sin = Math.sin(-angle);
+
+        const rotated = hull.map((p) => ({
+          x: p.x * cos - p.y * sin,
+          y: p.x * sin + p.y * cos,
+        }));
+
+        const xs = rotated.map((p) => p.x);
+        const ys = rotated.map((p) => p.y);
+        const minX = Math.min(...xs),
+          maxX = Math.max(...xs);
+        const minY = Math.min(...ys),
+          maxY = Math.max(...ys);
+
+        const area = (maxX - minX) * (maxY - minY);
+        if (area < minArea) {
+          minArea = area;
+          const rect = [
+            { x: minX, y: minY },
+            { x: maxX, y: minY },
+            { x: maxX, y: maxY },
+            { x: minX, y: maxY },
+          ];
+          bestRect = rect.map((p) => ({
+            x: p.x * cos + p.y * sin,
+            y: -p.x * sin + p.y * cos,
+          }));
+        }
+      }
+
+      // Dla każdego wierzchołka prostokąta szukamy najbliższego piksela spełniającego warunek
+      const newVertices = bestRect.map((vertex) => findNearestValidPixel(vertex, 100));
+
+      ctxProcessed.strokeStyle = "orange";
+      ctxProcessed.lineWidth = 3;
+      ctxProcessed.beginPath();
+      ctxProcessed.moveTo(newVertices[0].x, newVertices[0].y);
+      for (let i = 1; i < newVertices.length; i++) {
+        ctxProcessed.lineTo(newVertices[i].x, newVertices[i].y);
+      }
+      ctxProcessed.closePath();
+      ctxProcessed.stroke();
+    }
+
+    // Szukamy najbliższego piksela z kolorem podobnym do referenceColor w promieniu radius
+    function findNearestValidPixel(vertex, radius) {
+      const width = imageDataOriginal.width;
+      const height = imageDataOriginal.height;
+      const data = imageDataOriginal.data;
+      const threshold = parseInt(thresholdInput.value);
+
+      let bestPixel = { x: vertex.x, y: vertex.y };
+      let bestDistSq = radius * radius;
+
+      const vx = Math.round(vertex.x);
+      const vy = Math.round(vertex.y);
+
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          const x = vx + dx;
+          const y = vy + dy;
+
+          if (x < 0 || x >= width || y < 0 || y >= height) continue;
+
+          const distSq = dx * dx + dy * dy;
+          if (distSq > bestDistSq) continue;
+
+          const idx = (y * width + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+
+          if (colorDistance({r,g,b}, referenceColor) <= threshold && distSq < bestDistSq) {
+            bestDistSq = distSq;
+            bestPixel = { x: x, y: y };
+          }
+        }
+      }
+
+      return bestPixel;
+    }
+
+    // Oblicza średni kolor RGB pikseli w okręgu o promieniu 20 px w środku obrazu
+    function getReferenceColor(imageData) {
+      const data = imageData.data;
+      const width = imageData.width;
+      const height = imageData.height;
+
+      const centerX = Math.floor(width / 2);
+      const centerY = Math.floor(height / 2);
+      const radius = 20;
+
+      let rSum = 0, gSum = 0, bSum = 0;
+      let count = 0;
+
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          const x = centerX + dx;
+          const y = centerY + dy;
+
+          if (x < 0 || x >= width || y < 0 || y >= height) continue;
+
+          // Sprawdź, czy punkt jest w kole (odległość <= radius)
+          if (dx * dx + dy * dy <= radius * radius) {
+            const idx = (y * width + x) * 4;
+            rSum += data[idx];
+            gSum += data[idx + 1];
+            bSum += data[idx + 2];
+            count++;
+          }
+        }
+      }
+
+      return {
+        r: Math.round(rSum / count),
+        g: Math.round(gSum / count),
+        b: Math.round(bSum / count)
+      };
+    }
+
+    // Odległość euklidesowa między dwoma kolorami RGB
+    function colorDistance(c1, c2) {
+      const dr = c1.r - c2.r;
+      const dg = c1.g - c2.g;
+      const db = c1.b - c2.b;
+      return Math.sqrt(dr * dr + dg * dg + db * db);
+    }
+
+    // Algorytm convex hull (Andrew's monotone chain)
+    function convexHull(points) {
+      points = [...points];
+      points.sort((a, b) => a.x - b.x || a.y - b.y);
+
+      const cross = (o, a, b) =>
+        (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+
+      const lower = [];
+      for (const p of points) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+          lower.pop();
+        }
+        lower.push(p);
+      }
+
+      const upper = [];
+      for (let i = points.length - 1; i >= 0; i--) {
+        const p = points[i];
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+          upper.pop();
+        }
+        upper.push(p);
+      }
+
+      upper.pop();
+      lower.pop();
+      return lower.concat(upper);
+    }
+  </script>
+</body>
+</html>
