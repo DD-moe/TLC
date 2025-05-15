@@ -256,54 +256,74 @@
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
       stworzSzaryObraz(config);
-      detectContrastFromCenter();
+      detectSpots();
     }
 
-function detectContrastFromCenter() {
+function detectSpots() {
   const ctx = canvasGrayed.getContext('2d');
   const { width, height } = canvasGrayed;
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
-  const blockSize = 80;
-  const margin = 5; // jak blisko brzegu porównujemy
   const threshold = parseInt(document.getElementById('dynTreshold').value, 10);
+  const radiusInner = 5;
+  const radiusOuter = 100;
+  const samples = 10000;
 
-  for (let by = 0; by < height; by += blockSize) {
-    for (let bx = 0; bx < width; bx += blockSize) {
-      const centerX = bx + Math.floor(blockSize / 2);
-      const centerY = by + Math.floor(blockSize / 2);
+  function getR(x, y) {
+    if (x < 0 || y < 0 || x >= width || y >= height) return null;
+    const idx = (y * width + x) * 4;
+    return data[idx]; // tylko czerwony kanał
+  }
 
-      if (centerX >= width || centerY >= height) continue;
-
-      const centerIndex = (centerY * width + centerX) * 4;
-      const centerR = data[centerIndex];
-
-      let maxDiff = 0;
-
-      // Sprawdź krawędziowe piksele w obrębie marginesu
-      for (let y = by; y < Math.min(by + blockSize, height); y++) {
-        for (let x = bx; x < Math.min(bx + blockSize, width); x++) {
-          const isNearEdge =
-            x - bx < margin || bx + blockSize - x <= margin ||
-            y - by < margin || by + blockSize - y <= margin;
-
-          if (!isNearEdge) continue;
-
-          const index = (y * width + x) * 4;
-          const r = data[index];
-          const diff = Math.abs(r - centerR);
-          if (diff > maxDiff) maxDiff = diff;
+  function averageInCircle(cx, cy, radius) {
+    let sum = 0, count = 0;
+    for (let y = -radius; y <= radius; y++) {
+      for (let x = -radius; x <= radius; x++) {
+        const dist = Math.sqrt(x * x + y * y);
+        if (dist <= radius) {
+          const r = getR(cx + x, cy + y);
+          if (r !== null) {
+            sum += r;
+            count++;
+          }
         }
       }
+    }
+    return count > 0 ? sum / count : 0;
+  }
 
-      if (maxDiff > threshold) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 120)';
-        ctx.fillRect(bx, by, blockSize, blockSize);
+  function averageOnCircle(cx, cy, radius, steps = 360) {
+    let sum = 0, count = 0;
+    for (let angle = 0; angle < 2 * Math.PI; angle += (2 * Math.PI) / steps) {
+      const x = Math.round(cx + radius * Math.cos(angle));
+      const y = Math.round(cy + radius * Math.sin(angle));
+      const r = getR(x, y);
+      if (r !== null) {
+        sum += r;
+        count++;
       }
+    }
+    return count > 0 ? sum / count : 0;
+  }
+
+  for (let i = 0; i < samples; i++) {
+    const x = Math.floor(Math.random() * width);
+    const y = Math.floor(Math.random() * height);
+
+    if (x < radiusOuter || y < radiusOuter || x >= width - radiusOuter || y >= height - radiusOuter)
+      continue; // pomijamy piksele blisko krawędzi
+
+    const centerAvg = averageInCircle(x, y, radiusInner);
+    const edgeAvg = averageOnCircle(x, y, radiusOuter, 100); // np. 100 punktów na okręgu
+
+    if (Math.abs(centerAvg - edgeAvg) > threshold) {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(x, y, 1, 1);
     }
   }
 }
+
 
 
 
