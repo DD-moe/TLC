@@ -272,7 +272,7 @@ function detectDarkSpots() {
   const resultData = resultCtx.getImageData(0, 0, width, height);
   const resultPixels = resultData.data;
 
-  const distanceThreshold = 40;
+  const distanceThreshold = 75;
   const samplesPerPoint = 20;
 
   function getGray(x, y) {
