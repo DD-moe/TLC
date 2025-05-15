@@ -255,9 +255,29 @@
       const canvasGrayed = document.getElementById('canvasGrayed');
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
+      applyCanvasGrayedBlur(3);
       stworzSzaryObraz(config);
       detectSpots();
     }
+
+function applyCanvasGrayedBlur(radiusPx = 5) {
+  const ctx = canvasGrayed.getContext('2d');
+  const { width, height } = canvasGrayed;
+
+  // Pobierz oryginalny obraz jako obraz tymczasowy
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = width;
+  tempCanvas.height = height;
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCtx.drawImage(canvasGrayed, 0, 0);
+
+  // Ustaw filtr i przerysuj z rozmyciem
+  ctx.clearRect(0, 0, width, height);
+  ctx.filter = `blur(${radiusPx}px)`;
+  ctx.drawImage(tempCanvas, 0, 0);
+  ctx.filter = 'none'; // reset filtra, żeby nie wpływał na przyszłe rysunki
+}
+
 
 function detectSpots() {
   const ctx = canvasGrayed.getContext('2d');
