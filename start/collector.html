@@ -3,109 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Uśrednianie obrazów</title>
+  <title>Uśrednianie obrazów – Przetwarzanie zdjęć</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<style>
-  body, html {
-    height: 100%;
-    margin: 0;
-    background-color: white;
-    transition: background-color 0.5s ease;
-  }
-  .center-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 1rem;
-    max-width: 100vw;
-    box-sizing: border-box;
-  }
-  .folder-icon {
-    font-size: 5rem;
-    color: #0d6efd;
-    cursor: pointer;
-    user-select: none;
-  }
-  canvas {
-    max-width: 90vw;
-    max-height: 60vh;
-    border: 1px solid #ddd;
-    margin-top: 1rem;
-    image-rendering: pixelated;
-    width: auto;
-    height: auto;
-  }
-  #result-text {
-    margin-top: 1rem;
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: #fff;
-  }
-  #share-container, #next-button {
-    margin-top: 1rem;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    color: #0d6efd;
-    user-select: none;
-    font-weight: 500;
-    text-align: center;
-  }
-  #share-icon {
-    font-size: 2.5rem;
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-  #file-input {
-    display: none;
-  }
-  #instruction {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    color: #333;
-  }
-  #next-button button {
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    background-color: #0d6efd;
-    color: white;
-    border: none;
-    border-radius: 0.4rem;
-    cursor: pointer;
-  }
-  #next-button button:hover {
-    background-color: #0b5ed7;
-  }
-</style>
+  <style>
+    canvas {
+      max-width: 90vw;
+      max-height: 60vh;
+      width: auto;
+      height: auto;
+    }
+    .folder-icon:hover,
+    #load-text:hover,
+    #share-container:hover {
+      opacity: 0.8;
+    }
+  </style>
 </head>
 <body>
-  <div class="center-container container">
-    <!-- DODANO: nagłówek z instrukcją -->
-    <h1 class="text-center mb-3">Załaduj zdjęcia do uśrednienia.</h1>
+<div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
+  <h1 class="mb-3">Załaduj zdjęcia do uśrednienia.</h1>
 
-    <div id="folder-icon" class="folder-icon" title="Wczytaj pliki" tabindex="0" role="button" aria-label="Wczytaj pliki">
-      📁
-    </div>
-    <div id="load-text" class="fs-4 text-primary" style="user-select:none; cursor:pointer;">Wczytaj pliki</div>
-
-    <canvas id="canvas" class="d-none"></canvas>
-    <div id="result-text" class="d-none">Gotowe uśrednianie obrazów</div>
-
-    <div id="share-container" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz">
-      <div id="share-icon">📤</div>
-      <div>Udostępnij przetworzony obraz</div>
-    </div>
-
-    <!-- DODANO: przycisk przejdź dalej -->
-    <button id="next-button" class="btn btn-success d-none mt-3">Przejdź dalej</button>
-
-    <input type="file" id="file-input" multiple accept="image/*" />
+  <div id="folder-icon" class="text-primary fs-1 mb-2" title="Wczytaj pliki" tabindex="0" role="button" aria-label="Wczytaj pliki">
+    📁
   </div>
+
+  <div id="load-text" class="text-primary fs-4 mb-3" style="user-select:none; cursor:pointer;" role="button" tabindex="0">
+    Wczytaj pliki
+  </div>
+
+  <canvas id="canvas" class="d-none border border-secondary rounded shadow mt-3"></canvas>
+
+  <div id="result-text" class="d-none mt-3 fw-semibold fs-5 text-success">
+    Gotowe uśrednianie obrazów
+  </div>
+
+  <div id="share-container" class="d-none d-flex flex-column align-items-center mt-3 text-primary fw-medium" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz" style="cursor:pointer; user-select:none;">
+    <div id="share-icon" class="fs-2 mb-1">📤</div>
+    <div>Udostępnij przetworzony obraz</div>
+  </div>
+
+  <button id="next-button" class="btn btn-success d-none mt-3">Przejdź dalej</button>
+
+  <input type="file" id="file-input" class="form-control d-none" multiple accept="image/*" />
+</div>
 
 <script>
   const folderIcon = document.getElementById('folder-icon');
@@ -115,20 +55,37 @@
   const ctx = canvas.getContext('2d');
   const resultText = document.getElementById('result-text');
   const shareContainer = document.getElementById('share-container');
-  const shareIcon = document.getElementById('share-icon');
-  const nextButton = document.getElementById('next-button'); // DODANO
+  const nextButton = document.getElementById('next-button');
 
-  folderIcon.addEventListener('click', () => {
-    document.body.style.backgroundColor = 'white'; // DODANO
+  const openFileDialog = () => {
+    document.body.style.backgroundColor = 'white';
     fileInput.click();
+  };
+
+  folderIcon.addEventListener('click', openFileDialog);
+  loadText.addEventListener('click', openFileDialog);
+
+  folderIcon.addEventListener('keydown', e => {
+    if (['Enter', ' '].includes(e.key)) {
+      openFileDialog();
+      e.preventDefault();
+    }
   });
-  loadText.addEventListener('click', () => {
-    document.body.style.backgroundColor = 'white'; // DODANO
-    fileInput.click();
+
+  loadText.addEventListener('keydown', e => {
+    if (['Enter', ' '].includes(e.key)) {
+      openFileDialog();
+      e.preventDefault();
+    }
   });
-  folderIcon.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { fileInput.click(); e.preventDefault(); } });
+
   shareContainer.addEventListener('click', shareCanvas);
-  shareContainer.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { shareCanvas(); e.preventDefault(); } });
+  shareContainer.addEventListener('keydown', e => {
+    if (['Enter', ' '].includes(e.key)) {
+      shareCanvas();
+      e.preventDefault();
+    }
+  });
 
   fileInput.addEventListener('change', async () => {
     const files = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
@@ -137,8 +94,8 @@
     loadText.textContent = 'Wybierz obrazy ponownie';
     canvas.classList.remove('d-none');
     resultText.classList.add('d-none');
-    shareContainer.style.display = 'none';
-    nextButton.classList.add('d-none'); // DODANO
+    shareContainer.classList.add('d-none');
+    nextButton.classList.add('d-none');
 
     const firstImage = await loadImage(files[0]);
     canvas.width = firstImage.naturalWidth;
@@ -166,10 +123,10 @@
     const avgImageData = new ImageData(avgData, canvas.width, canvas.height);
     ctx.putImageData(avgImageData, 0, 0);
 
-    document.body.style.backgroundColor = 'orange';
+    document.body.style.backgroundColor = '#fffbe6';
     resultText.classList.remove('d-none');
-    shareContainer.style.display = 'flex';
-    nextButton.classList.remove('d-none'); // DODANO
+    shareContainer.classList.remove('d-none');
+    nextButton.classList.remove('d-none');
   });
 
   function loadImage(file) {
@@ -182,6 +139,7 @@
   }
 
   async function shareCanvas() {
+
     canvas.toBlob(async blob => {
       if (!blob) {
         alert('Błąd podczas tworzenia obrazu.');
@@ -189,9 +147,7 @@
       }
 
       const filesArray = [
-        new File([blob], 'przetworzony_obraz.png', {
-          type: 'image/png',
-        }),
+        new File([blob], 'przetworzony_obraz.png', { type: 'image/png' }),
       ];
 
       try {
@@ -206,7 +162,6 @@
     }, 'image/png');
   }
 
-  // DODANO: zapis do IndexedDB i przejście dalej
   nextButton.addEventListener('click', async () => {
     const db = await openDB();
     canvas.toBlob(blob => {
@@ -215,7 +170,7 @@
       const store = transaction.objectStore('images');
       store.put(blob, 'averaged');
       transaction.oncomplete = () => {
-        window.location.href = './collector1.html'; // ZMIEŃ jeśli inna strona
+        window.location.href = './collector1.html'; // ← zmień adres docelowy jeśli inny
       };
     }, 'image/png');
   });
@@ -234,6 +189,5 @@
     });
   }
 </script>
-
 </body>
 </html>
