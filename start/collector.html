@@ -170,7 +170,7 @@
       const store = transaction.objectStore('images');
       store.put(blob, 'averaged');
       transaction.oncomplete = () => {
-        window.location.href = './collector1.html'; // ← zmień adres docelowy jeśli inny
+        window.location.href = './extractor1.html'; // ← zmień adres docelowy jeśli inny
       };
     }, 'image/png');
   });
