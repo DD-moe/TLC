@@ -270,6 +270,54 @@
       lower.pop();
       return lower.concat(upper);
     }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadImageFromIndexedDB();
+});
+
+function loadImageFromIndexedDB() {
+  const request = indexedDB.open("ImageDB", 1);
+
+  request.onsuccess = function (event) {
+    const db = event.target.result;
+    const transaction = db.transaction(["images"], "readonly");
+    const objectStore = transaction.objectStore("images");
+    const getRequest = objectStore.get("averaged");
+
+    getRequest.onsuccess = function (e) {
+      const result = e.target.result;
+      if (!result) {
+        console.warn("Brak obrazu 'averaged' w IndexedDB");
+        return;
+      }
+
+      const img = new Image();
+      img.onload = function () {
+        canvasOriginal.width = img.width;
+        canvasOriginal.height = img.height;
+        canvasProcessed.width = img.width;
+        canvasProcessed.height = img.height;
+
+        ctxOriginal.drawImage(img, 0, 0);
+        imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
+        referenceColor = getReferenceColor(imageDataOriginal);
+        console.log("Wzorcowy kolor (RGB):", referenceColor);
+      };
+      img.src = result; // zakładamy, że to dataURL (np. z canvas.toDataURL())
+    };
+
+    getRequest.onerror = function () {
+      console.error("Nie udało się pobrać obrazu z IndexedDB");
+    };
+  };
+
+  request.onerror = function () {
+    console.error("Nie udało się otworzyć bazy danych IndexedDB");
+  };
+}
+
+
   </script>
 </body>
 </html>
