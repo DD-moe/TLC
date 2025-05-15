@@ -255,40 +255,81 @@
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
       stworzSzaryObraz(config);
-      detectBlobs();
+      detectDarkSpots();
     }
 
-  function detectBlobs() {
-    const src = cv.imread('canvasGrayed');
-    let gray = new cv.Mat();
-    let bin = new cv.Mat();
-    let contours = new cv.MatVector();
-    let hierarchy = new cv.Mat();
+function detectDarkSpots() {
+  const ctx = canvasGrayed.getContext('2d');
+  const { width, height } = canvasGrayed;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
 
-    // Konwersja do skali szarości
-    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+  const resultCanvas = document.createElement('canvas');
+  resultCanvas.width = width;
+  resultCanvas.height = height;
+  const resultCtx = resultCanvas.getContext('2d');
+  resultCtx.drawImage(canvasGrayed, 0, 0);
+  const resultData = resultCtx.getImageData(0, 0, width, height);
+  const resultPixels = resultData.data;
 
-    // Próg binaryzacji (możesz go dostosować)
-    cv.threshold(gray, bin, 120, 255, cv.THRESH_BINARY_INV);
+  const distanceThreshold = 40;
+  const samplesPerPoint = 20;
 
-    // Znajdź kontury
-    cv.findContours(bin, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+  function getGray(x, y) {
+    const index = (y * width + x) * 4;
+    return data[index]; // R=G=B w skali szarości
+  }
 
-    // Rysowanie konturów na kopii obrazu
-    let dst = src.clone();
-    for (let i = 0; i < contours.size(); i++) {
-      const area = cv.contourArea(contours.get(i));
-      if (area > 30 && area < 10000) { // filtruj małe i bardzo duże plamy
-        const color = new cv.Scalar(255, 0, 0, 255);
-        cv.drawContours(dst, contours, i, color, 2);
+  function drawRedDot(x, y) {
+    const idx = (y * width + x) * 4;
+    resultPixels[idx] = 255;
+    resultPixels[idx + 1] = 0;
+    resultPixels[idx + 2] = 0;
+    resultPixels[idx + 3] = 255;
+  }
+
+  for (let i = 0; i < 10000; i++) {
+    const cx = Math.floor(Math.random() * width);
+    const cy = Math.floor(Math.random() * height);
+
+    const centerGray = getGray(cx, cy);
+    let nearSum = 0;
+    let farSum = 0;
+    let nearCount = 0;
+    let farCount = 0;
+
+    for (let j = 0; j < samplesPerPoint; j++) {
+      const angle = Math.random() * 2 * Math.PI;
+      const dist = Math.random() * distanceThreshold;
+      const x = Math.round(cx + Math.cos(angle) * dist);
+      const y = Math.round(cy + Math.sin(angle) * dist);
+
+      if (x < 0 || x >= width || y < 0 || y >= height) continue;
+
+      const gray = getGray(x, y);
+      if (dist < distanceThreshold / 2) {
+        nearSum += gray;
+        nearCount++;
+      } else {
+        farSum += gray;
+        farCount++;
       }
     }
 
-    cv.imshow('canvasGrayed', dst);
+    if (nearCount > 0 && farCount > 0) {
+      const nearAvg = nearSum / nearCount;
+      const farAvg = farSum / farCount;
 
-    // Zwolnij pamięć
-    src.delete(); gray.delete(); bin.delete(); contours.delete(); hierarchy.delete(); dst.delete();
+      if (nearAvg < farAvg - 10) {
+        drawRedDot(cx, cy);
+      }
+    }
   }
+
+  resultCtx.putImageData(resultData, 0, 0);
+  document.body.appendChild(resultCanvas); // lub podmień canvasGrayed jeśli chcesz
+}
+
 
 function stworzSzaryObraz(config) {
   const { multiplyer } = config;
