@@ -47,7 +47,7 @@
   <option value="konfiguracja3">Konfiguracja 3</option>
 </select>
 
-<input type="number" id="dynTreshold" value="30" min="0" max="255">
+<input type="number" id="dynTreshold" value="4" min="0" max="25">
 
 <div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
   
@@ -288,7 +288,7 @@ function detectSpots() {
   const threshold = parseInt(document.getElementById('dynTreshold').value, 10);
   const radiusInner = 5;
   const radiusOuter = 100;
-  const samples = 150000;
+  const samples = 250000;
 
   function getR(x, y) {
     if (x < 0 || y < 0 || x >= width || y >= height) return null;
