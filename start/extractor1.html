@@ -41,6 +41,13 @@
     </div>
   </form>
 
+<select id="configSelect">
+  <option value="konfiguracja1">Konfiguracja 1</option>
+  <option value="konfiguracja2">Konfiguracja 2</option>
+  <option value="konfiguracja3">Konfiguracja 3</option>
+</select>
+
+
 <div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
   
 <div id="share-container" class="d-none d-flex flex-column align-items-center mt-3 text-primary fw-medium" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz" style="cursor:pointer; user-select:none;">
@@ -63,6 +70,9 @@
   <div class="col-12 mb-3 text-center" id="warped_placement">
     <label class="form-label">Obraz przycięty</label><br />
   </div>
+  <div class="col-12 mb-3 text-center" id="tracks">
+    <label class="form-label">Ścieżki</label><br />
+  </div>  
 </div>
 
 
@@ -157,7 +167,7 @@
       ctxProcessed.fillRect(x - 1, y - 1, 3, 3);
     }
 
-    function drawBoundingBox(points) {
+    async function drawBoundingBox(points) {
       if (points.length < 3) return;
 
       const hull = convexHull(points);
@@ -239,7 +249,36 @@
       // pojawiają się przyciski akcji
       shareContainer.classList.remove('d-none');
       nextButton.classList.remove('d-none');
+
+      const tracks = document.getElementById('tracks');
+      const config = await loadConfigFromSelect();
     }
+
+async function loadConfigFromSelect() {
+  // Pobierz wartość z <select id="configSelect">
+  const select = document.getElementById('configSelect');
+  const selectedValue = select.value;
+
+  // Zbuduj ścieżkę do pliku JSON
+  const path = './config/'; // dostosuj ścieżkę, jeśli inna
+  const filePath = `${path}${selectedValue}.json`;
+
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error(`Błąd HTTP: ${response.status}`);
+
+    const config = await response.json();
+
+    // Wyświetl, co wczytano (dla debugowania)
+    console.log('Wczytana konfiguracja:', config);
+
+    return config; // zwróć cały obiekt JSON
+  } catch (error) {
+    console.error('Nie udało się wczytać konfiguracji:', error);
+    return null;
+  }
+}
+
 
 function assignCorners(points) {
   // points: array z 4 punktami {x, y}, z normalizowanymi współrzędnymi (0..1)
