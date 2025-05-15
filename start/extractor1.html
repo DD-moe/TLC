@@ -70,8 +70,9 @@
   <div class="col-12 mb-3 text-center" id="warped_placement">
     <label class="form-label">Obraz przycięty</label><br />
   </div>
-  <div class="col-12 mb-3 text-center" id="tracks">
+  <div class="col-12 mb-3 text-center">
     <label class="form-label">Ścieżki</label><br />
+    <canvas id="canvasGrayed" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
   </div>  
 </div>
 
@@ -250,9 +251,50 @@
       shareContainer.classList.remove('d-none');
       nextButton.classList.remove('d-none');
 
-      const tracks = document.getElementById('tracks');
+      const canvasGrayed = document.getElementById('canvasGrayed');
       const config = await loadConfigFromSelect();
+      // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
+      stworzSzaryObraz(konfiguracja);
+
     }
+
+function stworzSzaryObraz(config) {
+  const { multiplyer } = config;
+
+  // Pobierz kontekst źródłowy
+  const ctxSrc = lastCanvas.getContext('2d');
+  const width = lastCanvas.width;
+  const height = lastCanvas.height;
+
+  // Pobierz dane obrazu z lastCanvas
+  const imageData = ctxSrc.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
+  // Przetwórz każdy piksel
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    // Własna konwersja do odcienia szarości z wagami
+    const gray = Math.round(
+      r * multiplyer.r +
+      g * multiplyer.g +
+      b * multiplyer.b
+    );
+
+    // Ustaw każdy kanał RGB na tę wartość
+    data[i] = data[i + 1] = data[i + 2] = gray;
+    // Opcjonalnie: kanał alpha pozostaje bez zmian (data[i + 3])
+  }
+
+  // Ustaw rozmiar canvasGrayed i narysuj tam przetworzony obraz
+  canvasGrayed.width = width;
+  canvasGrayed.height = height;
+  const ctxDst = canvasGrayed.getContext('2d');
+  ctxDst.putImageData(imageData, 0, 0);
+}
+
 
 async function loadConfigFromSelect() {
   // Pobierz wartość z <select id="configSelect">
