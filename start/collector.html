@@ -5,66 +5,83 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Uśrednianie obrazów</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    *{
-      box-sizing: border-box;
-    }
-    body, html {
-      height: 100%;
-      margin: 0;
-      background-color: white;
-      transition: background-color 0.5s ease;
-    }
-    .center-container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      text-align: center;
-      padding: 1rem;
-    }
-    .folder-icon {
-      font-size: 5rem;
-      color: #0d6efd;
-      cursor: pointer;
-      user-select: none;
-    }
-    canvas {
-      max-width: 90vw;
-      max-height: 60vh;
-      border: 1px solid #ddd;
-      margin-top: 1rem;
-      image-rendering: pixelated;
-      width: auto;
-      height: auto;
-    }
-    #result-text {
-      margin-top: 1rem;
-      font-weight: 600;
-      font-size: 1.25rem;
-      color: #fff;
-    }
-    #share-container {
-      margin-top: 1rem;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      color: #0d6efd;
-      user-select: none;
-      font-weight: 500;
-    }
-    #share-icon {
-      font-size: 2.5rem;
-      line-height: 1;
-      margin-bottom: 0.25rem;
-    }
-    #file-input {
-      display: none;
-    }
-  </style>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    background-color: white;
+    transition: background-color 0.5s ease;
+  }
+  .center-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  .folder-icon {
+    font-size: 5rem;
+    color: #0d6efd;
+    cursor: pointer;
+    user-select: none;
+  }
+  canvas {
+    max-width: 90vw;
+    max-height: 60vh;
+    border: 1px solid #ddd;
+    margin-top: 1rem;
+    image-rendering: pixelated;
+    width: auto;
+    height: auto;
+  }
+  #result-text {
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #fff;
+  }
+  #share-container, #next-button {
+    margin-top: 1rem;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    color: #0d6efd;
+    user-select: none;
+    font-weight: 500;
+    text-align: center;
+  }
+  #share-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  #file-input {
+    display: none;
+  }
+  #instruction {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  #next-button button {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 0.4rem;
+    cursor: pointer;
+  }
+  #next-button button:hover {
+    background-color: #0b5ed7;
+  }
+</style>
 </head>
 <body>
   <div class="center-container container">
