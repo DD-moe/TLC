@@ -255,7 +255,7 @@
       const canvasGrayed = document.getElementById('canvasGrayed');
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
-      applyCanvasGrayedBlur(3);
+      applyCanvasGrayedBlur(5);
       stworzSzaryObraz(config);
       detectSpots();
     }
