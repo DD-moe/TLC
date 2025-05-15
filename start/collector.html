@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Uśrednianie obrazów</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      background-color: white;
+      transition: background-color 0.5s ease;
+    }
+    .center-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+      padding: 1rem;
+    }
+    .folder-icon {
+      font-size: 5rem;
+      color: #0d6efd;
+      cursor: pointer;
+      user-select: none;
+    }
+    canvas {
+      max-width: 90vw;
+      max-height: 60vh;
+      border: 1px solid #ddd;
+      margin-top: 1rem;
+      image-rendering: pixelated;
+      width: auto;
+      height: auto;
+    }
+    #result-text {
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #fff;
+    }
+    #share-container {
+      margin-top: 1rem;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      color: #0d6efd;
+      user-select: none;
+      font-weight: 500;
+    }
+    #share-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    #file-input {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-container container">
+    <div id="folder-icon" class="folder-icon" title="Wczytaj pliki" tabindex="0" role="button" aria-label="Wczytaj pliki">
+      📁
+    </div>
+    <div id="load-text" class="fs-4 text-primary" style="user-select:none; cursor:pointer;">Wczytaj pliki</div>
+
+    <canvas id="canvas" class="d-none"></canvas>
+    <div id="result-text" class="d-none">Gotowe uśrednianie obrazów</div>
+
+    <div id="share-container" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz">
+      <div id="share-icon">📤</div>
+      <div>Udostępnij przetworzony obraz</div>
+    </div>
+
+    <input type="file" id="file-input" multiple accept="image/*" />
+  </div>
+
+<script>
+  const folderIcon = document.getElementById('folder-icon');
+  const loadText = document.getElementById('load-text');
+  const fileInput = document.getElementById('file-input');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const resultText = document.getElementById('result-text');
+  const shareContainer = document.getElementById('share-container');
+  const shareIcon = document.getElementById('share-icon');
+
+  folderIcon.addEventListener('click', () => fileInput.click());
+  loadText.addEventListener('click', () => fileInput.click());
+  folderIcon.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { fileInput.click(); e.preventDefault(); } });
+  shareContainer.addEventListener('click', shareCanvas);
+  shareContainer.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { shareCanvas(); e.preventDefault(); } });
+
+  fileInput.addEventListener('change', async () => {
+    const files = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
+    if (files.length === 0) return;
+
+    // Zmieniamy tekst zamiast ukrywać ikonę i tekst
+    loadText.textContent = 'Wybierz obrazy ponownie';
+
+    // Pokaż canvas, ukryj napis gotowe na czas przetwarzania
+    canvas.classList.remove('d-none');
+    resultText.classList.add('d-none');
+    shareContainer.style.display = 'none';
+
+    const firstImage = await loadImage(files[0]);
+    canvas.width = firstImage.naturalWidth;
+    canvas.height = firstImage.naturalHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const totalPixels = canvas.width * canvas.height * 4;
+    const sumArray = new Float32Array(totalPixels);
+
+    for (const file of files) {
+      const img = await loadImage(file);
+      // Rysujemy tylko obszar mieszczący się w canvas (przycinamy jeśli trzeba)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, canvas.width, canvas.height);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < totalPixels; i++) {
+        sumArray[i] += imgData.data[i];
+      }
+    }
+
+    const avgData = new Uint8ClampedArray(totalPixels);
+    for (let i = 0; i < totalPixels; i++) {
+      avgData[i] = sumArray[i] / files.length;
+    }
+
+    const avgImageData = new ImageData(avgData, canvas.width, canvas.height);
+    ctx.putImageData(avgImageData, 0, 0);
+
+    document.body.style.backgroundColor = 'orange';
+    resultText.classList.remove('d-none');
+    shareContainer.style.display = 'flex';
+  });
+
+  function loadImage(file) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => res(img);
+      img.onerror = () => rej(new Error('Błąd wczytywania obrazu ' + file.name));
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  async function shareCanvas() {
+    if (!navigator.canShare || !navigator.canShare()) {
+      alert('Twoja przeglądarka nie wspiera Web Share API.');
+      return;
+    }
+
+    canvas.toBlob(async blob => {
+      if (!blob) {
+        alert('Błąd podczas tworzenia obrazu.');
+        return;
+      }
+
+      const filesArray = [
+        new File([blob], 'przetworzony_obraz.png', {
+          type: 'image/png',
+        }),
+      ];
+
+      try {
+        await navigator.share({
+          files: filesArray,
+          title: 'Przetworzony obraz',
+          text: 'Udostępniam przetworzony obraz z uśredniania.',
+        });
+      } catch (error) {
+        console.error('Udostępnianie anulowane lub błąd:', error);
+      }
+    }, 'image/png');
+  }
+</script>
+
+</body>
+</html>
