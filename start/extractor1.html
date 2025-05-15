@@ -3,21 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <title>Detekcja i otaczający czworokąt z przesuniętymi wierzchołkami</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
+  <!-- warning: loading OpenCV can take some time. Load asynchronously -->
+  <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
   <style>
     canvas {
-      border: 1px solid black;
-      margin-right: 10px;
+      max-width: 90vw;
+      max-height: 60vh;
+      width: auto;
+      height: auto;
     }
   </style>
 </head>
 <body>
-  <input type="file" id="imageLoader" accept="image/*" />
-  <input type="number" id="thresholdInput" placeholder="Tolerancja koloru" value="50" />
-  <input type="number" id="numPoints" placeholder="Liczba punktów" value="100000" />
-  <button id="processBtn">Dodaj punkty i rysuj granice</button>
-  <br /><br />
-  <canvas id="canvasOriginal"></canvas>
-  <canvas id="canvasProcessed"></canvas>
+
+<div class="container mt-4">
+  <form>
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="imageLoader" class="form-label">Wczytaj obraz</label>
+        <input type="file" class="form-control" id="imageLoader" accept="image/*">
+      </div>
+      <div class="col-md-4">
+        <label for="thresholdInput" class="form-label">Tolerancja koloru</label>
+        <input type="number" class="form-control" id="thresholdInput" value="50" placeholder="Tolerancja koloru">
+      </div>
+      <div class="col-md-4">
+        <label for="numPoints" class="form-label">Liczba punktów</label>
+        <input type="number" class="form-control" id="numPoints" value="10000" placeholder="Liczba punktów">
+      </div>
+    </div>
+    <div class="mb-4 text-center">
+      <button type="button" id="processBtn" class="btn btn-primary mx-auto d-block">
+        Dodaj punkty i rysuj granice
+      </button>
+    </div>
+  </form>
+
+  <div id="share-container" class="d-none d-flex flex-column align-items-center mt-3 text-primary fw-medium" title="Udostępnij obraz" role="button" tabindex="0" aria-label="Udostępnij przetworzony obraz" style="cursor:pointer; user-select:none;">
+    <div id="share-icon" class="fs-2 mb-1">📤</div>
+    <div>Udostępnij przetworzony obraz</div>
+  </div>
+
+  <button id="next-button" class="btn btn-success d-none mt-3">Przejdź dalej</button>
+
+<div class="row">
+  <div class="col-12 mb-3 text-center">
+    <label class="form-label">Obraz oryginalny</label><br />
+    <canvas id="canvasOriginal" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
+  </div>
+  <div class="col-12 mb-3 text-center">
+    <label class="form-label">Obraz przetworzony</label><br />
+    <canvas id="canvasProcessed" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
+  </div>
+  <div class="col-12 mb-3 text-center" id="warped_placement">
+    <label class="form-label">Obraz przycięty</label><br />
+  </div>
+</div>
+
 
   <script>
     const imageLoader = document.getElementById("imageLoader");
@@ -31,9 +75,13 @@
     const thresholdInput = document.getElementById("thresholdInput");
     const numPointsInput = document.getElementById("numPoints");
 
+    const shareContainer = document.getElementById('share-container');
+    const nextButton = document.getElementById('next-button');
+
     let imageDataOriginal;
     let redPoints = [];
     let referenceColor = null; // wzorcowy kolor RGB
+    let lastCanvas;
 
     imageLoader.addEventListener("change", function (e) {
       const reader = new FileReader();
@@ -58,6 +106,10 @@
     });
 
     processBtn.addEventListener("click", () => {
+      // niech przyciski będą ukryte
+      shareContainer.classList.add('d-none');
+      nextButton.classList.add('d-none');
+
       if (!imageDataOriginal || !referenceColor) return;
 
       const threshold = parseInt(thresholdInput.value);
@@ -92,6 +144,10 @@
 
       drawBoundingBox(redPoints);
     });
+
+    function calculateDistance(p1, p2) {
+        return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+    }
 
     function drawRedDot(x, y) {
       ctxProcessed.fillStyle = "red";
@@ -155,7 +211,51 @@
       }
       ctxProcessed.closePath();
       ctxProcessed.stroke();
+
+      // warping obrazu
+      positions = assignCorners(newVertices);
+      // uporządkowane wierzchołki
+      // dalej liczenie szerokości i wysokości jak obrazu do rozciągnięcia
+      const topEdgeDistance = calculateDistance(positions.topLeftCorner, positions.topRightCorner);
+      const bottomEdgeDistance = calculateDistance(positions.bottomLeftCorner, positions.bottomRightCorner);
+      const resultWidth = (topEdgeDistance + bottomEdgeDistance) / 2;
+
+      const leftEdgeDistance = calculateDistance(positions.topLeftCorner, positions.bottomLeftCorner);
+      const rightEdgeDistance = calculateDistance(positions.topRightCorner, positions.bottomRightCorner);
+      const resultHeight = (leftEdgeDistance + rightEdgeDistance) / 2;
+
+      const scanner = new jscanify();
+      const newcanvas = scanner.extractPaper(canvasOriginal, resultWidth, resultHeight, positions);
+      const warped_placement = document.getElementById('warped_placement');
+      warped_placement.appendChild(newcanvas);
+      if (lastCanvas) {
+      warped_placement.removeChild(lastCanvas);
+      }
+      lastCanvas = newcanvas;
+
+      // pojawiają się przyciski akcji
+      shareContainer.classList.remove('d-none');
+      nextButton.classList.remove('d-none');
     }
+
+function assignCorners(points) {
+  // points: array z 4 punktami {x, y}, z normalizowanymi współrzędnymi (0..1)
+  
+  // Sortujemy wg y rosnąco (od góry do dołu)
+  const sortedByY = points.slice().sort((a, b) => a.y - b.y);
+
+  // Górne dwa punkty
+  const topPoints = sortedByY.slice(0, 2).sort((a, b) => a.x - b.x); // posortowane wg x rosnąco
+  // Dolne dwa punkty
+  const bottomPoints = sortedByY.slice(2, 4).sort((a, b) => a.x - b.x);
+
+  return {
+    topLeftCorner: topPoints[0],
+    topRightCorner: topPoints[1],
+    bottomLeftCorner: bottomPoints[0],
+    bottomRightCorner: bottomPoints[1],
+  };
+}
 
     // Szukamy najbliższego piksela z kolorem podobnym do referenceColor w promieniu radius
     function findNearestValidPixel(vertex, radius) {
@@ -303,8 +403,13 @@ function loadImageFromIndexedDB() {
         imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
         referenceColor = getReferenceColor(imageDataOriginal);
         console.log("Wzorcowy kolor (RGB):", referenceColor);
+
+        // Zwolnienie pamięci po użyciu obiektu URL
+        URL.revokeObjectURL(img.src);
       };
-      img.src = result; // zakładamy, że to dataURL (np. z canvas.toDataURL())
+
+      // 👇 Poprawka: utwórz obiekt URL z Bloba
+      img.src = URL.createObjectURL(result);
     };
 
     getRequest.onerror = function () {
@@ -317,6 +422,64 @@ function loadImageFromIndexedDB() {
   };
 }
 
+  shareContainer.addEventListener('click', shareCanvas);
+  shareContainer.addEventListener('keydown', e => {
+    if (['Enter', ' '].includes(e.key)) {
+      shareCanvas();
+      e.preventDefault();
+    }
+  });
+
+  async function shareCanvas() {
+
+    canvas.toBlob(async blob => {
+      if (!blob) {
+        alert('Błąd podczas tworzenia obrazu.');
+        return;
+      }
+
+      const filesArray = [
+        new File([blob], 'przetworzony_obraz.png', { type: 'image/png' }),
+      ];
+
+      try {
+        await navigator.share({
+          files: filesArray,
+          title: 'Przetworzony obraz',
+          text: 'Udostępniam przetworzony obraz z uśredniania.',
+        });
+      } catch (error) {
+        console.error('Udostępnianie anulowane lub błąd:', error);
+      }
+    }, 'image/png');
+  }
+
+  nextButton.addEventListener('click', async () => {
+    const db = await openDB();
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      const transaction = db.transaction('images', 'readwrite');
+      const store = transaction.objectStore('images');
+      store.put(blob, 'averaged');
+      transaction.oncomplete = () => {
+        window.location.href = './extractor1.html'; // ← zmień adres docelowy jeśli inny
+      };
+    }, 'image/png');
+  });  
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('ImageDB', 1);
+      request.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('images')) {
+          db.createObjectStore('images');
+        }
+      };
+      request.onsuccess = e => resolve(e.target.result);
+      request.onerror = e => reject(e.target.error);
+    });
+  }  
 
   </script>
 </body>
