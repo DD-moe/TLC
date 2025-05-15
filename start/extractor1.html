@@ -47,6 +47,7 @@
   <option value="konfiguracja3">Konfiguracja 3</option>
 </select>
 
+<input type="number" id="dynTreshold" value="30" min="0" max="255">
 
 <div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
   
@@ -255,79 +256,41 @@
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
       stworzSzaryObraz(config);
-      detectDarkSpots();
+      detectRedChannelContrastInBlocks();
     }
 
-function detectDarkSpots() {
+function detectRedChannelContrastInBlocks() {
   const ctx = canvasGrayed.getContext('2d');
   const { width, height } = canvasGrayed;
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
-  const resultCanvas = document.createElement('canvas');
-  resultCanvas.width = width;
-  resultCanvas.height = height;
-  const resultCtx = resultCanvas.getContext('2d');
-  resultCtx.drawImage(canvasGrayed, 0, 0);
-  const resultData = resultCtx.getImageData(0, 0, width, height);
-  const resultPixels = resultData.data;
+  const blockSize = 80;
+  const dynTreshold = parseInt(document.getElementById('dynTreshold').value, 10);
 
-  const distanceThreshold = 75;
-  const samplesPerPoint = 20;
+  for (let by = 0; by < height; by += blockSize) {
+    for (let bx = 0; bx < width; bx += blockSize) {
+      let minR = 255;
+      let maxR = 0;
 
-  function getGray(x, y) {
-    const index = (y * width + x) * 4;
-    return data[index]; // R=G=B w skali szarości
-  }
-
-  function drawRedDot(x, y) {
-    const idx = (y * width + x) * 4;
-    resultPixels[idx] = 255;
-    resultPixels[idx + 1] = 0;
-    resultPixels[idx + 2] = 0;
-    resultPixels[idx + 3] = 255;
-  }
-
-  for (let i = 0; i < 10000; i++) {
-    const cx = Math.floor(Math.random() * width);
-    const cy = Math.floor(Math.random() * height);
-
-    const centerGray = getGray(cx, cy);
-    let nearSum = 0;
-    let farSum = 0;
-    let nearCount = 0;
-    let farCount = 0;
-
-    for (let j = 0; j < samplesPerPoint; j++) {
-      const angle = Math.random() * 2 * Math.PI;
-      const dist = Math.random() * distanceThreshold;
-      const x = Math.round(cx + Math.cos(angle) * dist);
-      const y = Math.round(cy + Math.sin(angle) * dist);
-
-      if (x < 0 || x >= width || y < 0 || y >= height) continue;
-
-      const gray = getGray(x, y);
-      if (dist < distanceThreshold / 2) {
-        nearSum += gray;
-        nearCount++;
-      } else {
-        farSum += gray;
-        farCount++;
+      // Przejdź przez piksele w danym bloku
+      for (let y = by; y < Math.min(by + blockSize, height); y++) {
+        for (let x = bx; x < Math.min(bx + blockSize, width); x++) {
+          const index = (y * width + x) * 4;
+          const r = data[index];
+          if (r < minR) minR = r;
+          if (r > maxR) maxR = r;
+        }
       }
-    }
 
-    if (nearCount > 0 && farCount > 0) {
-      const nearAvg = nearSum / nearCount;
-      const farAvg = farSum / farCount;
-
-      if (nearAvg < farAvg - 10) {
-        drawRedDot(cx, cy);
+      const diff = maxR - minR;
+      if (diff > dynTreshold) {
+        // Zamaluj cały blok na czerwono (na oryginalnym canvas)
+        ctx.fillStyle = 'rgba(255, 0, 0, 100)';
+        ctx.fillRect(bx, by, blockSize, blockSize);
       }
     }
   }
-
-  resultCtx.putImageData(resultData, 0, 0);
-  document.body.appendChild(resultCanvas); // lub podmień canvasGrayed jeśli chcesz
 }
 
 
