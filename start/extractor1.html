@@ -255,8 +255,40 @@
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
       stworzSzaryObraz(config);
-
+      detectBlobs();
     }
+
+  function detectBlobs() {
+    const src = cv.imread('canvasGrayed');
+    let gray = new cv.Mat();
+    let bin = new cv.Mat();
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+
+    // Konwersja do skali szarości
+    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+
+    // Próg binaryzacji (możesz go dostosować)
+    cv.threshold(gray, bin, 120, 255, cv.THRESH_BINARY_INV);
+
+    // Znajdź kontury
+    cv.findContours(bin, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+    // Rysowanie konturów na kopii obrazu
+    let dst = src.clone();
+    for (let i = 0; i < contours.size(); i++) {
+      const area = cv.contourArea(contours.get(i));
+      if (area > 30 && area < 10000) { // filtruj małe i bardzo duże plamy
+        const color = new cv.Scalar(255, 0, 0, 255);
+        cv.drawContours(dst, contours, i, color, 2);
+      }
+    }
+
+    cv.imshow('canvasGrayed', dst);
+
+    // Zwolnij pamięć
+    src.delete(); gray.delete(); bin.delete(); contours.delete(); hierarchy.delete(); dst.delete();
+  }
 
 function stworzSzaryObraz(config) {
   const { multiplyer } = config;
