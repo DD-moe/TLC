@@ -256,42 +256,55 @@
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
       stworzSzaryObraz(config);
-      detectRedChannelContrastInBlocks();
+      detectContrastFromCenter();
     }
 
-function detectRedChannelContrastInBlocks() {
+function detectContrastFromCenter() {
   const ctx = canvasGrayed.getContext('2d');
   const { width, height } = canvasGrayed;
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
   const blockSize = 80;
-  const dynTreshold = parseInt(document.getElementById('dynTreshold').value, 10);
+  const margin = 5; // jak blisko brzegu porównujemy
+  const threshold = parseInt(document.getElementById('dynTreshold').value, 10);
 
   for (let by = 0; by < height; by += blockSize) {
     for (let bx = 0; bx < width; bx += blockSize) {
-      let minR = 255;
-      let maxR = 0;
+      const centerX = bx + Math.floor(blockSize / 2);
+      const centerY = by + Math.floor(blockSize / 2);
 
-      // Przejdź przez piksele w danym bloku
+      if (centerX >= width || centerY >= height) continue;
+
+      const centerIndex = (centerY * width + centerX) * 4;
+      const centerR = data[centerIndex];
+
+      let maxDiff = 0;
+
+      // Sprawdź krawędziowe piksele w obrębie marginesu
       for (let y = by; y < Math.min(by + blockSize, height); y++) {
         for (let x = bx; x < Math.min(bx + blockSize, width); x++) {
+          const isNearEdge =
+            x - bx < margin || bx + blockSize - x <= margin ||
+            y - by < margin || by + blockSize - y <= margin;
+
+          if (!isNearEdge) continue;
+
           const index = (y * width + x) * 4;
           const r = data[index];
-          if (r < minR) minR = r;
-          if (r > maxR) maxR = r;
+          const diff = Math.abs(r - centerR);
+          if (diff > maxDiff) maxDiff = diff;
         }
       }
 
-      const diff = maxR - minR;
-      if (diff > dynTreshold) {
-        // Zamaluj cały blok na czerwono (na oryginalnym canvas)
-        ctx.fillStyle = 'rgba(255, 0, 0, 100)';
+      if (maxDiff > threshold) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 120)';
         ctx.fillRect(bx, by, blockSize, blockSize);
       }
     }
   }
 }
+
 
 
 function stworzSzaryObraz(config) {
