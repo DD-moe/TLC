@@ -286,6 +286,8 @@
 function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
     const ctxSrc = canvasGrayed.getContext("2d");
     const ctxDst = canvasNormalised.getContext("2d");
+    canvasNormalised.width = canvasGrayed.width;
+    canvasNormalised.height = canvasNormalised.height;
 
     // Białe tło + pełna alfa
     ctxDst.clearRect(0, 0, canvasNormalised.width, canvasNormalised.height);
