@@ -296,6 +296,8 @@ function detectSpots() {
   const ctx = canvasGrayed.getContext('2d');
   const ctxM = canvasMarked.getContext('2d');
   const { width, height } = canvasGrayed;
+  canvasMarked.width = width;
+  canvasMarked.height = height;
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
