@@ -117,6 +117,7 @@
     let redPoints = [];
     let referenceColor = null; // wzorcowy kolor RGB
     let lastCanvas;
+    let boxes;
 
     imageLoader.addEventListener("change", function (e) {
       const reader = new FileReader();
@@ -274,7 +275,7 @@
       applyCanvasGrayedBlur(5);
       stworzSzaryObraz(config);
       detectSpots();
-      let boxes = detectAndDrawRedBlobs();
+      boxes = detectAndDrawRedBlobs();
       console.log(boxes);
       normalizeBlobs(boxes, canvasGrayed, canvasNormalised);
 
@@ -287,7 +288,7 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
     const ctxSrc = canvasGrayed.getContext("2d");
     const ctxDst = canvasNormalised.getContext("2d");
     canvasNormalised.width = canvasGrayed.width;
-    canvasNormalised.height = canvasNormalised.height;
+    canvasNormalised.height = canvasGrayed.height;
 
     // Białe tło + pełna alfa
     ctxDst.clearRect(0, 0, canvasNormalised.width, canvasNormalised.height);
