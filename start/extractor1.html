@@ -275,6 +275,7 @@
       stworzSzaryObraz(config);
       detectSpots();
       let boxes = detectAndDrawRedBlobs();
+      console.log(boxes);
       normalizeBlobs(boxes, canvasGrayed, canvasNormalised);
 
       // pojawiają się przyciski akcji
