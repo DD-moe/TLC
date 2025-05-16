@@ -135,8 +135,8 @@
       // niech przyciski będą ukryte
       shareContainer.classList.add('d-none');
       nextButton.classList.add('d-none');
-      
-      imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
+
+      imageDataOriginal = ctxOriginal.getImageData(0, 0, canvasOriginal.width, canvasOriginal.height);
 
       // Wyznacz wzorcowy kolor po załadowaniu obrazu
       referenceColor = getReferenceColor(imageDataOriginal);
