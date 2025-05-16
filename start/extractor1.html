@@ -278,6 +278,7 @@
     }
 
 function detectRedClustersAndDrawBoxes() {
+  const ctx = canvasMarked.getContext("2d");
     const imageData = ctx.getImageData(0, 0, canvasMarked.width, canvasMarked.height);
     const data = imageData.data;
     const redPoints = [];
