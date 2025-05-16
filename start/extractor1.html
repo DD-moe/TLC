@@ -124,11 +124,7 @@
           canvasProcessed.height = img.height;
 
           ctxOriginal.drawImage(img, 0, 0);
-          imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
 
-          // Wyznacz wzorcowy kolor po załadowaniu obrazu
-          referenceColor = getReferenceColor(imageDataOriginal);
-          console.log("Wzorcowy kolor (RGB):", referenceColor);
         };
         img.src = event.target.result;
       };
@@ -139,8 +135,13 @@
       // niech przyciski będą ukryte
       shareContainer.classList.add('d-none');
       nextButton.classList.add('d-none');
+      
+      imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
 
-      if (!imageDataOriginal || !referenceColor) return;
+      // Wyznacz wzorcowy kolor po załadowaniu obrazu
+      referenceColor = getReferenceColor(imageDataOriginal);
+      console.log("Wzorcowy kolor (RGB):", referenceColor);
+
 
       const threshold = parseInt(thresholdInput.value);
       const numPoints = parseInt(numPointsInput.value);
@@ -595,9 +596,6 @@ function loadImageFromIndexedDB() {
         canvasProcessed.height = img.height;
 
         ctxOriginal.drawImage(img, 0, 0);
-        imageDataOriginal = ctxOriginal.getImageData(0, 0, img.width, img.height);
-        referenceColor = getReferenceColor(imageDataOriginal);
-        console.log("Wzorcowy kolor (RGB):", referenceColor);
 
         // Zwolnienie pamięci po użyciu obiektu URL
         URL.revokeObjectURL(img.src);
