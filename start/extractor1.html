@@ -298,6 +298,7 @@ function detectSpots() {
   const { width, height } = canvasGrayed;
   canvasMarked.width = width;
   canvasMarked.height = height;
+  ctxM.drawImage(canvasGrayed, 0, 0);
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
