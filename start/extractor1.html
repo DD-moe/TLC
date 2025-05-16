@@ -789,15 +789,20 @@ nextButton.addEventListener('click', async () => {
   };
 
   const canvasesToSave = [
-    { canvas: canvasProcessed, key: 'plateDetection' },
-    { canvas: lastCanvas,      key: 'plateWarped'    },
-    { canvas: canvasGrayed,    key: 'processedData'  },
-    { canvas: canvasMarked,    key: 'spotDetected'   }
+    { canvas: canvasProcessed,   key: 'plateDetection' },
+    { canvas: lastCanvas,        key: 'plateWarped'    },
+    { canvas: canvasGrayed,      key: 'processedData'  },
+    { canvas: canvasMarked,      key: 'spotDetected'   },
+    { canvas: canvasNormalised,  key: 'spotChannel'    }
   ];
 
   const blobsToStore = (await Promise.all(
     canvasesToSave.map(({ canvas, key }) => saveCanvasAsBlob(canvas, key))
   )).filter(item => item !== null);
+
+  // Dodaj bounding boxes jako JSON Blob
+  const boxesBlob = new Blob([JSON.stringify(boxes)], { type: 'application/json' });
+  blobsToStore.push({ key: 'boundingBoxes', blob: boxesBlob });
 
   const transaction = db.transaction('images', 'readwrite');
   const store = transaction.objectStore('images');
@@ -810,6 +815,7 @@ nextButton.addEventListener('click', async () => {
     window.location.href = './extractor1.html'; // ← zmień jeśli trzeba
   };
 });
+
 
 
   function openDB() {
