@@ -78,6 +78,10 @@
     <canvas id="canvasMarked" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
     <paint-tools data-canvas="canvasMarked"></paint-tools>
   </div>    
+  <div class="col-12 mb-3 text-center">
+    <label class="form-label">Wykryte Plamki</label><br />
+    <canvas id="canvasNormalised" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
+  </div>    
 </div>
 
 <div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
@@ -107,6 +111,7 @@
 
     const canvasMarked = document.getElementById('canvasMarked');
     const canvasGrayed = document.getElementById('canvasGrayed');
+    const canvasNormalised = document.getElementById('canvasNormalised');
 
     let imageDataOriginal;
     let redPoints = [];
@@ -269,11 +274,75 @@
       applyCanvasGrayedBlur(5);
       stworzSzaryObraz(config);
       detectSpots();
-      detectAndDrawRedBlobs();
+      let boxes = detectAndDrawRedBlobs();
+      normalizeBlobs(boxes, canvasGrayed, canvasNormalised);
+
       // pojawiają się przyciski akcji
       shareContainer.classList.remove('d-none');
       nextButton.classList.remove('d-none');
     }
+
+function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
+    const ctxSrc = canvasGrayed.getContext("2d");
+    const ctxDst = canvasNormalised.getContext("2d");
+
+    // Białe tło + pełna alfa
+    ctxDst.clearRect(0, 0, canvasNormalised.width, canvasNormalised.height);
+    ctxDst.fillStyle = "rgba(255, 255, 255, 1)";
+    ctxDst.fillRect(0, 0, canvasNormalised.width, canvasNormalised.height);
+
+    for (let box of boxes) {
+        let {x, y, width, height} = box;
+
+        // Pobieramy dane z rozszerzonego obszaru (box + obwódka)
+        let ex = Math.max(0, x - 1);
+        let ey = Math.max(0, y - 1);
+        let ew = Math.min(canvasGrayed.width - ex, width + 2);
+        let eh = Math.min(canvasGrayed.height - ey, height + 2);
+
+        let imageData = ctxSrc.getImageData(ex, ey, ew, eh);
+        let data = imageData.data;
+
+        // Obliczamy średnią czerwonego z obwódki (1 px)
+        let redSum = 0, count = 0;
+        for (let row = 0; row < eh; row++) {
+            for (let col = 0; col < ew; col++) {
+                let isEdge = row === 0 || row === eh - 1 || col === 0 || col === ew - 1;
+                if (isEdge) {
+                    let i = (row * ew + col) * 4;
+                    redSum += data[i]; // red channel
+                    count++;
+                }
+            }
+        }
+        let redAvg = Math.max(1, redSum / count); // unikamy dzielenia przez zero
+
+        // Normalizacja wartości RGB wewnątrz plamki względem redAvg
+        for (let row = 1; row < eh - 1; row++) {
+            for (let col = 1; col < ew - 1; col++) {
+                let i = (row * ew + col) * 4;
+                data[i] = Math.min(255, (data[i] / redAvg) * 255);     // R
+                data[i+1] = Math.min(255, (data[i+1] / redAvg) * 255); // G
+                data[i+2] = Math.min(255, (data[i+2] / redAvg) * 255); // B
+                data[i+3] = 255; // pełna alfa
+            }
+        }
+
+        // Wklejamy tylko środek (bez obwódki) na canvasNormalised
+        let croppedData = ctxDst.createImageData(width, height);
+        for (let row = 0; row < height; row++) {
+            for (let col = 0; col < width; col++) {
+                let srcIdx = ((row + 1) * ew + (col + 1)) * 4;
+                let dstIdx = (row * width + col) * 4;
+                for (let k = 0; k < 4; k++) {
+                    croppedData.data[dstIdx + k] = data[srcIdx + k];
+                }
+            }
+        }
+
+        ctxDst.putImageData(croppedData, x, y);
+    }
+}
 
 
 function detectAndDrawRedBlobs() {
@@ -307,7 +376,8 @@ function detectAndDrawRedBlobs() {
     let hierarchy = new cv.Mat();
     cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
 
-    // Rysowanie bounding boxów
+    // Rysowanie bounding boxów i zbieranie do listy
+    let boxes = [];
     for (let i = 0; i < contours.size(); ++i) {
         let cnt = contours.get(i);
         let rect = cv.boundingRect(cnt);
@@ -315,8 +385,9 @@ function detectAndDrawRedBlobs() {
             let point1 = new cv.Point(rect.x, rect.y);
             let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
             cv.rectangle(src, point1, point2, [0, 255, 0, 255], 2);
-            cnt.delete();
+            boxes.push({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });
         }
+        cnt.delete();
     }
 
     // Wyświetlenie na canvasie
@@ -326,9 +397,9 @@ function detectAndDrawRedBlobs() {
     hsv.delete(); mask1.delete(); mask2.delete(); mask.delete();
     kernel.delete(); contours.delete(); hierarchy.delete(); src.delete();
     lowerRed1.delete(); upperRed1.delete(); lowerRed2.delete(); upperRed2.delete();
+
+    return boxes;
 }
-
-
 
 function applyCanvasGrayedBlur(radiusPx = 5) {
   const ctx = canvasGrayed.getContext('2d');
