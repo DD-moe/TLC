@@ -92,6 +92,7 @@
   </div>
 
   <button id="next-button" class="btn btn-success d-none mt-3">Przejdź dalej</button>
+  <button id="correctButton"class="btn btn-success d-none mt-3">Popraw Plamki</button>
 </div>
 
   <script>
@@ -112,6 +113,7 @@
     const canvasMarked = document.getElementById('canvasMarked');
     const canvasGrayed = document.getElementById('canvasGrayed');
     const canvasNormalised = document.getElementById('canvasNormalised');
+    const correctButton = document.getElementById('correctButton');
 
     let imageDataOriginal;
     let redPoints = [];
@@ -275,6 +277,11 @@
       applyCanvasGrayedBlur(5);
       stworzSzaryObraz(config);
       detectSpots();
+      extractBlobs();
+    }
+
+function extractBlobs() {
+      correctButton.classList.add('d-none');
       boxes = detectAndDrawRedBlobs();
       console.log(boxes);
       normalizeBlobs(boxes, canvasGrayed, canvasNormalised);
@@ -282,7 +289,8 @@
       // pojawiają się przyciski akcji
       shareContainer.classList.remove('d-none');
       nextButton.classList.remove('d-none');
-    }
+      correctButton.classList.remove('d-none');
+}
 
 function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
     const ctxSrc = canvasGrayed.getContext("2d");
@@ -831,6 +839,11 @@ nextButton.addEventListener('click', async () => {
       request.onerror = e => reject(e.target.error);
     });
   }  
+
+correctButton.addEventListener('click', async () =>{
+  extractBlobs();
+});
+
 
   </script>
 </body>
