@@ -104,6 +104,9 @@
     const shareContainer = document.getElementById('share-container');
     const nextButton = document.getElementById('next-button');
 
+    const canvasMarked = document.getElementById('canvasMarked');
+    const canvasGrayed = document.getElementById('canvasGrayed');
+
     let imageDataOriginal;
     let redPoints = [];
     let referenceColor = null; // wzorcowy kolor RGB
@@ -263,7 +266,6 @@
       shareContainer.classList.remove('d-none');
       nextButton.classList.remove('d-none');
 
-      const canvasGrayed = document.getElementById('canvasGrayed');
       const config = await loadConfigFromSelect();
       // Załaduj konfigurację wcześniej np. przez fetch(...).then(res => res.json())
       applyCanvasGrayedBlur(5);
