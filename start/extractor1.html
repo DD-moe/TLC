@@ -274,7 +274,84 @@
       applyCanvasGrayedBlur(5);
       stworzSzaryObraz(config);
       detectSpots();
+      detectRedClustersAndDrawBoxes();
     }
+
+function detectRedClustersAndDrawBoxes() {
+    const imageData = ctx.getImageData(0, 0, canvasMarked.width, canvasMarked.height);
+    const data = imageData.data;
+    const redPoints = [];
+
+    // Szukaj pikseli czerwonych (R > 230)
+    for (let y = 0; y < canvasMarked.height; y++) {
+        for (let x = 0; x < canvasMarked.width; x++) {
+            const index = (y * canvasMarked.width + x) * 4;
+            const r = data[index];
+            if (r > 230) {
+                redPoints.push({ x, y });
+            }
+        }
+    }
+
+    // Grupowanie punktów w klastry (sąsiedztwo <= 5 px)
+    const visited = new Set();
+    const clusters = [];
+
+    function pointKey(p) {
+        return `${p.x},${p.y}`;
+    }
+
+    function bfs(startPoint) {
+        const cluster = [];
+        const queue = [startPoint];
+        visited.add(pointKey(startPoint));
+
+        while (queue.length > 0) {
+            const point = queue.pop();
+            cluster.push(point);
+
+            for (const neighbor of redPoints) {
+                if (!visited.has(pointKey(neighbor))) {
+                    const dx = neighbor.x - point.x;
+                    const dy = neighbor.y - point.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist <= 5) {
+                        visited.add(pointKey(neighbor));
+                        queue.push(neighbor);
+                    }
+                }
+            }
+        }
+
+        return cluster;
+    }
+
+    for (const p of redPoints) {
+        if (!visited.has(pointKey(p))) {
+            const cluster = bfs(p);
+            if (cluster.length > 0) clusters.push(cluster);
+        }
+    }
+
+    // Rysuj bounding boxy
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = 2;
+
+    for (const cluster of clusters) {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        for (const p of cluster) {
+            if (p.x < minX) minX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y > maxY) maxY = p.y;
+        }
+        ctx.strokeRect(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    console.log(`Znaleziono ${clusters.length} klastrów czerwonych pikseli.`);
+}
+
+
 
 function applyCanvasGrayedBlur(radiusPx = 5) {
   const ctx = canvasGrayed.getContext('2d');
