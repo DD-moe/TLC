@@ -627,7 +627,7 @@ function loadImageFromIndexedDB() {
 
   async function shareCanvas() {
 
-    markedCanvas.toBlob(async blob => {
+    canvasGrayed.toBlob(async blob => {
       if (!blob) {
         alert('Błąd podczas tworzenia obrazu.');
         return;
