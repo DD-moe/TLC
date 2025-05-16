@@ -41,13 +41,20 @@
     </div>
   </form>
 
-<select id="configSelect">
-  <option value="konfiguracja1">Konfiguracja 1</option>
-  <option value="konfiguracja2">Konfiguracja 2</option>
-  <option value="konfiguracja3">Konfiguracja 3</option>
-</select>
+<div class="mb-3">
+  <label for="configSelect" class="form-label">Wybierz konfigurację</label>
+  <select id="configSelect" class="form-select">
+    <option value="konfiguracja1">Konfiguracja 1</option>
+    <option value="konfiguracja2">Konfiguracja 2</option>
+    <option value="konfiguracja3">Konfiguracja 3</option>
+  </select>
+</div>
 
-<input type="number" id="dynTreshold" value="4" min="0" max="25">
+<div class="mb-3">
+  <label for="dynTreshold" class="form-label">Próg detekcji</label>
+  <input type="number" id="dynTreshold" class="form-control" value="4" min="0" max="25">
+</div>
+
 
 <div class="container d-flex flex-column justify-content-center align-items-center text-center py-4">
   
@@ -72,9 +79,13 @@
     <label class="form-label">Obraz przycięty</label><br />
   </div>
   <div class="col-12 mb-3 text-center">
-    <label class="form-label">Ścieżki</label><br />
+    <label class="form-label">Mapa Jasności</label><br />
     <canvas id="canvasGrayed" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
-  </div>  
+  </div>
+  <div class="col-12 mb-3 text-center">
+    <label class="form-label">Wykryte Plamki</label><br />
+    <canvas id="canvasMarked" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
+  </div>    
 </div>
 
 
@@ -281,6 +292,7 @@ function applyCanvasGrayedBlur(radiusPx = 5) {
 
 function detectSpots() {
   const ctx = canvasGrayed.getContext('2d');
+  const ctxM = canvasMarked.getContext('2d');
   const { width, height } = canvasGrayed;
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
@@ -338,8 +350,8 @@ function detectSpots() {
     const edgeAvg = averageOnCircle(x, y, radiusOuter, 100); // np. 100 punktów na okręgu
 
     if (Math.abs(centerAvg - edgeAvg) > threshold) {
-      ctx.fillStyle = 'red';
-      ctx.fillRect(x, y, 5, 5);
+      ctxM.fillStyle = 'red';
+      ctxM.fillRect(x, y, 5, 5);
     }
   }
 }
