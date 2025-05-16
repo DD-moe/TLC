@@ -7,6 +7,7 @@
   <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
   <!-- warning: loading OpenCV can take some time. Load asynchronously -->
   <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
+  <script type="module" src="https://utils.1ioe.top/paint.js" blocking="render"></script>
   <style>
     canvas {
       max-width: 90vw;
@@ -70,6 +71,7 @@
   <div class="col-12 mb-3 text-center">
     <label class="form-label">Obraz oryginalny</label><br />
     <canvas id="canvasOriginal" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
+    <paint-tools data-canvas="canvasOriginal"></paint-tools>
   </div>
   <div class="col-12 mb-3 text-center">
     <label class="form-label">Obraz przetworzony</label><br />
@@ -85,6 +87,7 @@
   <div class="col-12 mb-3 text-center">
     <label class="form-label">Wykryte Plamki</label><br />
     <canvas id="canvasMarked" class="border" style="display: inline-block; max-width: 100%; height: auto;"></canvas>
+    <paint-tools data-canvas="canvasMarked"></paint-tools>
   </div>    
 </div>
 
