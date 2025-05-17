@@ -382,41 +382,45 @@ function saveArchivalToLocalStorage() {
     history.push([...archival]);
     localStorage.setItem(key, JSON.stringify(history));
 
-    // Jeśli mamy przynajmniej 2 kolekcje, porównujemy
+    // Porównanie między kolekcjami
     if (history.length >= 2) {
-        const lastIndex = history.length - 1;
-        const prev = history[lastIndex - 1];
-        const current = history[lastIndex];
+        const objectStats = [];
 
-        const deviations = [];
+        for (const objNow of archival) {
+            const aucs = [];
 
-        for (const objNow of current) {
-            const nearest = findNearestInCollection(objNow.x, objNow.y, prev);
-            if (nearest) {
-                const aucDiff = Math.abs(nearest.AUC - objNow.AUC);
-                deviations.push(aucDiff);
-                console.log(`Diff AUC @ (${objNow.x}, ${objNow.y}):`, aucDiff.toFixed(4));
+            // Przejdź przez całą historię i zbierz pasujące punkty
+            for (const collection of history) {
+                const nearest = findNearestInCollection(objNow.x, objNow.y, collection);
+                if (nearest) {
+                    aucs.push(nearest.AUC);
+                }
+            }
+
+            if (aucs.length >= 2) {
+                const min = Math.min(...aucs);
+                const max = Math.max(...aucs);
+                const ratio = (min / max) * 100;
+
+                objectStats.push({ x: objNow.x, y: objNow.y, min, max, ratio });
+
+                console.log(
+                    `Object @ (${objNow.x}, ${objNow.y}) → AUC range: [${min}, ${max}], ratio: ${ratio.toFixed(2)}%`
+                );
             }
         }
 
-        if (deviations.length > 1) {
-            const mean = deviations.reduce((a, b) => a + b, 0) / deviations.length;
-            const stddev = Math.sqrt(
-                deviations.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / deviations.length
-            );
-            console.log(`Standard Deviation of AUC changes: ${stddev.toFixed(4)}`);
-
-            const shouldClear = confirm(" Clear archival history?");
-            if (shouldClear) {
-                localStorage.removeItem(key);
-                console.log("History cleared.");
-            }
+        const shouldClear = confirm("Clear archival history?");
+        if (shouldClear) {
+            localStorage.removeItem(key);
+            console.log("History cleared.");
         }
     }
 
-    // czyścimy aktualną kolekcję po zapisie
+    // Czyścimy aktualną kolekcję po zapisie
     archival = [];
 }
+
 
 function findNearestInCollection(x, y, collection) {
     let nearest = null;
