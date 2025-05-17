@@ -390,8 +390,8 @@ function detectAndDrawRedBlobs() {
 
         if (rect.width * rect.height > 10) {
             // Oblicz powiększenie o 5%
-            let expandX = Math.round(rect.width * 0.05);
-            let expandY = Math.round(rect.height * 0.05);
+            let expandX = Math.round(rect.width * 0.08);
+            let expandY = Math.round(rect.height * 0.08);
 
             // Nowe współrzędne z zabezpieczeniem brzegów obrazu
             let x = Math.max(0, rect.x - expandX);
