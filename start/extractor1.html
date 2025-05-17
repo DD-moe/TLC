@@ -34,6 +34,10 @@
         <label for="numPoints" class="form-label">Liczba punktów</label>
         <input type="number" class="form-control" id="numPoints" value="10000" placeholder="Liczba punktów">
       </div>
+      <div class="col-md-4">
+        <label for="luminance_threshold" class="form-label">próg luminancji</label>
+        <input type="number" class="form-control" id="luminance_threshold" value="250" placeholder="próg luminancji">
+      </div>
     </div>
     <div class="mb-4 text-center">
       <button type="button" id="processBtn" class="btn btn-primary mx-auto d-block">
@@ -297,6 +301,7 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
     const ctxDst = canvasNormalised.getContext("2d");
     canvasNormalised.width = canvasGrayed.width;
     canvasNormalised.height = canvasGrayed.height;
+    const luminance_threshold = parseInt( document.getElementById('luminance_threshold').value);
 
     // Białe tło + pełna alfa
     ctxDst.clearRect(0, 0, canvasNormalised.width, canvasNormalised.height);
@@ -329,16 +334,20 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
         }
         let redAvg = Math.max(1, redSum / count); // unikamy dzielenia przez zero
 
-        // Normalizacja wartości RGB wewnątrz plamki względem redAvg
+        // Normalizacja wartości RGB wewnątrz plamki względem redAvg z progiem luminancji
         for (let row = 1; row < eh - 1; row++) {
             for (let col = 1; col < ew - 1; col++) {
                 let i = (row * ew + col) * 4;
-                data[i] = Math.min(255, (data[i] / redAvg) * 255);     // R
-                data[i+1] = Math.min(255, (data[i+1] / redAvg) * 255); // G
-                data[i+2] = Math.min(255, (data[i+2] / redAvg) * 255); // B
-                data[i+3] = 255; // pełna alfa
+                let normalized = (data[i] / redAvg) * 255;
+                let value = normalized < luminance_threshold ? normalized : 255;
+
+                data[i] = value;     // R
+                data[i+1] = value;   // G
+                data[i+2] = value;   // B
+                data[i+3] = 255;     // pełna alfa
             }
         }
+
 
         // Wklejamy tylko środek (bez obwódki) na canvasNormalised
         let croppedData = ctxDst.createImageData(width, height);
