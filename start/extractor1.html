@@ -8,6 +8,8 @@
   <!-- warning: loading OpenCV can take some time. Load asynchronously -->
   <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
   <script type="module" src="https://utils.1ioe.top/paint.js" blocking="render"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.8.0/lib/browser/math.min.js"></script>
+
   <style>
     canvas {
       max-width: 90vw;
@@ -362,7 +364,71 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
         }
 
         ctxDst.putImageData(croppedData, x, y);
+        const yValues = getRedInvertedProfile(croppedData, width, height);
+        const coefs = fitPoly3(yValues);
+        const denoisedProfile = evaluatePoly3(coeffs, profile.length);
+        const AUC = computeAUC(denoisedProfile);
+        console.log({x: x, y: y, AUC: AUC});
     }
+}
+
+function computeAUC(profile) {
+    let area = 0;
+    for (let i = 0; i < profile.length - 1; i++) {
+        const y1 = profile[i];
+        const y2 = profile[i + 1];
+        area += (y1 + y2) / 2; // trapezoid area between x=i and x=i+1
+    }
+    return area;
+}
+
+
+function evaluatePoly3(coeffs, length) {
+    const [a, b, c, d] = coeffs;
+    const result = new Array(length);
+
+    for (let x = 0; x < length; x++) {
+        result[x] = a * x * x * x + b * x * x + c * x + d;
+    }
+
+    return result;
+}
+
+
+function fitPoly3(yValues) {
+    const n = yValues.length;
+    const X = [];
+    const Y = yValues;
+
+    for (let i = 0; i < n; i++) {
+        const x = i;
+        X.push([x * x * x, x * x, x, 1]);
+    }
+
+    // Solve normal equations using least squares: (X^T X)⁻¹ X^T Y
+    const XT = math.transpose(X);
+    const XTX = math.multiply(XT, X);
+    const XTY = math.multiply(XT, Y);
+    const coeffs = math.lusolve(XTX, XTY).map(e => e[0]);
+
+    return coeffs; // [a, b, c, d]
+}
+
+
+function getRedInvertedProfile(croppedData, width, height) {
+    const data = croppedData.data;
+    const profile = new Array(height).fill(0);
+
+    for (let y = 0; y < height; y++) {
+        let sum = 0;
+        for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            sum += data[idx]; // red channel
+        }
+        profile[y] = (255 * width) - sum;
+    }
+
+    return profile;
 }
 
 
