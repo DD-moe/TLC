@@ -126,6 +126,7 @@
     let referenceColor = null; // wzorcowy kolor RGB
     let lastCanvas;
     let boxes;
+    let archival = [];
 
     imageLoader.addEventListener("change", function (e) {
       const reader = new FileReader();
@@ -368,9 +369,74 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
         const coefs = fitPoly3(yValues);
         const denoisedProfile = evaluatePoly3(coefs, yValues.length);
         const AUC = computeAUC(denoisedProfile);
-        console.log({x: x, y: y, AUC: AUC});
+        archival.push({ x, y, AUC });
     }
+  saveArchivalToLocalStorage();
 }
+
+function saveArchivalToLocalStorage() {
+    const key = "archivalHistory";
+    let history = JSON.parse(localStorage.getItem(key)) || [];
+
+    // Dodaj bieżący snapshot
+    history.push([...archival]);
+    localStorage.setItem(key, JSON.stringify(history));
+
+    // Jeśli mamy przynajmniej 2 kolekcje, porównujemy
+    if (history.length >= 2) {
+        const lastIndex = history.length - 1;
+        const prev = history[lastIndex - 1];
+        const current = history[lastIndex];
+
+        const deviations = [];
+
+        for (const objNow of current) {
+            const nearest = findNearestInCollection(objNow.x, objNow.y, prev);
+            if (nearest) {
+                const aucDiff = Math.abs(nearest.AUC - objNow.AUC);
+                deviations.push(aucDiff);
+                console.log(`Diff AUC @ (${objNow.x}, ${objNow.y}):`, aucDiff.toFixed(4));
+            }
+        }
+
+        if (deviations.length > 1) {
+            const mean = deviations.reduce((a, b) => a + b, 0) / deviations.length;
+            const stddev = Math.sqrt(
+                deviations.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / deviations.length
+            );
+            console.log(`Standard Deviation of AUC changes: ${stddev.toFixed(4)}`);
+
+            const shouldClear = confirm(" Clear archival history?");
+            if (shouldClear) {
+                localStorage.removeItem(key);
+                console.log("History cleared.");
+            }
+        }
+    }
+
+    // czyścimy aktualną kolekcję po zapisie
+    archival = [];
+}
+
+function findNearestInCollection(x, y, collection) {
+    let nearest = null;
+    let minDist = Infinity;
+
+    for (const obj of collection) {
+        const dx = obj.x - x;
+        const dy = obj.y - y;
+        const dist = dx * dx + dy * dy;
+
+        if (dist < minDist) {
+            minDist = dist;
+            nearest = obj;
+        }
+    }
+
+    // Tolerancja np. 5px odległości
+    return Math.sqrt(minDist) <= 5 ? nearest : null;
+}
+
 
 function computeAUC(profile) {
     let area = 0;
