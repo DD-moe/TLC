@@ -62,6 +62,8 @@
   <input type="number" id="dynTreshold" class="form-control" value="4" min="0" max="25">
 </div>
 
+<div id="comparisons" class="list-group mt-3"></div>
+
 <div class="row">
   <div class="col-12 mb-3 text-center">
     <label class="form-label">Obraz oryginalny</label><br />
@@ -377,7 +379,8 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
 function saveArchivalToLocalStorage() {
     const key = "archivalHistory";
     let history = JSON.parse(localStorage.getItem(key)) || [];
-
+    const comparisonsDiv = document.getElementById("comparisons");
+    comparisonsDiv.innerHTML = '';
     // Dodaj bieżący snapshot
     history.push([...archival]);
     localStorage.setItem(key, JSON.stringify(history));
@@ -404,9 +407,19 @@ function saveArchivalToLocalStorage() {
 
                 objectStats.push({ x: objNow.x, y: objNow.y, min, max, ratio });
 
-                console.log(
-                    `Object @ (${objNow.x}, ${objNow.y}) → AUC range: [${min}, ${max}], ratio: ${ratio.toFixed(2)}%`
-                );
+                const item = document.createElement("div");
+                item.className = "list-group-item d-flex justify-content-between align-items-center";
+
+                const positionText = document.createElement("div");
+                positionText.innerHTML = `<strong>(${objNow.x}, ${objNow.y})</strong> AUC: [${min}, ${max}]`;
+
+                const ratioText = document.createElement("span");
+                ratioText.className = "badge bg-primary rounded-pill";
+                ratioText.textContent = `${ratio.toFixed(2)}%`;
+
+                item.appendChild(positionText);
+                item.appendChild(ratioText);
+                comparisonsDiv.appendChild(item);
             }
         }
 
