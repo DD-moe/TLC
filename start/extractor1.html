@@ -366,7 +366,7 @@ function normalizeBlobs(boxes, canvasGrayed, canvasNormalised) {
         ctxDst.putImageData(croppedData, x, y);
         const yValues = getRedInvertedProfile(croppedData, width, height);
         const coefs = fitPoly3(yValues);
-        const denoisedProfile = evaluatePoly3(coeffs, profile.length);
+        const denoisedProfile = evaluatePoly3(coefs, yValues.length);
         const AUC = computeAUC(denoisedProfile);
         console.log({x: x, y: y, AUC: AUC});
     }
