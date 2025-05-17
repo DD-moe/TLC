@@ -494,7 +494,7 @@ function detectSpots() {
     const centerAvg = averageInCircle(x, y, radiusInner);
     const edgeAvg = averageOnCircle(x, y, radiusOuter, 100); // np. 100 punktów na okręgu
 
-    if (Math.abs(edgeAvg - centerAvg) > threshold) {
+    if ((edgeAvg - centerAvg) > threshold) {
       ctxM.fillStyle = 'red';
       ctxM.fillRect(x, y, 5, 5);
     }
