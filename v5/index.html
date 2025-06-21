@@ -698,30 +698,270 @@
 
 //################################# - funkcje do przetwarzania parametrów optymalizacyjnych i ilościowych
 
-// oblicza ilościówkę
-function analyzeBoxesRedChannel(boxes) {
-    return boxes.map(box => {
-        const { imageData } = box;
-        const { data, width, height } = imageData;
+    // oblicza ilościówkę
+    function analyzeQuantitive(boxes) {
+        return boxes.map(box => {
+            const { imageData } = box;
+            const { data, width, height } = imageData;
 
-        let spotSum = 0;
-        let spotSurface = 0;
+            let spotSum = 0;
+            let spotSurface = 0;
 
-        for (let i = 0; i < data.length; i += 4) {
-            const red = data[i]; // kanał R
-            spotSum += red;
-            if (red > 0) spotSurface++;
+            for (let i = 0; i < data.length; i += 4) {
+                const red = data[i]; // kanał R
+                spotSum += red;
+                if (red > 0) spotSurface++;
+            }
+
+            const spotAverage = spotSurface > 0 ? spotSum / spotSurface : 0;
+
+            box.spotSum = spotSum;
+            box.spotSurface = spotSurface;
+            box.spotAverage = spotAverage;
+
+            return box;
+        });
+    }
+
+    // oblicza gdzie jest peak i jaką ma wartość
+    function analyzePeak(boxes) {
+        return boxes.map(box => {
+            const { imageData } = box;
+            const { data, width, height } = imageData;
+
+            let maxIntensity = -1;
+            let maxX = 0;
+            let maxY = 0;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const red = data[i];
+                const index = i / 4;
+                const x = index % width;
+                const y = Math.floor(index / width);
+
+                if (red > maxIntensity) {
+                    maxIntensity = red;
+                    maxX = x;
+                    maxY = y;
+                }
+            }
+
+            box.maxIntensity = maxIntensity;
+            box.maxX = maxX;
+            box.maxY = maxY;
+
+            return box;
+        });
+    }
+
+    // oblicza wartości procentowe dla parametró ilościowych
+    function analyzeRelativeQuantities(boxes) {
+        // Inicjalizacja wartości maksymalnych
+        let maxValues = {
+            spotSum: 0,
+            spotSurface: 0,
+            spotAverage: 0,
+            maxIntensity: 0
+        };
+
+        // Pierwsze przejście - znajdź maksima
+        for (const box of boxes) {
+            if ('spotSum' in box) maxValues.spotSum = Math.max(maxValues.spotSum, box.spotSum);
+            if ('spotSurface' in box) maxValues.spotSurface = Math.max(maxValues.spotSurface, box.spotSurface);
+            if ('spotAverage' in box) maxValues.spotAverage = Math.max(maxValues.spotAverage, box.spotAverage);
+            if ('maxIntensity' in box) maxValues.maxIntensity = Math.max(maxValues.maxIntensity, box.maxIntensity);
         }
 
-        const spotAverage = spotSurface > 0 ? spotSum / spotSurface : 0;
+        // Drugie przejście - oblicz wartości procentowe
+        for (const box of boxes) {
+            if ('spotSum' in box && maxValues.spotSum > 0)
+                box.spotSumPercent = (box.spotSum / maxValues.spotSum) * 100;
 
-        box.spotSum = spotSum;
-        box.spotSurface = spotSurface;
-        box.spotAverage = spotAverage;
+            if ('spotSurface' in box && maxValues.spotSurface > 0)
+                box.spotSurfacePercent = (box.spotSurface / maxValues.spotSurface) * 100;
 
-        return box;
-    });
-}
+            if ('spotAverage' in box && maxValues.spotAverage > 0)
+                box.spotAveragePercent = (box.spotAverage / maxValues.spotAverage) * 100;
+
+            if ('maxIntensity' in box && maxValues.maxIntensity > 0)
+                box.maxIntensityPercent = (box.maxIntensity / maxValues.maxIntensity) * 100;
+        }
+
+        return boxes;
+    }
+
+    // dodaje linie startu i mety : !!! na razie ustawione na stałe
+    function addBoxLines(boxes) {
+        return boxes.map(box => {
+            box.startLineX = 100;
+            box.endLineX = 900;
+            box.startLineY = 100;
+            box.endLineY = 900;
+            return box;
+        });
+    }
+
+    // dodaje RF, K i RM
+    function calculateBoxPositionMetrics(boxes) {
+        return boxes.map(box => {
+            const {
+                startLineX, endLineX, startLineY, endLineY,
+                x = 0, y = 0, // pozycja boxa względem obrazu
+                maxX = 0, maxY = 0 // maksymalne lokalne pozycje intensywności w boxie
+            } = box;
+
+            // Wymiary toru (track width)
+            const xTrackWidth = endLineX - startLineX;
+            const yTrackWidth = endLineY - startLineY;
+
+            // Pozycja szczytu (peak) na torze
+            const xPeakonTrack = x + maxX - startLineX;
+            const yPeakonTrack = y + maxY - startLineY;
+
+            // Relative Fraction (RF)
+            const xRF = xTrackWidth !== 0 ? xPeakonTrack / xTrackWidth : 0;
+            const yRF = yTrackWidth !== 0 ? yPeakonTrack / yTrackWidth : 0;
+
+            // K oraz RF-mapped log wartości
+            const xK = xRF > 0 ? (1 - xRF) / xRF : 0;
+            const yK = yRF > 0 ? (1 - yRF) / yRF : 0;
+
+            const xRM = xK > 0 ? Math.log10(xK) : null;
+            const yRM = yK > 0 ? Math.log10(yK) : null;
+
+            // Dodaj dane do boxa
+            Object.assign(box, {
+                xTrackWidth,
+                yTrackWidth,
+                xPeakonTrack,
+                yPeakonTrack,
+                xRF,
+                yRF,
+                xK,
+                yK,
+                xRM,
+                yRM
+            });
+
+            return box;
+        });
+    }
+
+    // funkcja pomocnicza - oblicza sumę pikseli - kan. czerw. dla wybranej osi
+    function sumRedByAxis(data, width, height, axis = 'x') {
+        const result = axis === 'x' ? new Array(width).fill(0) : new Array(height).fill(0);
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const i = (y * width + x) * 4; // indeks piksela w data (RGBA)
+                const red = data[i];
+                if (axis === 'x') {
+                    result[x] += red;
+                } else {
+                    result[y] += red;
+                }
+            }
+        }
+        return result;
+    }
+
+    // oblicza chartY i chartX
+        function calculateBoxCharts(boxes) {
+        return boxes.map(box => {
+            const { imageData } = box;
+            if (!imageData) {
+                box.chartX = [];
+                box.chartY = [];
+                return box;
+            }
+            const { data, width, height } = imageData;
+
+            box.chartX = sumRedByAxis(data, width, height, 'x');
+            box.chartY = sumRedByAxis(data, width, height, 'y');
+
+            return box;
+        });
+    }
+
+    // funkcja pomocnicza: oblicza długość peaku na danej wysokości
+    function peakWidthAtThreshold(chart, thresholdValue) {
+        let left = null;
+        let right = null;
+
+        for (let i = 0; i < chart.length; i++) {
+            if (chart[i] >= thresholdValue) {
+                left = i;
+                break;
+            }
+        }
+
+        for (let i = chart.length - 1; i >= 0; i--) {
+            if (chart[i] >= thresholdValue) {
+                right = i;
+                break;
+            }
+        }
+
+        if (left !== null && right !== null && right >= left) {
+            return right - left;
+        }
+        return 0; // brak piku
+    }
+
+    // oblicza długość peaku na danej wysokości
+    function calculateWidthsAtThresholds(boxes) {
+        return boxes.map(box => {
+            const { chartX, chartY, maxIntensity } = box;
+
+            if (!chartX || !chartY || typeof maxIntensity !== 'number') {
+                return box;
+            }
+
+            const thresholds = {
+                'W05': 0.5,
+                'W01': 0.1,
+                'W005': 0.05,
+                'W0': 0.0
+            };
+
+            for (const [key, factor] of Object.entries(thresholds)) {
+                const thresholdValue = maxIntensity * factor;
+
+                box['x' + key] = peakWidthAtThreshold(chartX, thresholdValue);
+                box['y' + key] = peakWidthAtThreshold(chartY, thresholdValue);
+            }
+
+            return box;
+        });
+    }
+
+    // oblicza ile długość peaku na danej wysokości stanowi % długości u podstawy
+    function calculateRelativeWidths(boxes) {
+        const keys = ['W05', 'W01', 'W005']; // wartości które porównujemy do W0
+
+        return boxes.map(box => {
+            const xW0 = box.xW0 || 1; // unikamy dzielenia przez 0
+            const yW0 = box.yW0 || 1;
+
+            keys.forEach(key => {
+                const xKey = 'x' + key;
+                const yKey = 'y' + key;
+
+                const xRelKey = xKey + '%';
+                const yRelKey = yKey + '%';
+
+                if (typeof box[xKey] === 'number') {
+                    box[xRelKey] = box[xKey] / xW0;
+                }
+
+                if (typeof box[yKey] === 'number') {
+                    box[yRelKey] = box[yKey] / yW0;
+                }
+            });
+
+            return box;
+        });
+    }
+
 
 //################################# - funkcje do przetwarzania parametrów optymalizacyjnych
 
@@ -860,6 +1100,8 @@ function analyzeBoxesRedChannel(boxes) {
                         // Iteracja po danych
                         Object.entries(spot).forEach(([key, value]) => {
                             if (key === 'imageData') return;
+                            if (key === 'chartX') return;
+                            if (key === 'chartY') return;
 
                             const row = document.createElement('tr');
                             row.id = `spot-${id}-${index}`;
@@ -1052,8 +1294,15 @@ parameterButtons('panel-akcji', [
 // Może być wieloetapowa, np. filtrowanie, analiza kanału kolorów itp.
 function postprocess_analysis(processedData) {
     let data = processedData;
-    // Analiza czerwonego kanału w każdej plamce – np. do wyznaczania intensywności
-    data = analyzeBoxesRedChannel(data);
+    // poniżej oznaczam w jakiej kolejności muszą być wykonane funkcje analizy
+    data = analyzeQuantitive(data); // 1
+    data = analyzePeak(data); // 1
+    data = analyzeRelativeQuantities(data); // 2
+    data = addBoxLines(data); // 1
+    data = calculateBoxPositionMetrics(data); // 3
+    data = calculateBoxCharts(data); // 1
+    data = calculateWidthsAtThresholds(data); // 3
+    data = calculateRelativeWidths(data); // 4
     
     // Można dodać więcej funkcji analitycznych, np. na kanał zielony lub porównanie UV vs VIS
     // data = analyzeGreenChannel(data);
