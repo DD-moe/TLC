@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QTLC v5</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
+    <!-- warning: loading OpenCV can take some time. Load asynchronously -->
+    <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
+
+    <style>
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100vh;
+            height: auto;
+            width: auto;
+            margin: 0 auto;
+            border: 1px solid #ccc; /* opcjonalnie dla widoczności */
+        }
+    </style>
+</head>
+
+<body class="bg-white text-dark py-4">
+</body>
+
+<script>
+//################################# - funkcje ładowania obrazów  
+
+  	// funkcja tworząca panel ładowania obrazów
+    function images(id, auto = false) {
+      // Utwórz główny kontener
+      const container = document.createElement('div');
+      container.className = 'container bg-light';
+      container.id = id;
+
+      // Nagłówek
+      const heading = document.createElement('h1');
+      heading.className = 'mb-4';
+      heading.textContent = 'Wczytaj obraz(y)';
+
+      // Input
+      const inputDiv = document.createElement('div');
+      inputDiv.className = 'mb-3';
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.className = 'form-control';
+      input.accept = 'image/*';
+      input.multiple = true;
+      input.id = `input-${id}`; // unikalny ID jeśli potrzeba
+      inputDiv.appendChild(input);
+
+      // Canvas
+      const canvas = document.createElement('canvas');
+      canvas.id = `canvas-${id}`;
+      inputDiv.appendChild(canvas);
+
+      // Złożenie wszystkiego
+      container.appendChild(heading);
+      container.appendChild(inputDiv);
+      container.appendChild(canvas);
+      document.body.appendChild(container);
+
+      // Obsługa inputa
+      input.addEventListener('change', async function () {
+        const files = [...this.files];
+        if (files.length === 0) return;
+
+        const parent = this.closest('.container');
+        const canvas = parent.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const images = await Promise.all(files.map(loadImage));
+        const width = images[0].naturalWidth;
+        const height = images[0].naturalHeight;
+
+        // Sprawdzenie rozmiarów
+        for (let img of images) {
+          if (img.naturalWidth !== width || img.naturalHeight !== height) {
+            alert('Wszystkie obrazy muszą mieć ten sam rozmiar!');
+            return;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        if (images.length === 1) {
+          ctx.drawImage(images[0], 0, 0);
+        } else {
+          const sumData = new Float32Array(width * height * 4);
+          for (let img of images) {
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, width, height);
+            for (let i = 0; i < imageData.data.length; i++) {
+              sumData[i] += imageData.data[i];
+            }
+          }
+
+          const avgData = new Uint8ClampedArray(width * height * 4);
+          const numImages = images.length;
+          for (let i = 0; i < sumData.length; i++) {
+            avgData[i] = Math.round(sumData[i] / numImages);
+          }
+
+          const finalImageData = new ImageData(avgData, width, height);
+          ctx.putImageData(finalImageData, 0, 0);
+        }
+        if (auto) {
+            window.dispatchEvent(new CustomEvent('newScan', {
+            detail: { id, canvas }
+            }));
+        }
+      });
+    }
+
+    // Pomocnicza funkcja do ładowania obrazu
+    function loadImage(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+//################################# - funkcje ładowania obrazów
+
+//################################# - funkcje pól pomocniczych
+
+	// funkcja do dodawania pola komentarza
+    function addCommentCell(id, text, destination) {
+        // Główny kontener
+        const container = document.createElement('div');
+        container.className = 'container my-3'; // margines dla odstępów
+        container.id = id;
+
+        // Komórka tekstowa w stylu komentarza
+        const comment = document.createElement('div');
+        comment.className = 'bg-light p-3 rounded fs-3 border-bottom border-top border-secondary'; // Bootstrapowa stylizacja
+        comment.innerText = `📝: ${text}`;
+
+        // Składanie i dodanie do body
+        container.appendChild(comment);
+        destination.appendChild(container);
+    }
+
+    // funkcja do tworzenia pola wejściowego
+    function parameterTable(containerId, table) {
+        // Główny kontener
+        const container = document.createElement('div');
+        container.className = 'container bg-light my-4';
+        container.id = containerId;
+
+        // Nagłówek
+        const heading = document.createElement('h2');
+        heading.className = 'mb-3';
+        heading.textContent = 'Parametry wejściowe';
+        container.appendChild(heading);
+
+        // Tabela
+        const tableEl = document.createElement('table');
+        tableEl.className = 'table table-bordered table-striped';
+
+        // Ciało tabeli
+        const tbody = document.createElement('tbody');
+
+        for (let row of table) {
+            const [description, id, value] = row;
+
+            const tr = document.createElement('tr');
+
+            // Kolumna z opisem
+            const tdLabel = document.createElement('td');
+            tdLabel.className = 'align-middle';
+            tdLabel.textContent = description;
+            tr.appendChild(tdLabel);
+
+            // Kolumna z inputem
+            const tdInput = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'form-control';
+            input.id = id;
+            input.value = value;
+            tdInput.appendChild(input);
+            tr.appendChild(tdInput);
+
+            tbody.appendChild(tr);
+        }
+
+        tableEl.appendChild(tbody);
+        container.appendChild(tableEl);
+        document.body.appendChild(container);
+    }
+
+    // funkcja do dodawania pola przyciskó akcji
+    function parameterButtons(containerId, table) {
+        // Usuń istniejący kontener o tym ID jeśli istnieje
+        const existing = document.getElementById(containerId);
+        if (existing) existing.remove();
+
+        // Główny kontener
+        const container = document.createElement('div');
+        container.className = 'container bg-light my-4';
+        container.id = containerId;
+
+        // Nagłówek
+        const heading = document.createElement('h2');
+        heading.className = 'mb-3';
+        heading.textContent = 'Dostępne akcje';
+        container.appendChild(heading);
+
+        // Grid na przyciski
+        const grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
+        grid.style.gap = '1rem';
+
+        for (let [text, description, func] of table) {
+            const tile = document.createElement('div');
+            tile.className = 'd-flex btn btn-primary p-0 overflow-hidden';
+            tile.style.height = '60px';
+            tile.style.fontSize = '1.5rem';
+
+            // Główna część przycisku (2/3)
+            const mainBtn = document.createElement('div');
+            mainBtn.className = 'flex-grow-1 d-flex align-items-center justify-content-center';
+            mainBtn.style.cursor = 'pointer';
+            mainBtn.textContent = text;
+            mainBtn.onclick = func;
+
+            // Pomoc (1/3)
+            const helpBtn = document.createElement('div');
+            helpBtn.className = 'bg-secondary d-flex align-items-center justify-content-center';
+            helpBtn.style.width = '33.33%';
+            helpBtn.style.cursor = 'pointer';
+            helpBtn.textContent = '?';
+            helpBtn.onclick = (e) => {
+                e.stopPropagation();
+                showHelp(description);
+            };
+
+            tile.appendChild(mainBtn);
+            tile.appendChild(helpBtn);
+            grid.appendChild(tile);
+        }
+
+        container.appendChild(grid);
+        document.body.appendChild(container);
+
+        // Pomocnicze okno instrukcji
+        function showHelp(text) {
+            const helpBox = document.createElement('div');
+            helpBox.className = 'modal fade show';
+            helpBox.style.display = 'block';
+            helpBox.style.position = 'fixed';
+            helpBox.style.top = '0';
+            helpBox.style.left = '0';
+            helpBox.style.width = '100vw';
+            helpBox.style.height = '100vh';
+            helpBox.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            helpBox.style.zIndex = '9999';
+
+            const content = document.createElement('div');
+            content.className = 'bg-white rounded p-4';
+            content.style.maxWidth = '500px';
+            content.style.margin = '100px auto';
+            content.innerHTML = `
+                <h5>Pomoc</h5>
+                <p>${text}</p>
+                <button class="btn btn-secondary mt-2">Zamknij</button>
+            `;
+
+            content.querySelector('button').onclick = () => {
+                helpBox.remove();
+            };
+
+            helpBox.appendChild(content);
+            document.body.appendChild(helpBox);
+        }
+    }
+
+//################################# - funkcje pól pomocniczych
+
+//################################# - funkcje do preprocess
+
+    // prosta funkcja do obliczania jasności
+    function getBrightness(r, g, b) {
+      return (r + g + b) / 3;
+    }
+
+    function detectBrightCorners(id, canvas) {
+        // Usuń istniejący kontener jeśli już jest
+        const existing = document.getElementById(`${id}_process`);
+        if (existing) {
+            existing.remove();
+        }
+
+        // Utwórz główny kontener
+        const container = document.createElement('div');
+        container.className = 'container bg-light p-3';
+        container.id = `${id}_process`;
+
+        // Nagłówek
+        const heading = document.createElement('h1');
+        heading.className = 'mb-4';
+        heading.textContent = 'Wstępne przetwarzanie obrazów';
+        container.appendChild(heading);
+
+        // Przygotowanie głównych canvasów
+        const mainCanvas = document.createElement('canvas');
+        const blurCanvas = document.createElement('canvas');
+
+        mainCanvas.id = `mainCanvas-${id}`;
+        blurCanvas.id = `blurCanvas-${id}`;
+
+        const mainCtx = mainCanvas.getContext('2d');
+        const blurCtx = blurCanvas.getContext('2d');
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        mainCanvas.width = width;
+        mainCanvas.height = height;
+        blurCanvas.width = width;
+        blurCanvas.height = height;
+
+        // Rysujemy oryginał
+        mainCtx.drawImage(canvas, 0, 0);
+
+        // Rozmycie
+        blurCtx.filter = 'blur(1px)';
+        blurCtx.drawImage(canvas, 0, 0);
+        blurCtx.filter = 'none';
+
+        // Dane pikseli
+        const imgData = blurCtx.getImageData(0, 0, width, height);
+        const data = imgData.data;
+
+        const treshold = 80;
+        const brightPoints = [];
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+            const i = (y * width + x) * 4;
+            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            if (brightness > treshold) {
+                brightPoints.push({ x, y });
+            }
+            }
+        }
+
+        if (brightPoints.length === 0) {
+            alert("Brak jasnych punktów powyżej progu.");
+            return;
+        }
+
+        const corners = [
+            { x: 0, y: 0 },
+            { x: width - 1, y: 0 },
+            { x: width - 1, y: height - 1 },
+            { x: 0, y: height - 1 }
+        ];
+
+        const closest = corners.map(corner => {
+            let minDist = Infinity;
+            let closestPoint = null;
+            for (const p of brightPoints) {
+                const dx = p.x - corner.x;
+                const dy = p.y - corner.y;
+                const dist = dx * dx + dy * dy;
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestPoint = p;
+                }
+            }
+            return closestPoint;
+        });
+
+        // Rysowanie konturu
+        mainCtx.strokeStyle = "red";
+        mainCtx.lineWidth = 1;
+        mainCtx.beginPath();
+        mainCtx.moveTo(closest[0].x, closest[0].y);
+        for (let i = 1; i < closest.length; i++) {
+            mainCtx.lineTo(closest[i].x, closest[i].y);
+        }
+        mainCtx.closePath();
+        mainCtx.stroke();
+
+        // Dodaj canvasy do kontenera
+        addCommentCell(`mainCanvas-comment-${id}`, 'wykrywanie krawędzi', container);
+        container.appendChild(mainCanvas);
+        addCommentCell(`blurCanvas-comment-${id}`, 'obraz z blurr jako źródło do wykrywania krawędzi', container);
+        container.appendChild(blurCanvas);
+
+        // Dodaj kontener do DOM
+        document.body.appendChild(container);
+
+        return closest;
+    }
+
+
+    // funkcja do wstępnego przetwarzania po załądowaniu pierwszej płytki
+    function pre_process(id, canvas, sources, processed_sources) {
+        corners = assignCorners(detectBrightCorners(id, canvas));
+        console.log(corners);  // 4 punkty najbliższe narożnikom
+        // przetwarza właściwie ten obraz
+        mid_process(id, canvas, sources, processed_sources);
+    }
+
+//################################# - funkcje do preprocess
+
+//################################# - funkcje do właściwego przetwarzania
+    function extractDocumentFromCanvas(id, sourceCanvas) {
+        // 1. Usuń istniejący kontener
+        const existing = document.getElementById(`${id}_mid_process`);
+        if (existing) existing.remove();
+
+        // 2. Utwórz kontener Bootstrap
+        const container = document.createElement('div');
+        container.className = 'container bg-light p-3';
+        container.id = `${id}_mid_process`;
+
+        // 3. Nagłówek
+        const heading = document.createElement('h1');
+        heading.className = 'mb-4';
+        heading.textContent = 'Ekstrakcja obrazu';
+        container.appendChild(heading);
+
+        // 4. Utwórz canvas z rozmyciem 1px
+        const blurCanvas = document.createElement('canvas');
+        blurCanvas.width = sourceCanvas.width;
+        blurCanvas.height = sourceCanvas.height;
+        blurCanvas.id = `midCanvas-${id}`;
+
+        const ctx = blurCanvas.getContext('2d');
+        ctx.filter = 'blur(1px)';
+        ctx.drawImage(sourceCanvas, 0, 0);
+
+        container.appendChild(blurCanvas);
+        document.body.appendChild(container);
+
+        // 5. Wykonaj ekstrakcję z jscanify
+        const scanner = new jscanify();
+
+        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners);
+        newCanvas.id = `midCanvas-${id}`;
+
+        // 6. Podmień canvas
+        blurCanvas.replaceWith(newCanvas);
+
+        // 7. przetwórz na luminance
+        const ctx_new = newCanvas.getContext('2d');
+        let imgData = ctx_new.getImageData(0, 0, newCanvas.width, newCanvas.height);
+        let data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            const luminance = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+
+            data[i] = luminance;     // R
+            data[i + 1] = luminance; // G
+            data[i + 2] = luminance; // B
+            data[i + 3] = 255;       // A
+        }
+
+        //ctx_new.putImageData(imgData, 0, 0);
+
+        // 8. odejmujemy tło bazując na funkcji grid - do ustalania lokalnej intensywności tła
+
+        // zakładamy zmienne:
+        const gridSize = 3;
+        const topPercent = 5;
+
+        const { width, height } = newCanvas;
+        //imgData = ctx_new.getImageData(0, 0, width, height);
+        //data = imgData.data;
+
+        const cellWidth = Math.floor(width / gridSize);
+        const cellHeight = Math.floor(height / gridSize);
+
+        for (let gy = 0; gy < gridSize; gy++) {
+            for (let gx = 0; gx < gridSize; gx++) {
+            const startX = gx * cellWidth;
+            const startY = gy * cellHeight;
+            const endX = (gx + 1 === gridSize) ? width : startX + cellWidth;
+            const endY = (gy + 1 === gridSize) ? height : startY + cellHeight;
+
+            const pixels = [];
+
+            // Zbieramy piksele do sortowania
+            for (let y = startY; y < endY; y++) {
+                for (let x = startX; x < endX; x++) {
+                const i = (y * width + x) * 4;
+                const r = data[i];
+                pixels.push({ i, r }); // tylko indeks i czerwony kanał
+                }
+            }
+
+            // Sortujemy po czerwonym kanale malejąco
+            pixels.sort((a, b) => b.r - a.r);
+
+            const count = Math.max(1, Math.floor(pixels.length * (topPercent / 100)));
+
+            // Średnia z top % pikseli
+            let sumR = 0;
+            for (let k = 0; k < count; k++) {
+                const i = pixels[k].i;
+                sumR += data[i];
+            }
+
+            const avgR = Math.round(sumR / count);
+
+
+            // Odejmujemy od każdego piksela w oczku siatki
+            for (let y = startY; y < endY; y++) {
+                for (let x = startX; x < endX; x++) {
+                const i = (y * width + x) * 4;
+                data[i + 2] = data[i + 1] = data[i]     = Math.max(0, avgR - data[i]); // R
+                }
+            }
+            }
+        }
+
+        // Zapisujemy zmodyfikowany obraz z powrotem
+        ctx_new.putImageData(imgData, 0, 0);
+
+        // 9. zwracamy newCanvas
+        return newCanvas;
+    }
+
+    // funkcja do ekstrakcji niezlewających się plamek 2d
+    function extractBlobsFromCanvas(id, sourceCanvas) {
+
+        // zakładamy zmienne bazowe:
+        const treshold =  20;
+        const edgeThickness = 10;
+
+        // 1. Usuń istniejący kontener
+        const existing = document.getElementById(`${id}_mid_process_blobs`);
+        if (existing) existing.remove();
+
+        // 2. Utwórz kontener Bootstrap
+        const container = document.createElement('div');
+        container.className = 'container bg-light p-3';
+        container.id = `${id}_mid_process_blobs`;
+
+        // 3. Nagłówek
+        const heading = document.createElement('h1');
+        heading.className = 'mb-4';
+        heading.textContent = 'Ekstrakcja plamek';
+        container.appendChild(heading);
+
+        // 4. Utwórz canvas z rozmyciem 1px
+        const detectedCanvas = document.createElement('canvas');
+        detectedCanvas.width = sourceCanvas.width;
+        detectedCanvas.height = sourceCanvas.height;
+        detectedCanvas.id = `midCanvas-blobs-${id}`;
+
+        let src = cv.imread(sourceCanvas); // Wczytaj obraz RGBA
+        let gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY); // Konwertuj na grayscale
+        // Zamaskuj ramkę - 5px od każdej krawędzi
+        gray.rowRange(0, edgeThickness).setTo(new cv.Scalar(0)); // góra
+        gray.rowRange(gray.rows - edgeThickness, gray.rows).setTo(new cv.Scalar(0)); // dół
+        gray.colRange(0, edgeThickness).setTo(new cv.Scalar(0)); // lewa
+        gray.colRange(gray.cols - edgeThickness, gray.cols).setTo(new cv.Scalar(0)); // prawa
+
+
+        // Progowanie jasnych obszarów: wszystko powyżej 10
+        let thresh = new cv.Mat();
+        cv.threshold(gray, thresh, treshold, 255, cv.THRESH_BINARY);
+
+        // Operacje morfologiczne: oczyszczanie i rozszerzenie
+        let kernel = cv.Mat.ones(3, 3, cv.CV_8U);
+        cv.morphologyEx(thresh, thresh, cv.MORPH_OPEN, kernel);
+        cv.dilate(thresh, thresh, kernel);
+
+        // Znajdź kontury
+        let contours = new cv.MatVector();
+        let hierarchy = new cv.Mat();
+        cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+        let boxes = [];
+        for (let i = 0; i < contours.size(); ++i) {
+            let cnt = contours.get(i);
+            let rect = cv.boundingRect(cnt);
+
+            if (rect.width * rect.height > 10) { // Odrzuć drobne zakłócenia
+                let expandX = Math.round(rect.width * 0.08);
+                let expandY = Math.round(rect.height * 0.08);
+
+                let x = Math.max(0, rect.x - expandX);
+                let y = Math.max(0, rect.y - expandY);
+                let width = Math.min(src.cols - x, rect.width + 2 * expandX);
+                let height = Math.min(src.rows - y, rect.height + 2 * expandY);
+
+                let point1 = new cv.Point(x, y);
+                let point2 = new cv.Point(x + width, y + height);
+                cv.rectangle(src, point1, point2, [0, 255, 0, 255], 2);
+                boxes.push({ x, y, width, height });
+            }
+
+            cnt.delete();
+        }
+
+        cv.imshow(detectedCanvas, src);
+
+        // Zwolnienie pamięci
+        src.delete(); gray.delete(); thresh.delete();
+        kernel.delete(); contours.delete(); hierarchy.delete();
+
+
+        let ctx = sourceCanvas.getContext("2d");
+        for (let box of boxes) {
+            box.imageData = ctx.getImageData(box.x, box.y, box.width, box.height);
+        }
+
+        container.appendChild(detectedCanvas);
+        document.body.appendChild(container);
+
+        return boxes;
+    }
+
+    // funkcja do maskowania niezlewającyc się plamek 2d
+    function maskDarkest5Percent(boxes, percent) {
+        return boxes.map(box => {
+            const { imageData } = box;
+            const { data, width, height } = imageData;
+            const pixelCount = width * height;
+
+            // Tworzymy tablicę: { index, red } — jeden element na każdy piksel
+            let redValues = [];
+            for (let i = 0; i < data.length; i += 4) {
+                redValues.push({ index: i, red: data[i] }); // data[i] = kanał R
+            }
+
+            // Sortujemy rosnąco po czerwonym kanale
+            redValues.sort((a, b) => a.red - b.red);
+
+            // Ile to jest 5%?
+            const thresholdCount = Math.floor(pixelCount * percent / 100);
+
+            // Iterujemy po 5% najciemniejszych i maskujemy RGB
+            for (let i = 0; i < thresholdCount; i++) {
+                const idx = redValues[i].index;
+                data[idx] = 0;     // R
+                data[idx + 1] = 0; // G
+                data[idx + 2] = 0; // B
+                // data[idx + 3] = alfa — NIE ruszamy
+            }
+
+            // Tworzymy nowy ImageData i przypisujemy do box
+            box.imageData = new ImageData(data, width, height);
+            return box;
+        });
+    }
+
+
+    function assignCorners(points) {
+      // points: array z 4 punktami {x, y}, z normalizowanymi współrzędnymi (0..1)
+
+      // Sortujemy wg y rosnąco (od góry do dołu)
+      const sortedByY = points.slice().sort((a, b) => a.y - b.y);
+
+      // Górne dwa punkty
+      const topPoints = sortedByY.slice(0, 2).sort((a, b) => a.x - b.x); // posortowane wg x rosnąco
+      // Dolne dwa punkty
+      const bottomPoints = sortedByY.slice(2, 4).sort((a, b) => a.x - b.x);
+
+      return {
+        topLeftCorner: topPoints[0],
+        topRightCorner: topPoints[1],
+        bottomLeftCorner: bottomPoints[0],
+        bottomRightCorner: bottomPoints[1],
+      };
+    }    
+
+    // funkcja do właściwego przetwarzania danych
+    function mid_process(id, canvas, sources, processed_sources) {
+        const extracted_canvas = extractDocumentFromCanvas(id, canvas);
+        let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
+        boxes = maskDarkest5Percent(boxes, 15);
+        processed_sources[id] = boxes;
+        sources[id] = extracted_canvas;
+        console.log("mid_process wywołane z sources:", id, canvas);
+    }
+
+//################################# - funkcje do właściwego przetwarzania
+
+//################################# - funkcje do przetwarzania parametrów optymalizacyjnych i ilościowych
+
+// oblicza ilościówkę
+function analyzeBoxesRedChannel(boxes) {
+    return boxes.map(box => {
+        const { imageData } = box;
+        const { data, width, height } = imageData;
+
+        let spotSum = 0;
+        let spotSurface = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const red = data[i]; // kanał R
+            spotSum += red;
+            if (red > 0) spotSurface++;
+        }
+
+        const spotAverage = spotSurface > 0 ? spotSum / spotSurface : 0;
+
+        box.spotSum = spotSum;
+        box.spotSurface = spotSurface;
+        box.spotAverage = spotAverage;
+
+        return box;
+    });
+}
+
+//################################# - funkcje do przetwarzania parametrów optymalizacyjnych
+
+//################################# - funkcje do postprocesingu
+
+    // funkcja do końcowego przetwarzania danych
+    function final_process(sources, processed_sources) {
+        console.log("final_process wywołane z sources:", processed_sources);
+
+        // Iteracja w kolejności dodania (klucze obiektów w JS zachowują kolejność)
+        Object.keys(sources).forEach(id => {
+            const sourceCanvas = sources[id];
+            const processedData = processed_sources[id];
+
+            // Przetwórz dane przez analizator
+            const spots= postprocess_analysis(processedData);
+
+            // Stwórz kontener
+
+            // Główna karta
+            const cardWrapper = document.createElement('div');
+            cardWrapper.className = 'card mb-4';
+
+            // Nagłówek z przyciskami toggle
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header d-flex gap-2 flex-wrap';
+
+            const toggleMain = document.createElement('button');
+            toggleMain.className = 'btn btn-sm btn-outline-primary';
+            toggleMain.type = 'button';
+            toggleMain.setAttribute('data-bs-toggle', 'collapse');
+            toggleMain.setAttribute('data-bs-target', `#collapse-main-${id}`);
+            toggleMain.textContent = 'Pokaż/Wyłącz obraz';
+
+            const toggleDesc = document.createElement('button');
+            toggleDesc.className = 'btn btn-sm btn-outline-secondary';
+            toggleDesc.type = 'button';
+            toggleDesc.setAttribute('data-bs-toggle', 'collapse');
+            toggleDesc.setAttribute('data-bs-target', `#collapse-desc-${id}`);
+            toggleDesc.textContent = 'Pokaż/Wyłącz opis';
+
+            cardHeader.appendChild(toggleMain);
+            cardHeader.appendChild(toggleDesc);
+            cardWrapper.appendChild(cardHeader);
+
+            // Kontener na sekcję: ( obraz + przyciski )
+            const container = document.createElement('div');
+            container.className = 'collapse show';
+            container.id = `collapse-main-${id}`;
+            container.classList.add('card-body');
+
+            // Kontener na obraz + przyciski
+            const img_container = document.createElement('div');
+            img_container.className = 'canvas-result mb-4';
+            img_container.id = `image_show-${id}`;
+            img_container.style.position = 'relative';  // Pozycjonowanie względem tego kontenera
+            container.appendChild(img_container);
+
+            // Kontener na opis/tabelę
+            const description_container = document.createElement('div');
+            description_container.className = 'collapse show row g-3';
+            description_container.id = `collapse-desc-${id}`;
+            description_container.classList.add('card-body');
+
+            // Dodaj oba kontenery do głównej karty
+            cardWrapper.appendChild(container);
+            cardWrapper.appendChild(description_container);
+
+            // Stwórz kopię canvasu
+            // 1. Konwersja do PNG (base64)
+            const pngDataURL = sourceCanvas.toDataURL('image/png');
+
+            // 2. Tworzymy <img> z zakodowanym PNG
+            const imageElement = document.createElement('img');
+            imageElement.src = pngDataURL;
+            imageElement.alt = `Wynik ${id}`;
+            imageElement.style.display = 'block';
+            imageElement.style.width = '100%';  // bardzo ważne, by obraz się skalował względem kontenera
+            imageElement.style.border = '1px solid #ccc';
+
+            img_container.appendChild(imageElement);
+
+            // Poczekaj, aż obraz się załaduje, aby znać jego wymiary
+            imageElement.onload = () => {
+                const imgWidth = imageElement.naturalWidth;
+                const imgHeight = imageElement.naturalHeight;
+
+                spots.forEach((spot, index) => {
+                    const { x, y, width, height } = spot;
+
+                    const btn = document.createElement('button');
+                    btn.textContent = `${id}#${index + 1}`;
+                    btn.style.position = 'absolute';
+
+                    // Pozycjonuj względem oryginalnych wymiarów obrazu
+                    btn.style.left = `${(x / imgWidth) * 100}%`;
+                    btn.style.top = `${(y / imgHeight) * 100}%`;
+                    btn.style.width = `${(width / imgWidth) * 100}%`;
+                    btn.style.height = `${(height / imgHeight) * 100}%`;
+
+                    btn.style.background = 'rgba(255,0,0,0.3)';
+                    btn.style.border = '1px solid red';
+                    btn.style.color = 'yellow';
+                    btn.style.fontSize = '10px';
+                    btn.style.cursor = 'pointer';
+                    btn.title = `Plamka ${index + 1}`;
+
+                    btn.addEventListener('click', () => {
+                        const tableRow = document.getElementById(`spot-${id}-${index}`);
+                        if (tableRow) {
+                            tableRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            tableRow.style.backgroundColor = 'yellow';
+                            setTimeout(() => {
+                                tableRow.style.backgroundColor = '';
+                            }, 1000);
+                        }
+                    });
+
+                    img_container.appendChild(btn);
+
+            // Tworzenie tabeli parametrów
+
+                        // Wrapper kolumny dla tabeli
+                        const colWrapper = document.createElement('div');
+                        colWrapper.className = 'col-12 col-md-6 col-lg-4'; // pełna szerokość w mobile, 2 kolumny na md, 3 na lg+
+
+                        // Nagłówek nad tabelą
+                        const caption = document.createElement('h6');
+                        caption.textContent = `Parametry Plamki #${index + 1}`;
+                        caption.className = 'fw-bold mb-2';
+
+                        // Tabela
+                        const table = document.createElement('table');
+                        table.className = 'table table-sm table-bordered table-striped w-100';
+
+                        // Iteracja po danych
+                        Object.entries(spot).forEach(([key, value]) => {
+                            if (key === 'imageData') return;
+
+                            const row = document.createElement('tr');
+                            row.id = `spot-${id}-${index}`;
+
+                            const cellKey = document.createElement('td');
+                            cellKey.textContent = key;
+                            cellKey.className = 'fw-light';
+
+                            const cellValue = document.createElement('td');
+                            cellValue.textContent = value;
+
+                            row.appendChild(cellKey);
+                            row.appendChild(cellValue);
+                            table.appendChild(row);
+                        });
+
+                        // Składanie całości
+                        colWrapper.appendChild(caption);
+                        colWrapper.appendChild(table);
+                        description_container.appendChild(colWrapper);        
+                });
+            };
+
+            // Umieść cały wynik na stronie
+            document.body.appendChild(cardWrapper);
+        });
+    }
+
+//################################# - funkcje do postprocesingu
+
+//################################# - funkcje do definiowania przepływu pracy
+
+    // funkcja obsługująca kolejność przepływu przetwarzania
+    function handleCanvasInput(canvas, id, sources, processed_sources, limit) {
+        const currentSize = Object.keys(sources).length;
+
+        // Zapisz canvas do sources
+        sources[id] = canvas;
+
+        if (limit <= 0) {
+            console.warn("Niepoprawna wartość limitu:", limit);
+            return;
+        }
+
+        if (limit === 1) {
+            pre_process(id, canvas, sources, processed_sources);
+            final_process(sources, processed_sources);
+        } else if (limit === 2) {
+            if (currentSize === 0) {
+                pre_process(id, canvas, sources, processed_sources);
+            } else if (currentSize === 1) {
+                mid_process(id, canvas, sources, processed_sources);
+                final_process(sources, processed_sources);
+            }
+        } else { // limit >= 3
+            if (currentSize === 0) {
+                pre_process(id, canvas, sources, processed_sources);
+            } else if (currentSize < limit - 1) {
+                mid_process(id, canvas, sources, processed_sources);
+            } else if (currentSize === limit - 1) {
+                mid_process(id, canvas, sources, processed_sources);
+                final_process(sources, processed_sources);
+            }
+        }
+    }
+
+
+    // wywoływany po każdym załadowaniu ew. uśrednieniu obrazu
+    window.addEventListener('newScan', (e) => {
+        handleCanvasInput(e.detail.canvas, e.detail.id, sources, processed_sources, limit);
+    });
+
+//################################# - funkcje do definiowania przepływu pracy    
+
+//*********************************
+// Przykład aplikacji TLC w frameworku low-code (JavaScript)
+// Autor: [Twoje Imię]
+// Cel: Analiza TLC na podstawie 3 obrazów – UV 254 nm, UV 365 nm i światło zielone
+// Ten kod tworzy aplikację za pomocą gotowych funkcji wysokiego poziomu.
+//*********************************
+
+// 🟩 Komentarze opisują każdą sekcję zrozumiale dla człowieka i AI.
+
+// 1️⃣ Dodajemy komentarze/etykiety opisujące kolejne sekcje aplikacji.
+// Funkcja addCommentCell(id, tekst, element_docelowy) dodaje komentarz HTML do interfejsu.
+
+
+
+
+// 2️⃣ Dodajemy panele do ładowania obrazów dla 3 różnych źródeł.
+// Funkcja images(id, trigger) tworzy panel ładowania obrazów.
+// - id: unikalny identyfikator
+// - trigger: true = uruchom przetwarzanie automatycznie po załadowaniu
+addCommentCell('comment-1', 'Załaduj obraz dla UV 254 nm', document.body);
+images("uv-254", true);
+
+// i powtarzamy schemat
+addCommentCell('comment-2', 'Załaduj obraz dla UV 365 nm', document.body);
+images("uv-365", true);
+addCommentCell('comment-3', 'Załaduj obraz w świetle zielonym (widzialnym)', document.body);
+images("green-visible", true);
+
+// 3️⃣ Inicjalizujemy obiekty na dane.
+// - sources: dane wejściowe z obrazów
+// - processed_sources: dane przetworzone
+// - limit: liczba oczekiwanych źródeł (dla synchronizacji)
+// - corners: współrzędne rogów płytki TLC
+const sources = {};
+const processed_sources = {};
+const limit = 3;
+let corners;
+
+// 4️⃣ Tworzymy panel parametrów analizy.
+// Funkcja parameterTable(id, tablica_parametrów) generuje pola wejściowe do ustawiania wartości progów, symetrii itd.
+// Format: [etykieta, id_parametru, domyślna_wartość]
+parameterTable('parametry-progu', [
+    ['Próg detekcji plamki:', 'r_treshold', 80],
+    ['Symetria brzegowa:', 'edge_symmetry', 50],
+    ['Minimalna wielkość plamki:', 'min_blob_size', 10]
+]);
+
+// 5️⃣ Tworzymy panel z przyciskami do akcji.
+// Funkcja parameterButtons(id, lista_przycisków) generuje przyciski interaktywne.
+// Format: [ikona/tekst, tekst pomocy, funkcja_do_uruchomienia]
+// funkcje te pozwalają na dodanie własnej niskopoziomowej logiki
+parameterButtons('panel-akcji', [
+    ['📷', 'Zrób zdjęcie i rozpocznij przetwarzanie.', () => alert('Zdjęcie wykonane!')],
+    ['🧪', 'Rozpocznij analizę TLC.', () => alert('Analiza uruchomiona!')],
+    ['📊', 'Pokaż wyniki analizy.', () => alert('Wyniki gotowe!')],
+    ['💾', 'Zapisz dane na dysku.', () => alert('Zapisano!')]
+]);
+
+// 6️⃣ Definiujemy funkcję przetwarzania końcowego.
+// Funkcja postprocess_analysis(data) wykonuje dodatkową analizę danych (np. statystyki, oznaczanie kolorów).
+// Może być wieloetapowa, np. filtrowanie, analiza kanału kolorów itp.
+function postprocess_analysis(processedData) {
+    let data = processedData;
+    // Analiza czerwonego kanału w każdej plamce – np. do wyznaczania intensywności
+    data = analyzeBoxesRedChannel(data);
+    
+    // Można dodać więcej funkcji analitycznych, np. na kanał zielony lub porównanie UV vs VIS
+    // data = analyzeGreenChannel(data);
+    // data = compareSpotsAcrossSources(data);
+
+    return data;
+}
+
+//*********************************
+// Uwaga dla AI i przyszłych programistów:
+// - Framework ten pozwala tworzyć aplikacje przez opis struktury i funkcji.
+// - Użytkownik nie pisze niskopoziomowego kodu HTML ani event listenerów – wszystko działa przez funkcje deklaratywne.
+// - Dzięki temu można szybko stworzyć aplikację do analizy obrazów TLC z wieloma źródłami światła.
+//*********************************
+
+
+  </script>
+</html>
