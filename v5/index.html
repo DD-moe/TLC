@@ -1391,20 +1391,20 @@
 
             // USP
             if (xPeakonTrack != null && xW0 != null && xW0 !== 0) {
-                box.xNobsUSP = 16 * (xPeakonTrack / xW0);
+                box.xNobsUSP = 16 * Math.floor((xPeakonTrack / xW0));
             }
 
             if (yPeakonTrack != null && yW0 != null && yW0 !== 0) {
-                box.yNobsUSP = 16 * (yPeakonTrack / yW0);
+                box.yNobsUSP = 16 * Math.floor((yPeakonTrack / yW0));
             }
 
             // EPS
             if (xPeakonTrack != null && xW05 != null && xW05 !== 0) {
-                box.xNobsEPS = 5.54 * Math.pow((xPeakonTrack / xW05), 2);
+                box.xNobsEPS = 5.54 * Math.pow(Math.floor(xPeakonTrack / xW05), 2);
             }
 
             if (yPeakonTrack != null && yW05 != null && yW05 !== 0) {
-                box.yNobsEPS = 5.54 * Math.pow((yPeakonTrack / yW05), 2);
+                box.yNobsEPS = 5.54 * Math.pow(Math.floor(yPeakonTrack / yW05), 2);
             }
 
             return box;
@@ -1446,6 +1446,224 @@
 
             box.tracksY = tracksY;
             box.tracksX = tracksX;
+
+            return box;
+        });
+    }
+
+    // funkcja wyznacza bezpośredniego poprzednika na torze x / y
+    function addPreviousTrackParameters(boxes) {
+        return boxes.map((currentBox, currentIndex) => {
+            const { x: currentX, y: currentY, tracksX = [], tracksY = [] } = currentBox;
+
+            let previousXIndex = null;
+            let maxX = -Infinity;
+            for (const idx of tracksX) {
+                if (idx === currentIndex) continue;
+                const otherBox = boxes[idx];
+                if (otherBox?.x != null && otherBox.x < currentX && otherBox.x > maxX) {
+                    maxX = otherBox.x;
+                    previousXIndex = idx;
+                }
+            }
+
+            let previousYIndex = null;
+            let maxY = -Infinity;
+            for (const idx of tracksY) {
+                if (idx === currentIndex) continue;
+                const otherBox = boxes[idx];
+                if (otherBox?.y != null && otherBox.y < currentY && otherBox.y > maxY) {
+                    maxY = otherBox.y;
+                    previousYIndex = idx;
+                }
+            }
+
+            currentBox.previousX = previousXIndex;
+            currentBox.previousY = previousYIndex;
+
+            return currentBox;
+        });
+    }
+
+    // oblicza parametry alpha
+    function addAlphaParameters(boxes) {
+        return boxes.map((box, index) => {
+            const { xK, yK, previousX, previousY } = box;
+
+            // Obliczanie αx
+            if (xK != null && previousX != null) {
+                const prevBox = boxes[previousX];
+                if (prevBox?.xK != null) {
+                    const k1 = Math.min(xK, prevBox.xK);
+                    const k2 = Math.max(xK, prevBox.xK);
+                    if (k1 !== 0) {
+                        box.alphaX = k2 / k1;
+                    }
+                }
+            }
+
+            // Obliczanie αy
+            if (yK != null && previousY != null) {
+                const prevBox = boxes[previousY];
+                if (prevBox?.yK != null) {
+                    const k1 = Math.min(yK, prevBox.yK);
+                    const k2 = Math.max(yK, prevBox.yK);
+                    if (k1 !== 0) {
+                        box.alphaY = k2 / k1;
+                    }
+                }
+            }
+
+            return box;
+        });
+    }
+
+    // obliczza parametry RS
+    function addRSParameters(boxes) {
+        return boxes.map((box, index) => {
+            const { xPeakonTrack: z2x, yPeakonTrack: z2y, xW0: w2x, yW0: w2y, previousX, previousY } = box;
+
+            // RSx
+            if (previousX != null) {
+                const prevBox = boxes[previousX];
+                const z1x = prevBox?.xPeakonTrack;
+                const w1x = prevBox?.xW0;
+
+                if (z1x != null && w1x != null && z2x != null && w2x != null && (w1x + w2x) !== 0) {
+                    box.RSx = (z2x - z1x) / 0.5 / (w1x + w2x);
+                }
+            }
+
+            // RSy
+            if (previousY != null) {
+                const prevBox = boxes[previousY];
+                const z1y = prevBox?.yPeakonTrack;
+                const w1y = prevBox?.yW0;
+
+                if (z1y != null && w1y != null && z2y != null && w2y != null && (w1y + w2y) !== 0) {
+                    box.RSy = (z2y - z1y) / 0.5 / (w1y + w2y);
+                }
+            }
+
+            return box;
+        });
+    }
+
+    // oblicza selectivity
+    function addSelectivityParameters(boxes) {
+        return boxes.map((box) => {
+            const { xK: k2x, yK: k2y, previousX, previousY } = box;
+
+            // selectivityX
+            if (previousX != null) {
+                const prevBox = boxes[previousX];
+                const k1x = prevBox?.xK;
+
+                if (k1x != null && k1x !== 0 && k2x != null) {
+                    box.selectivityX = 0.25 * Math.floor(k2x / k1x - 1);
+                }
+            }
+
+            // selectivityY
+            if (previousY != null) {
+                const prevBox = boxes[previousY];
+                const k1y = prevBox?.yK;
+
+                if (k1y != null && k1y !== 0 && k2y != null) {
+                    box.selectivityY = 0.25 * Math.floor(k2y / k1y - 1);
+                }
+            }
+
+            return box;
+        });
+    }
+
+    // oblicza efficiency
+    function addEfficiencyParameters(boxes) {
+        return boxes.map(box => {
+            const { xRF, yRF, previousX, previousY, xNobsUSP, xNobsEPS, yNobsUSP, yNobsEPS } = box;
+
+            // RFavgX
+            let RFavgX = null;
+            if (xRF != null && previousX != null) {
+                const prevBox = boxes[previousX];
+                if (prevBox?.xRF != null) {
+                    RFavgX = (xRF + prevBox.xRF) / 2;
+                    box.xRFavg = RFavgX;
+                }
+            }
+
+            // RFavgY
+            let RFavgY = null;
+            if (yRF != null && previousY != null) {
+                const prevBox = boxes[previousY];
+                if (prevBox?.yRF != null) {
+                    RFavgY = (yRF + prevBox.yRF) / 2;
+                    box.yRFavg = RFavgY;
+                }
+            }
+
+            // Oblicz efficiency, jeśli dane dostępne
+            if (RFavgX != null) {
+                if (xNobsUSP != null) {
+                    box.xEfficiencyUSP = Math.sqrt(RFavgX  * xNobsUSP);
+                }
+                if (xNobsEPS != null) {
+                    box.xEfficiencyEPS = Math.sqrt(RFavgX  * xNobsEPS);
+                }
+            }
+
+            if (RFavgY != null) {
+                if (yNobsUSP != null) {
+                    box.yEfficiencyUSP = Math.sqrt(RFavgY  * yNobsUSP);
+                }
+                if (yNobsEPS != null) {
+                    box.yEfficiencyEPS = Math.sqrt(RFavgY * yNobsEPS);
+                }
+            }
+
+            return box;
+        });
+    }
+
+    // oblicza retention
+    function addRetentionParameters(boxes) {
+        return boxes.map(box => {
+            const { xRFavg, yRFavg } = box;
+
+            box.xRetention = xRFavg != null ? 1 - xRFavg : null;
+            box.yRetention = yRFavg != null ? 1 - yRFavg : null;
+
+            return box;
+        });
+    }
+
+    // dodaje RS z tego złożonego wzoru
+    function addRSParametersComplex(boxes) {
+        return boxes.map(box => {
+            const {
+                xRetention, yRetention,
+                xEfficiencyUSP, xEfficiencyEPS,
+                yEfficiencyUSP, yEfficiencyEPS,
+                selectivityX, selectivityY
+            } = box;
+
+            // Obliczenia tylko jeśli wszystkie potrzebne wartości są dostępne
+            box.RSxUSP = (
+                selectivityX != null && xEfficiencyUSP != null && xRetention != null
+            ) ? selectivityX * xEfficiencyUSP * xRetention : null;
+
+            box.RSxEPS = (
+                selectivityX != null && xEfficiencyEPS != null && xRetention != null
+            ) ? selectivityX * xEfficiencyEPS * xRetention : null;
+
+            box.RSyUSP = (
+                selectivityY != null && yEfficiencyUSP != null && yRetention != null
+            ) ? selectivityY * yEfficiencyUSP * yRetention : null;
+
+            box.RSyEPS = (
+                selectivityY != null && yEfficiencyEPS != null && yRetention != null
+            ) ? selectivityY * yEfficiencyEPS * yRetention : null;
 
             return box;
         });
@@ -1542,7 +1760,7 @@
                     const { x, y, width, height } = spot;
 
                     const btn = document.createElement('button');
-                    btn.textContent = `${id}#${index + 1}`;
+                    btn.textContent = `${id}#${index}`;
                     btn.style.position = 'absolute';
 
                     // Pozycjonuj względem oryginalnych wymiarów obrazu
@@ -1556,7 +1774,7 @@
                     btn.style.color = 'yellow';
                     btn.style.fontSize = '10px';
                     btn.style.cursor = 'pointer';
-                    btn.title = `Plamka ${index + 1}`;
+                    btn.title = `Plamka ${index}`;
 
                     btn.addEventListener('click', () => {
                         const tableRow = document.getElementById(`spot-${id}-${index}`);
@@ -1579,7 +1797,7 @@
 
                         // Nagłówek nad tabelą
                         const caption = document.createElement('h6');
-                        caption.textContent = `Parametry Plamki #${index + 1}`;
+                        caption.textContent = `Parametry Plamki #${index}`;
                         caption.className = 'fw-bold mb-2';
 
                         // Tabela
@@ -1811,6 +2029,13 @@ function postprocess_analysis(processedData) {
     data = calculateHobsParameters(data); // 7
     data = calculateNobsParameters(data); // 7
     data = assignTracks(data); // 8
+    data = addPreviousTrackParameters(data); // 9
+    data = addAlphaParameters(data); // 10
+    data = addRSParameters(data); // 10
+    data = addSelectivityParameters(data); // 11
+    data = addEfficiencyParameters(data); // 11
+    data = addRetentionParameters(data); // 12
+    data = addRSParametersComplex(data); // 13
     
     // Można dodać więcej funkcji analitycznych, np. na kanał zielony lub porównanie UV vs VIS
     // data = analyzeGreenChannel(data);
