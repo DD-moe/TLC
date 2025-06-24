@@ -9,7 +9,6 @@
     <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
     <!-- warning: loading OpenCV can take some time. Load asynchronously -->
     <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
-
     <style>
         canvas {
             display: block;
@@ -26,7 +25,10 @@
 <body class="bg-white text-dark py-4">
 </body>
 
+
 <script>
+
+
 //################################# - funkcje ładowania obrazów  
 
   	// funkcja tworząca panel ładowania obrazów
@@ -182,7 +184,7 @@
             // Kolumna z inputem
             const tdInput = document.createElement('td');
             const input = document.createElement('input');
-            input.type = 'number';
+            input.type = 'text';
             input.className = 'form-control';
             input.id = id;
             input.value = value;
@@ -197,7 +199,7 @@
         document.body.appendChild(container);
     }
 
-    // funkcja do dodawania pola przyciskó akcji
+    // funkcja do dodawania pola przycisków akcji
     function parameterButtons(containerId, table) {
         // Usuń istniejący kontener o tym ID jeśli istnieje
         const existing = document.getElementById(containerId);
@@ -284,6 +286,28 @@
         }
     }
 
+     // Pobiera liczbę całkowitą z inputa o podanym ID. Jeśli się nie da, zwraca domyślną.
+    function getInt(id, defaultValue = 0) {
+        const value = document.getElementById(id)?.value;
+        const parsed = parseInt(value, 10);
+        return isNaN(parsed) ? defaultValue : parsed;
+    }
+
+
+    // Pobiera liczbę zmiennoprzecinkową z inputa o podanym ID. Jeśli się nie da, zwraca domyślną.
+    function getFloat(id, defaultValue = 0.0) {
+        const value = document.getElementById(id)?.value;
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? defaultValue : parsed;
+    }
+
+
+    // Pobiera tekst z inputa o podanym ID. Jeśli jest pusty lub niedostępny, zwraca domyślną.
+    function getString(id, defaultValue = '') {
+        const value = document.getElementById(id)?.value;
+        return value != null && value.trim().length > 0 ? value : defaultValue;
+    }
+
 //################################# - funkcje pól pomocniczych
 
 //################################# - funkcje do preprocess
@@ -333,7 +357,7 @@
         mainCtx.drawImage(canvas, 0, 0);
 
         // Rozmycie
-        blurCtx.filter = 'blur(1px)';
+        blurCtx.filter = 'blur(1px)'; // INPUT*
         blurCtx.drawImage(canvas, 0, 0);
         blurCtx.filter = 'none';
 
@@ -341,7 +365,7 @@
         const imgData = blurCtx.getImageData(0, 0, width, height);
         const data = imgData.data;
 
-        const treshold = 80;
+        const treshold = 80; // INPUT*
         const brightPoints = [];
 
         for (let y = 0; y < height; y++) {
@@ -416,6 +440,8 @@
 //################################# - funkcje do preprocess
 
 //################################# - funkcje do właściwego przetwarzania
+
+    // wycina płytkę ze zdjęcia - i normalizuje za pomocą uproszczonej metody grid
     function extractDocumentFromCanvas(id, sourceCanvas) {
         // 1. Usuń istniejący kontener
         const existing = document.getElementById(`${id}_mid_process`);
@@ -439,7 +465,7 @@
         blurCanvas.id = `midCanvas-${id}`;
 
         const ctx = blurCanvas.getContext('2d');
-        ctx.filter = 'blur(1px)';
+        ctx.filter = 'blur(1px)'; // INPUT*
         ctx.drawImage(sourceCanvas, 0, 0);
 
         container.appendChild(blurCanvas);
@@ -448,7 +474,7 @@
         // 5. Wykonaj ekstrakcję z jscanify
         const scanner = new jscanify();
 
-        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners);
+        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners); // INPUT* // INPUT*
         newCanvas.id = `midCanvas-${id}`;
 
         // 6. Podmień canvas
@@ -464,7 +490,7 @@
             const g = data[i + 1];
             const b = data[i + 2];
 
-            const luminance = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+            const luminance = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // INPUT* // INPUT* // INPUT*
 
             data[i] = luminance;     // R
             data[i + 1] = luminance; // G
@@ -477,8 +503,8 @@
         // 8. odejmujemy tło bazując na funkcji grid - do ustalania lokalnej intensywności tła
 
         // zakładamy zmienne:
-        const gridSize = 3;
-        const topPercent = 5;
+        const gridSize = 1; // INPUT*
+        const topPercent = 5; // INPUT*
 
         const { width, height } = newCanvas;
         //imgData = ctx_new.getImageData(0, 0, width, height);
@@ -537,12 +563,278 @@
         return newCanvas;
     }
 
+    // ekstrachuje płytkę ze zdjęcia z normalizacją oświetlenia pełną typu polynomial reggression
+    function extractDocumentFromCanvas_norm(id, sourceCanvas) {
+        // 1. Usuń istniejący kontener
+        const existing = document.getElementById(`${id}_mid_process`);
+        if (existing) existing.remove();
+
+        // 2. Utwórz kontener Bootstrap
+        const container = document.createElement('div');
+        container.className = 'container bg-light p-3';
+        container.id = `${id}_mid_process`;
+
+        // 3. Nagłówek
+        const heading = document.createElement('h1');
+        heading.className = 'mb-4';
+        heading.textContent = 'Ekstrakcja obrazu';
+        container.appendChild(heading);
+
+        // 4. Utwórz canvas z rozmyciem 1px
+        const blurCanvas = document.createElement('canvas');
+        blurCanvas.width = sourceCanvas.width;
+        blurCanvas.height = sourceCanvas.height;
+        blurCanvas.id = `midCanvas-${id}`;
+
+        const ctx = blurCanvas.getContext('2d');
+        ctx.filter = 'blur(1px)'; // INPUT*
+        ctx.drawImage(sourceCanvas, 0, 0);
+
+        container.appendChild(blurCanvas);
+        document.body.appendChild(container);
+
+        // 5. Wykonaj ekstrakcję z jscanify
+        const scanner = new jscanify();
+
+        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners); // INPUT* // INPUT*
+        newCanvas.id = `midCanvas-${id}`;
+
+        // 6. Podmień canvas
+        blurCanvas.replaceWith(newCanvas);
+
+        // 7. przetwórz na luminance
+        const ctx_new = newCanvas.getContext('2d');
+        let imgData = ctx_new.getImageData(0, 0, newCanvas.width, newCanvas.height);
+        let data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            const luminance = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // INPUT* // INPUT* // INPUT*
+
+            data[i] = luminance;     // R
+            data[i + 1] = luminance; // G
+            data[i + 2] = luminance; // B
+            data[i + 3] = 255;       // A
+        }
+
+        ctx_new.putImageData(imgData, 0, 0);
+
+        // 8. Przeskaluj newCanvas na mniejszy (20x mniejszy - w osi y)
+        const scale = 20; // INPUT*
+        const smallCanvas = document.createElement('canvas');
+        smallCanvas.width = Math.floor(newCanvas.width);
+        smallCanvas.height = Math.floor(newCanvas.height / scale);
+
+        const min_ctx = smallCanvas.getContext('2d');
+
+        min_ctx.drawImage(
+            newCanvas,
+            0, 0, newCanvas.width, newCanvas.height,  // źródło
+            0, 0, smallCanvas.width, smallCanvas.height  // cel
+        );
+
+        const min_imagedata = min_ctx.getImageData(0, 0, smallCanvas.width, smallCanvas.height);
+        const min_data = min_imagedata.data;
+
+        // (Opcjonalnie: dodaj canvas do DOM do podglądu)
+        container.appendChild(smallCanvas);        
+
+        // 9. odejmujemy tło bazując na funkcji polynomyal reggression - do ustalania lokalnej intensywności tła
+        // dla mode unnormalise
+
+        processColumnsWithPolynomialRegression(
+            min_data,
+            scale,
+            data,
+            newCanvas.width,
+            newCanvas.height,
+            smallCanvas.width,
+            smallCanvas.height
+        );
+
+        // 10 dokonujemy subtrakcji tła
+        ctx_new.putImageData(imgData, 0, 0);
+
+        // 11. zwracamy newCanvas
+        return newCanvas;
+    }
+
+    // custom implementation of polynomial reggression
+    function polynomialRegression(data, degree) {
+        const X = [];
+        const Y = [];
+
+        // Rozdziel dane
+        for (const point of data) {
+            X.push(point.x);
+            Y.push(point.y);
+        }
+
+        const N = degree + 1;
+        const matrix = Array.from({ length: N }, () => Array(N + 1).fill(0));
+
+        // Wypełnij macierz układu równań normalnych
+        for (let row = 0; row < N; row++) {
+            for (let col = 0; col < N; col++) {
+                matrix[row][col] = X.reduce((sum, xi) => sum + Math.pow(xi, row + col), 0);
+            }
+            matrix[row][N] = X.reduce((sum, xi, i) => sum + Y[i] * Math.pow(xi, row), 0);
+        }
+
+        // Rozwiązywanie układu równań metodą Gaussa
+        for (let i = 0; i < N; i++) {
+            // Szukamy maksymalnego elementu w kolumnie
+            let maxRow = i;
+            for (let k = i + 1; k < N; k++) {
+                if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
+                    maxRow = k;
+                }
+            }
+            [matrix[i], matrix[maxRow]] = [matrix[maxRow], matrix[i]];
+
+            // Eliminacja
+            for (let k = i + 1; k < N; k++) {
+                const factor = matrix[k][i] / matrix[i][i];
+                for (let j = i; j <= N; j++) {
+                    matrix[k][j] -= factor * matrix[i][j];
+                }
+            }
+        }
+
+        // Podstawianie wsteczne
+        const coeffs = Array(N).fill(0);
+        for (let i = N - 1; i >= 0; i--) {
+            coeffs[i] = matrix[i][N] / matrix[i][i];
+            for (let k = i - 1; k >= 0; k--) {
+                matrix[k][N] -= matrix[k][i] * coeffs[i];
+            }
+        }
+
+        return coeffs; // współczynniki od wyrazu wolnego (x^0) do najwyższego (x^n)
+    }
+
+    // predykcja wyników
+    function predictY(coeffs, x) {
+        return coeffs.reduce((sum, a, i) => sum + a * Math.pow(x, i), 0);
+    }
+
+
+    // polynomial reggression light normalization
+     /*
+     * Przetwarza kolumny z pomniejszonego obrazu za pomocą regresji wielomianowej
+     * i wypełnia pełne dane predykcjami RGB.
+     *
+     * @param {Uint8ClampedArray} min_data - Dane obrazu pomniejszonego (ImageData.data)
+     * @param {number} scale - Skala pomniejszenia (np. 4 jeśli pomniejszony obraz ma 1/4 wysokości)
+     * @param {Uint8ClampedArray} full_data - Dane obrazu pełnego (ImageData.data)
+     * @param {number} width - Szerokość pełnego obrazu
+     * @param {number} height - Wysokość pełnego obrazu
+     * @param {number} smallWidth - Szerokość pomniejszonego obrazu
+     * @param {number} smallHeight - Wysokość pomniejszonego obrazu
+     */
+    function processColumnsWithPolynomialRegression(min_data, scale, full_data, width, height, smallWidth, smallHeight) {
+        for (let x = 0; x < smallWidth; x++) {
+            const data = [];
+
+            // Zbieranie danych treningowych z RED kanału pomniejszonego obrazu
+            for (let y = 0; y < smallHeight; y++) {
+                const index = (y * smallWidth + x) * 4;
+                const red = min_data[index];
+                data.push({ x: y * scale, y: red });  // x = rzeczywista pozycja w pełnym obrazie
+            }
+
+            // Trenuj model
+            const { model } = iterativePolynomialRegression(data);
+
+            // Predykcja dla pełnego obrazu
+            for (let y = 0; y < height; y++) {
+                const predicted = model(y);
+                const fullIndex = (y * width + x) * 4;
+
+                const clamped = Math.max(0, Math.min(255, Math.round(predicted - full_data[fullIndex])));
+
+                
+                full_data[fullIndex] = clamped;     // R
+                full_data[fullIndex + 1] = clamped; // G
+                full_data[fullIndex + 2] = clamped; // B
+                // Alpha kanał zostaje nietknięty
+            }
+        }
+    }
+
+
+    // obliczanie regresji wielomianowej w modelu iteracyjnym
+    /**
+     * Iteracyjna regresja z odrzucaniem danych o największym błędzie.
+     * @param {Array<{x: number, y: number}>} data - Dane wejściowe.
+     * @returns {Object} Obiekt z końcowym modelem, oczyszczonymi danymi i historią błędów.
+     */
+    function iterativePolynomialRegression(data) {
+        const originalLength = data.length;
+        let currentData = [...data];
+        let previousAvgErrorFactor = Infinity;
+        let history = [];
+
+        while (true) {
+            const coeffs = polynomialRegression(currentData, 3); // zamiennik model.getTerms()
+
+            // Oblicz błędy
+            const errors = currentData.map(point => {
+                const predictedY = predictY(coeffs, point.x);
+                const error = predictedY - point.y;
+                return { ...point, error };
+            });
+
+            // Średni błąd
+            const avgError = errors.reduce((sum, e) => sum + e.error, 0) / errors.length;
+
+            // Factor: aktualna liczba danych / pierwotna liczba danych
+            const factor = currentData.length / originalLength;
+            const avgErrorFactor = avgError / factor;
+
+            history.push({
+                dataLength: currentData.length,
+                avgError,
+                factor,
+                avgErrorFactor
+            });
+
+            // Warunek zakończenia
+            if (
+                //avgErrorFactor > previousAvgErrorFactor ||
+                currentData.length <= originalLength / 2.5 // INPUT*
+            ) {
+                break;
+            }
+
+            previousAvgErrorFactor = avgErrorFactor;
+
+            // Usuń 10% punktów z największym błędem
+            const threshold = Math.ceil(currentData.length * 0.10); // INPUT*
+            errors.sort((a, b) => b.error - a.error);
+            currentData = errors.slice(threshold).map(e => ({ x: e.x, y: e.y }));
+        }
+
+        const finalCoeffs = polynomialRegression(currentData, 3);
+
+        return {
+            coeffs: finalCoeffs,          // współczynniki końcowego modelu
+            model: x => predictY(finalCoeffs, x), // funkcja do przewidywania
+            cleanedData: currentData,
+            history
+        };
+    }
+
+
     // funkcja do ekstrakcji niezlewających się plamek 2d
     function extractBlobsFromCanvas(id, sourceCanvas) {
 
         // zakładamy zmienne bazowe:
-        const treshold =  20;
-        const edgeThickness = 10;
+        const treshold =  20; // INPUT*
+        const edgeThickness = 10; // INPUT*
 
         // 1. Usuń istniejący kontener
         const existing = document.getElementById(`${id}_mid_process_blobs`);
@@ -559,7 +851,7 @@
         heading.textContent = 'Ekstrakcja plamek';
         container.appendChild(heading);
 
-        // 4. Utwórz canvas z rozmyciem 1px
+        // 4. pobierz canvas z rozmyciem 1px
         const detectedCanvas = document.createElement('canvas');
         detectedCanvas.width = sourceCanvas.width;
         detectedCanvas.height = sourceCanvas.height;
@@ -594,7 +886,7 @@
             let cnt = contours.get(i);
             let rect = cv.boundingRect(cnt);
 
-            if (rect.width * rect.height > 10) { // Odrzuć drobne zakłócenia
+            if (rect.width * rect.height > 10) { // Odrzuć drobne zakłócenia // INPUT*
                 let expandX = Math.round(rect.width * 0.08);
                 let expandY = Math.round(rect.height * 0.08);
 
@@ -684,17 +976,27 @@
       };
     }    
 
-    // funkcja do właściwego przetwarzania danych
+    // funkcja do właściwego przetwarzania danych:
     function mid_process(id, canvas, sources, processed_sources) {
-        const extracted_canvas = extractDocumentFromCanvas(id, canvas);
-        let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
-        boxes = maskDarkest5Percent(boxes, 15);
-        processed_sources[id] = boxes;
-        sources[id] = extracted_canvas;
+
+        if (mode === 'normalise') { // protokół uproszczony dla normalizacji fizycznej oświetlenia
+            const extracted_canvas = extractDocumentFromCanvas(id, canvas);
+            let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
+            boxes = maskDarkest5Percent(boxes, 15); // INPUT* (ile procent odrzucić)
+            processed_sources[id] = boxes;
+            sources[id] = extracted_canvas;
+        }
+        else if (mode === 'unnormalise') { // protokół dla zdjęć bez normalizacji fizycznej oświetlenia
+            const extracted_canvas = extractDocumentFromCanvas_norm(id, canvas);
+            let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
+            boxes = maskDarkest5Percent(boxes, 15); // INPUT*
+            processed_sources[id] = boxes;
+            sources[id] = extracted_canvas;
+        }
+
         console.log("mid_process wywołane z sources:", id, canvas);
     }
-
-//################################# - funkcje do właściwego przetwarzania
+//################################# - funkcje do właściwego przetwarzania ^ dla mid_process
 
 //################################# - funkcje do przetwarzania parametrów optymalizacyjnych i ilościowych
 
@@ -724,7 +1026,7 @@
     }
 
     // oblicza gdzie jest peak i jaką ma wartość
-    function analyzePeak(boxes) {
+    function analyzePeak(boxes) { // INPUT*  (podaj jenostkę odległości na piksel)
         return boxes.map(box => {
             const { imageData } = box;
             const { data, width, height } = imageData;
@@ -793,10 +1095,10 @@
     // dodaje linie startu i mety : !!! na razie ustawione na stałe
     function addBoxLines(boxes) {
         return boxes.map(box => {
-            box.startLineX = 100;
-            box.endLineX = 900;
-            box.startLineY = 100;
-            box.endLineY = 900;
+            box.startLineX = 100; // INPUT*
+            box.endLineX = 900; // INPUT*
+            box.startLineY = 100; // INPUT*
+            box.endLineY = 900; // INPUT*
             return box;
         });
     }
@@ -957,6 +1259,193 @@
                     box[yRelKey] = box[yKey] / yW0;
                 }
             });
+
+            return box;
+        });
+    }
+
+    // funkcja pomocnicza: oblicza dystanse A i B
+    function findEdgeDistance(chart, threshold, fromStart = true, maxIndex = 0) {
+        const len = chart.length;
+        let bestIndex = -1;
+
+        if (fromStart) {
+            for (let i = 0; i < len; i++) {
+                if (chart[i] >= threshold) {
+                    bestIndex = i;
+                    break;
+                }
+            }
+        } else {
+            for (let i = len - 1; i >= 0; i--) {
+                if (chart[i] >= threshold) {
+                    bestIndex = i;
+                    break;
+                }
+            }
+        }
+
+        return bestIndex !== -1 ? Math.abs(bestIndex - maxIndex) : null;
+    }
+
+    // oblicza A i B
+    function calculateAsymmetryWidths(boxes) {
+        return boxes.map(box => {
+            const { chartX, chartY, maxIntensity, maxX, maxY } = box;
+
+            if (!chartX || !chartY || maxIntensity == null || maxX == null || maxY == null)
+                return box; // pomiń jeśli dane są niekompletne
+
+            const thresholds = {
+                '005': 0.05 * maxIntensity,
+                '01': 0.10 * maxIntensity
+            };
+
+            ['005', '01'].forEach(key => {
+                const thr = thresholds[key];
+
+                // Oś X
+                const xA = findEdgeDistance(chartX, thr, true, maxX);
+                const xB = findEdgeDistance(chartX, thr, false, maxX);
+                if (xA != null) box['xA' + key] = xA;
+                if (xB != null) box['xB' + key] = xB;
+
+                // Oś Y
+                const yA = findEdgeDistance(chartY, thr, true, maxY);
+                const yB = findEdgeDistance(chartY, thr, false, maxY);
+                if (yA != null) box['yA' + key] = yA;
+                if (yB != null) box['yB' + key] = yB;
+            });
+
+            return box;
+        });
+    }
+
+    // oblicza As i T
+    function calculateChromatographicAsAndT(boxes) {
+        return boxes.map(box => {
+            const {
+                xA005, xB005, yA005, yB005,
+                xA01, xB01, yA01, yB01
+            } = box;
+
+            // Oś X
+            if (xA01 != null && xB01 != null && xA01 !== 0) {
+                box.xAs = xB01 / xA01;
+            }
+
+            if (xA005 != null && xB005 != null && xA005 !== 0) {
+                box.xT = (xA005 + xB005) / (2 * xA005);
+            }
+
+            // Oś Y
+            if (yA01 != null && yB01 != null && yA01 !== 0) {
+                box.yAs = yB01 / yA01;
+            }
+
+            if (yA005 != null && yB005 != null && yA005 !== 0) {
+                box.yT = (yA005 + yB005) / (2 * yA005);
+            }
+
+            return box;
+        });
+    }
+
+    // oblicza Hobs
+    function calculateHobsParameters(boxes) {
+        return boxes.map(box => {
+            const {
+                xW0, yW0,
+                xW05, yW05,
+                xPeakonTrack, yPeakonTrack
+            } = box;
+
+            if (xW0 != null && xPeakonTrack != null && xPeakonTrack !== 0) {
+                box.xHobs0 = Math.pow(xW0, 2) / 16 / xPeakonTrack;
+            }
+
+            if (yW0 != null && yPeakonTrack != null && yPeakonTrack !== 0) {
+                box.yHobs0 = Math.pow(yW0, 2) / 16 / yPeakonTrack;
+            }
+
+            if (xW05 != null && xPeakonTrack != null && xPeakonTrack !== 0) {
+                box.xHobs05 = Math.pow(xW05, 2) / 5.54 / xPeakonTrack;
+            }
+
+            if (yW05 != null && yPeakonTrack != null && yPeakonTrack !== 0) {
+                box.yHobs05 = Math.pow(yW05, 2) / 5.54 / yPeakonTrack;
+            }
+
+            return box;
+        });
+    }
+
+    // oblicza Nobs
+    function calculateNobsParameters(boxes) {
+        return boxes.map(box => {
+            const {
+                xPeakonTrack, yPeakonTrack,
+                xW0, yW0,
+                xW05, yW05
+            } = box;
+
+            // USP
+            if (xPeakonTrack != null && xW0 != null && xW0 !== 0) {
+                box.xNobsUSP = 16 * (xPeakonTrack / xW0);
+            }
+
+            if (yPeakonTrack != null && yW0 != null && yW0 !== 0) {
+                box.yNobsUSP = 16 * (yPeakonTrack / yW0);
+            }
+
+            // EPS
+            if (xPeakonTrack != null && xW05 != null && xW05 !== 0) {
+                box.xNobsEPS = 5.54 * Math.pow((xPeakonTrack / xW05), 2);
+            }
+
+            if (yPeakonTrack != null && yW05 != null && yW05 !== 0) {
+                box.yNobsEPS = 5.54 * Math.pow((yPeakonTrack / yW05), 2);
+            }
+
+            return box;
+        });
+    }
+
+    // wyznacza tracks dla każdej wykrytej plamki
+    function assignTracks(boxes) {
+        const TOLERANCE = 50; // INPUT*
+        const MIN_SURFACE = 1000; // INPUT*
+
+        return boxes.map((box, idx) => {
+            const xSum = box.x + box.width;
+            const ySum = box.y + box.height;
+
+            // Tracks on Y-axis: compare x + width
+            const tracksY = boxes.reduce((acc, otherBox, jdx) => {
+                if (jdx === idx) return acc;
+                if (otherBox.spotSurface < MIN_SURFACE) return acc;
+
+                const otherXSum = otherBox.x + otherBox.width;
+                if (Math.abs(otherXSum - xSum) <= TOLERANCE) {
+                    acc.push(jdx);
+                }
+                return acc;
+            }, []);
+
+            // Tracks on X-axis: compare y + height
+            const tracksX = boxes.reduce((acc, otherBox, jdx) => {
+                if (jdx === idx) return acc;
+                if (otherBox.spotSurface < MIN_SURFACE) return acc;
+
+                const otherYSum = otherBox.y + otherBox.height;
+                if (Math.abs(otherYSum - ySum) <= TOLERANCE) {
+                    acc.push(jdx);
+                }
+                return acc;
+            }, []);
+
+            box.tracksY = tracksY;
+            box.tracksX = tracksX;
 
             return box;
         });
@@ -1134,7 +1623,19 @@
 
 
 //################################# - funkcje dla przyciskó akcji
-function convertTableUnits() {
+// zmienia parametry wymagające zmiany
+function applyConfigChanges(){
+    mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
+}
+// czyści dane przetworzone
+function clearSources() {
+    sources = {};
+    processed_sources = {};
+    alert('Dane źródłowe i wyniki zostały wyczyszczone.');
+}
+
+
+function convertTableUnits() { // do wyrzucenia
     // przyjmujemy, że 1 px przypada na długość boku płtyki
     // przyjmujemy, że płytka ma 10 cm
 
@@ -1243,9 +1744,6 @@ function convertTableUnits() {
 // 1️⃣ Dodajemy komentarze/etykiety opisujące kolejne sekcje aplikacji.
 // Funkcja addCommentCell(id, tekst, element_docelowy) dodaje komentarz HTML do interfejsu.
 
-
-
-
 // 2️⃣ Dodajemy panele do ładowania obrazów dla 3 różnych źródeł.
 // Funkcja images(id, trigger) tworzy panel ładowania obrazów.
 // - id: unikalny identyfikator
@@ -1254,28 +1752,33 @@ addCommentCell('comment-1', 'Załaduj obraz dla UV 254 nm', document.body);
 images("uv-254", true);
 
 // i powtarzamy schemat
+
+/*
 addCommentCell('comment-2', 'Załaduj obraz dla UV 365 nm', document.body);
 images("uv-365", true);
+
 addCommentCell('comment-3', 'Załaduj obraz w świetle zielonym (widzialnym)', document.body);
 images("green-visible", true);
+*/
+
 
 // 3️⃣ Inicjalizujemy obiekty na dane.
 // - sources: dane wejściowe z obrazów
 // - processed_sources: dane przetworzone
 // - limit: liczba oczekiwanych źródeł (dla synchronizacji)
 // - corners: współrzędne rogów płytki TLC
-const sources = {};
-const processed_sources = {};
-const limit = 3;
+let sources = {};
+let processed_sources = {};
+const limit = 1;
 let corners;
+let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
 
 // 4️⃣ Tworzymy panel parametrów analizy.
 // Funkcja parameterTable(id, tablica_parametrów) generuje pola wejściowe do ustawiania wartości progów, symetrii itd.
 // Format: [etykieta, id_parametru, domyślna_wartość]
 parameterTable('parametry-progu', [
-    ['Próg detekcji plamki:', 'r_treshold', 80],
-    ['Symetria brzegowa:', 'edge_symmetry', 50],
-    ['Minimalna wielkość plamki:', 'min_blob_size', 10]
+    ['⚠️ tryb normalizacji oświetlenia (normalise / unnormalise):', 'normalisation_mode', 'unnormalise'], 
+    // ✅ - tego użyj dla parametrów nie wymagających zatwiedzenia
 ]);
 
 // 5️⃣ Tworzymy panel z przyciskami do akcji.
@@ -1284,8 +1787,8 @@ parameterTable('parametry-progu', [
 // funkcje te pozwalają na dodanie własnej niskopoziomowej logiki
 parameterButtons('panel-akcji', [
     ['🔁📐', 'zamień jednostki z pikseli na mm / mm2 i na odwrót', convertTableUnits],
-    ['🧪', 'Rozpocznij analizę TLC.', () => alert('Analiza uruchomiona!')],
-    ['📊', 'Pokaż wyniki analizy.', () => alert('Wyniki gotowe!')],
+    ['🧪', 'Zastosuj zmianę parametrów.', applyConfigChanges],
+    ['🧹', 'Wyczyść dane źródłowe i wyniki.', clearSources],
     ['💾', 'Zapisz dane na dysku.', () => alert('Zapisano!')]
 ]);
 
@@ -1303,6 +1806,11 @@ function postprocess_analysis(processedData) {
     data = calculateBoxCharts(data); // 1
     data = calculateWidthsAtThresholds(data); // 3
     data = calculateRelativeWidths(data); // 4
+    data = calculateAsymmetryWidths(data); // 5
+    data = calculateChromatographicAsAndT(data); // 6
+    data = calculateHobsParameters(data); // 7
+    data = calculateNobsParameters(data); // 7
+    data = assignTracks(data); // 8
     
     // Można dodać więcej funkcji analitycznych, np. na kanał zielony lub porównanie UV vs VIS
     // data = analyzeGreenChannel(data);
@@ -1310,6 +1818,7 @@ function postprocess_analysis(processedData) {
 
     return data;
 }
+
 
 //*********************************
 // Uwaga dla AI i przyszłych programistów:
