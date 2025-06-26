@@ -1995,7 +1995,7 @@ const data = {}; // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 
   // Definiowanie listy kluczy i callbacków do nasłuchiwania zmian w localStorage
   window.__watchList = [
-    ['tolerance', (event) => {
+    ['procParams', (event) => { // [storage key, function for this storage key] - note not param key
         data.key = event.newValue; // can also use explicit name
         console.log(data.tolerance);
       // Możesz np. zaktualizować UI
@@ -2004,7 +2004,7 @@ const data = {}; // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 
   // tworzy panel przycisków - linków do nowych zakładek dla programu
   createButtonGrid([
-    ['Google', 'https://git.1ioe.top/TLC/v5/params.html'],
+    ['⚙️', 'https://git.1ioe.top/TLC/v5/params.html'],
   ]);
 
 // 4️⃣ Tworzymy panel parametrów analizy.

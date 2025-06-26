@@ -20,7 +20,7 @@
       <input type="number" class="form-control" id="tolerance" name="tolerance" min="0" max="100" value="10">
     </div>
 
-    <button class="btn btn-primary" onclick="saveInputsToLocalStorage('tolerance')">Zapisz</button>
+    <button class="btn btn-primary" onclick="saveInputsToLocalStorage('procParams')">Zapisz</button>
   </div>
 
   <!-- Bootstrap 5 JS (opcjonalnie jeśli używasz komponentów JS) -->
@@ -30,8 +30,8 @@
   <script>
   // Definiowanie listy kluczy i callbacków do nasłuchiwania zmian w localStorage
   window.__watchList = [
-    ['tolerance', (event) => {
-        alert(`Zmieniono parametr tolerance na: ${event.newValue}`);
+    ['procParams', (event) => {
+        console.log(`Zmieniono parametr tolerance na: ${event.newValue}`);
       // Możesz np. zaktualizować UI
     }]
   ];
