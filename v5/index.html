@@ -1991,7 +1991,7 @@ let processed_sources = {};
 const limit = 1;
 let corners;
 let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
-let data = {}; // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
+let data = loadFromStorage(keyStorage); // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 
   // Definiowanie listy kluczy i callbacków do nasłuchiwania zmian w localStorage
   window.__watchList = [

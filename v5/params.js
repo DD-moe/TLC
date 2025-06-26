@@ -177,12 +177,12 @@ function generateFormList(listId, dataArray) {
       });
     }
 
-    // Wczytuje dane z localStorage i przypisuje do inputów na stronie
+    // Wczytuje dane z localStorage i przypisuje do inputów na stronie - zwraca pusty obiekt, jeśli dane są nieodpowiednie
 function loadFromStorage(keyStorage) {
   const dataStr = localStorage.getItem(keyStorage);
   if (!dataStr) {
     console.warn(`Brak danych w localStorage pod kluczem "${keyStorage}"`);
-    return;
+    return {};
   }
 
   let data;
@@ -190,12 +190,12 @@ function loadFromStorage(keyStorage) {
     data = JSON.parse(dataStr);
   } catch (e) {
     console.error(`Błąd parsowania JSON dla klucza "${keyStorage}"`, e);
-    return;
+    return {};
   }
 
   if (typeof data !== "object" || data === null) {
     console.warn("Dane nie są poprawnym obiektem:", data);
-    return;
+    return {};
   }
 
   Object.entries(data).forEach(([key, value]) => {
@@ -204,6 +204,8 @@ function loadFromStorage(keyStorage) {
       el.value = value;
     }
   });
+
+  return data;
 }
 
 // Zapisuje obiekt do localStorage
