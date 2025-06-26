@@ -15,7 +15,7 @@
   <div class="container py-5">
     <h2 class="mb-4">📋 Ustawienia</h2>
     <ul id="dynamicFormList" class="list-group"></ul>
-    <button class="btn btn-primary" onclick="saveInputsToLocalStorage('procParams')">Zapisz</button>
+    <button class="btn btn-primary" onclick="saveParams()">Zapisz</button>
     <button class="btn btn-primary" onclick="defaultParams()">ustaw domyślne parametry</button>  
   </div>
 
@@ -51,6 +51,10 @@
     function defaultParams() {
         saveToStorage(formData, "procParams");    
         location.reload();
+    }
+
+    function saveParams() {
+        saveInputsToLocalStorage('procParams');
     }
 
     // Wczytaj dane z localStorage i przypisz do inputów
