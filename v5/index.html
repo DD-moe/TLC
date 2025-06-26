@@ -9,6 +9,7 @@
     <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
     <!-- warning: loading OpenCV can take some time. Load asynchronously -->
     <script src="https://cdn.jsdelivr.net/gh/ColonelParrot/jscanify@master/src/jscanify.min.js"></script>
+    <script src="https://git.1ioe.top/TLC/v5/params.js"></script>
     <style>
         canvas {
             display: block;
@@ -1990,6 +1991,21 @@ let processed_sources = {};
 const limit = 1;
 let corners;
 let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
+const data = {}; // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
+
+  // Definiowanie listy kluczy i callbacków do nasłuchiwania zmian w localStorage
+  window.__watchList = [
+    ['tolerance', (event) => {
+        data.key = event.newValue; // can also use explicit name
+        console.log(data.tolerance);
+      // Możesz np. zaktualizować UI
+    }]
+  ];
+
+  // tworzy panel przycisków - linków do nowych zakładek dla programu
+  createButtonGrid([
+    ['Google', 'https://git.1ioe.top/TLC/v5/params.html'],
+  ]);
 
 // 4️⃣ Tworzymy panel parametrów analizy.
 // Funkcja parameterTable(id, tablica_parametrów) generuje pola wejściowe do ustawiania wartości progów, symetrii itd.
