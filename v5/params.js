@@ -176,3 +176,47 @@ function generateFormList(listId, dataArray) {
         container.appendChild(col);
       });
     }
+
+    // Wczytuje dane z localStorage i przypisuje do inputów na stronie
+function loadFromStorage(keyStorage) {
+  const dataStr = localStorage.getItem(keyStorage);
+  if (!dataStr) {
+    console.warn(`Brak danych w localStorage pod kluczem "${keyStorage}"`);
+    return;
+  }
+
+  let data;
+  try {
+    data = JSON.parse(dataStr);
+  } catch (e) {
+    console.error(`Błąd parsowania JSON dla klucza "${keyStorage}"`, e);
+    return;
+  }
+
+  if (typeof data !== "object" || data === null) {
+    console.warn("Dane nie są poprawnym obiektem:", data);
+    return;
+  }
+
+  Object.entries(data).forEach(([key, value]) => {
+    const el = document.getElementById(key);
+    if (el && ("value" in el)) {
+      el.value = value;
+    }
+  });
+}
+
+// Zapisuje obiekt do localStorage
+function saveToStorage(obj, keyStorage) {
+  if (typeof obj !== "object" || obj === null) {
+    console.error("Próba zapisania niepoprawnego obiektu:", obj);
+    return;
+  }
+
+  try {
+    const json = JSON.stringify(obj);
+    localStorage.setItem(keyStorage, json);
+  } catch (e) {
+    console.error("Błąd przy zapisie do localStorage:", e);
+  }
+}

@@ -1991,18 +1991,18 @@ let processed_sources = {};
 const limit = 1;
 let corners;
 let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
-const data = {}; // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
+let data = {}; // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 
   // Definiowanie listy kluczy i callbacków do nasłuchiwania zmian w localStorage
   window.__watchList = [
     ['procParams', (event) => { // [storage key, function for this storage key] - note not param key
-        data.key = event.newValue; // can also use explicit name
-        console.log(data.tolerance);
+        data = JSON.parse(event.newValue); // can also use explicit name
+        console.log(data);
       // Możesz np. zaktualizować UI
     }]
   ];
 
-  // tworzy panel przycisków - linków do nowych zakładek dla programu
+  // tworzy panel przycisków - linków do nowych zakładek dla programu - są otwierane w nowej zakłądce
   createButtonGrid([
     ['⚙️', 'https://git.1ioe.top/TLC/v5/params.html'],
   ]);

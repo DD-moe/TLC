@@ -13,13 +13,8 @@
 </head>
 <body class="bg-light">
   <div class="container py-5">
-    <h1 class="mb-4">Ustaw tolerancję</h1>
-
-    <div class="mb-3">
-      <label for="tolerance" class="form-label">Tolerancja:</label>
-      <input type="number" class="form-control" id="tolerance" name="tolerance" min="0" max="100" value="10">
-    </div>
-
+    <h2 class="mb-4">📋 Ustawienia</h2>
+    <ul id="dynamicFormList" class="list-group"></ul>
     <button class="btn btn-primary" onclick="saveInputsToLocalStorage('procParams')">Zapisz</button>
   </div>
 
@@ -35,6 +30,16 @@
       // Możesz np. zaktualizować UI
     }]
   ];
+
+    // parametry
+    const inputs = [
+      ["tolerancja wykrywania plamek", "", "number", "tolerance"],
+      ["próg wykrywania krawędzi płytki", "", "number", "treshold"],
+    ];
+
+    // generuje lustę wszystkich parametrów
+    generateFormList("dynamicFormList", inputs);
+
   </script>
 </body>
 </html>
