@@ -16,6 +16,7 @@
     <h2 class="mb-4">📋 Ustawienia</h2>
     <ul id="dynamicFormList" class="list-group"></ul>
     <button class="btn btn-primary" onclick="saveInputsToLocalStorage('procParams')">Zapisz</button>
+    <button class="btn btn-primary" onclick="defaultParams()">ustaw domyślne parametry</button>  
   </div>
 
   <!-- Bootstrap 5 JS (opcjonalnie jeśli używasz komponentów JS) -->
@@ -39,6 +40,20 @@
 
     // generuje lustę wszystkich parametrów
     generateFormList("dynamicFormList", inputs);
+
+    // Zakładamy, że na stronie są elementy o id: "opis", "kolor", "data"
+    const formData = {
+        tolerance: 50,
+        treshold: 20
+    };
+
+    // Zapisz dane do localStorage
+    function defaultParams() {
+        saveToStorage(formData, "procParams");    
+    }
+
+    // Wczytaj dane z localStorage i przypisz do inputów
+    loadFromStorage("procParams");
 
   </script>
 </body>
