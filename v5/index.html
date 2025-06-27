@@ -701,8 +701,9 @@ let data = loadFromStorage('procParams'); // obiekt przetrzymuje wszystkie modyf
   ];
 
   // tworzy panel przycisków - linków do nowych zakładek dla programu - są otwierane w nowej zakłądce
+  addCommentCell('linkButtons', 'Zakładki Pomocnicze', document.body);
   createButtonGrid([
-    ['⚙️', 'https://git.1ioe.top/TLC/v5/params.html'],
+    ['⚙️ parametry przetwarzania', 'https://git.1ioe.top/TLC/v5/params.html'],
   ]);
 
 // 4️⃣ Tworzymy panel parametrów analizy.
