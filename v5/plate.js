@@ -343,4 +343,23 @@
         return newCanvas;
     }
 
+    // tworzy format narożników charakterystyczny dla js scanify
+    function assignCorners(points) {
+      // points: array z 4 punktami {x, y}, z normalizowanymi współrzędnymi (0..1)
+
+      // Sortujemy wg y rosnąco (od góry do dołu)
+      const sortedByY = points.slice().sort((a, b) => a.y - b.y);
+
+      // Górne dwa punkty
+      const topPoints = sortedByY.slice(0, 2).sort((a, b) => a.x - b.x); // posortowane wg x rosnąco
+      // Dolne dwa punkty
+      const bottomPoints = sortedByY.slice(2, 4).sort((a, b) => a.x - b.x);
+
+      return {
+        topLeftCorner: topPoints[0],
+        topRightCorner: topPoints[1],
+        bottomLeftCorner: bottomPoints[0],
+        bottomRightCorner: bottomPoints[1],
+      };
+    }  
 //################################# - funkcje do właściwego przetwarzania

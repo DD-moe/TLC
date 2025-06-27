@@ -14,6 +14,8 @@
     <!-- load them both always-->
     <script type="module" src="https://utils.1ioe.top/paint.js" blocking="render"></script><!-- własny element do rysowania na canvas -->
     <script src="https://git.1ioe.top/TLC/v5/averaging.js"></script><!-- obliczanie parametrów plamek -->
+    <!-- load them both always-->
+    <script src="https://git.1ioe.top/TLC/v5/plate.js"></script><!-- obliczanie parametrów plamek -->
     <style>
         canvas {
             display: block;
@@ -308,7 +310,7 @@
         return boxes;
     }
 
-    // funkcja do maskowania niezlewającyc się plamek 2d
+    // funkcja do maskowania niezlewających się plamek 2d
     function maskDarkest5Percent(boxes, percent) {
         return boxes.map(box => {
             const { imageData } = box;
@@ -340,27 +342,7 @@
             box.imageData = new ImageData(data, width, height);
             return box;
         });
-    }
-
-
-    function assignCorners(points) {
-      // points: array z 4 punktami {x, y}, z normalizowanymi współrzędnymi (0..1)
-
-      // Sortujemy wg y rosnąco (od góry do dołu)
-      const sortedByY = points.slice().sort((a, b) => a.y - b.y);
-
-      // Górne dwa punkty
-      const topPoints = sortedByY.slice(0, 2).sort((a, b) => a.x - b.x); // posortowane wg x rosnąco
-      // Dolne dwa punkty
-      const bottomPoints = sortedByY.slice(2, 4).sort((a, b) => a.x - b.x);
-
-      return {
-        topLeftCorner: topPoints[0],
-        topRightCorner: topPoints[1],
-        bottomLeftCorner: bottomPoints[0],
-        bottomRightCorner: bottomPoints[1],
-      };
-    }    
+    }  
 
     // funkcja do właściwego przetwarzania danych:
     function mid_process(id, canvas, sources, processed_sources) {
