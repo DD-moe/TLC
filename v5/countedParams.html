@@ -73,11 +73,12 @@
 
     // Wczytaj dane z localStorage i przypisz do inputów
     loadFromStorage("countedParams");
-    renderCheckboxes('checkbox-container');
+    renderCheckboxes('checkbox-container', 'outputParams');
 
     // 🔧 1. Generuj listę checkboxów do kontenera
-    function renderCheckboxes(containerId) {
+    function renderCheckboxes(containerId, SourceID) {
     const container = document.getElementById(containerId);
+    const parameters = JSON.parse(document.getElementById(SourceID).value);
     parameters.forEach(param => {
         const div = document.createElement('div');
         div.className = 'form-check col';
