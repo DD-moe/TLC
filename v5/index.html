@@ -348,6 +348,7 @@
     function mid_process(id, canvas, sources, processed_sources) {
 
         if (mode === 'normalise') { // protokół uproszczony dla normalizacji fizycznej oświetlenia
+            addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
             const extracted_canvas = extractDocumentFromCanvas(id, canvas);
             let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
             boxes = maskDarkest5Percent(boxes, 15); // INPUT* (ile procent odrzucić)
@@ -355,6 +356,7 @@
             sources[id] = extracted_canvas;
         }
         else if (mode === 'unnormalise') { // protokół dla zdjęć bez normalizacji fizycznej oświetlenia
+            addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
             const extracted_canvas = extractDocumentFromCanvas_norm(id, canvas);
             let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
             boxes = maskDarkest5Percent(boxes, 15); // INPUT*
@@ -378,6 +380,7 @@
         Object.keys(sources).forEach(id => {
             const sourceCanvas = sources[id];
             const processedData = processed_sources[id];
+            addCommentCell(id+'_outputsHeader', `Wyniki dla obrazu: ${id}`, document.body);
 
             // Przetwórz dane przez analizator
             const spots= postprocess_analysis(processedData);
