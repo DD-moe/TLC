@@ -264,6 +264,11 @@ let ommitedParams = loadFromStorage('countedParams'); // obiekt przetrzymuje wsz
         data = JSON.parse(event.newValue); // can also use explicit name
         console.log(data);
       // Możesz np. zaktualizować UI
+    }],
+    ['countedParams', (event) => {
+        ommitedParams = JSON.parse(event.newValue); // can also use explicit name
+        console.log(ommitedParams);
+      // Możesz np. zaktualizować UI
     }]
   ];
 
