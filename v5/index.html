@@ -90,20 +90,38 @@
 
 //################################# - funkcje dla przycisków akcji
     
-    // usuwa niepotrzebne parametry
-    function removeRowsWithMatchingParams() {
-    // Przechodzimy przez wszystkie wiersze w tabelach
-    const rows = document.querySelectorAll("tr");
-    rows.forEach(row => {
-        const cells = row.querySelectorAll("td, th");
-        for (const cell of cells) {
-        if (params.includes(cell.textContent.trim())) {
-            row.remove();
-            break;
-        }
-        }
-    });
+    // właściwa funkcja usówania
+    function removeOutputParams() {
+        removeRowsWithMatchingParamsFromString(ommitedParams);
     }
+
+    // usuwa niepotrzebne parametry
+    function removeRowsWithMatchingParamsFromString(paramString) {
+        let params;
+        try {
+            params = JSON.parse(paramString);
+            if (!Array.isArray(params)) {
+            console.error("Provided string is not a valid array.");
+            return;
+            }
+        } catch (e) {
+            console.error("Invalid JSON array string:", e);
+            return;
+        }
+
+        // Przechodzimy przez wszystkie wiersze w tabeli
+        const rows = document.querySelectorAll("tr");
+        rows.forEach(row => {
+            const cells = row.querySelectorAll("td, th");
+            for (const cell of cells) {
+            if (params.includes(cell.textContent.trim())) {
+                row.remove();
+                break;
+            }
+            }
+        });
+    }
+
 
 
     // zmienia parametry wymagające zmiany
@@ -295,7 +313,8 @@ parameterButtons('panel-akcji', [
     ['🔁📐', 'zamień jednostki z pikseli na mm / mm2 i na odwrót', convertTableUnits],
     ['🧪', 'Zastosuj zmianę parametrów.', applyConfigChanges],
     ['🧹', 'Wyczyść dane źródłowe i wyniki.', clearSources],
-    ['💾', 'Zapisz dane na dysku.', () => alert('Zapisano!')]
+    ['💾', 'Zapisz dane na dysku.', () => alert('Zapisano!')],
+    ['🧹📐', 'Usuń niechciane wyniki.', removeOutputParams],
 ]);
 
 // 6️⃣ Definiujemy funkcję przetwarzania końcowego.
