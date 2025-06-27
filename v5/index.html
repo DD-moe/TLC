@@ -89,69 +89,86 @@
 
 
 //################################# - funkcje dla przycisków akcji
-// zmienia parametry wymagające zmiany
-function applyConfigChanges(){
-    mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
-}
-// czyści dane przetworzone
-function clearSources() {
-    sources = {};
-    processed_sources = {};
-    alert('Dane źródłowe i wyniki zostały wyczyszczone.');
-}
-
-
-function convertTableUnits() { // do wyrzucenia
-    // przyjmujemy, że 1 px przypada na długość boku płtyki
-    // przyjmujemy, że płytka ma 10 cm
-
-    const keyWords_mm2 = [ 'spotSurface'];
-    const keyWords_mm = ['x', 'y', 'width', 'height'];
-    const allTables = document.querySelectorAll("table");
-
-    allTables.forEach(table => {
-        const rows = table.querySelectorAll("tr");
-        rows.forEach(row => {
-            const cells = row.querySelectorAll("td, th");
-            if (cells.length < 2) return;
-
-            const label = cells[0].innerText.trim();
-            const valueCell = cells[1];
-
-            const text = valueCell.innerText.trim();
-
-            // Dopasuj liczby i jednostki
-            const match = text.match(/^([0-9.,]+)\s*(mm²|mm)?$/i);
-            if (!match) return;
-
-            let number = parseFloat(match[1].replace(",", "."));
-            const unit = match[2]?.toLowerCase();
-
-            if (keyWords_mm2.includes(label)) {
-                if (!unit) {
-                    // Bez jednostki, liczba w px² → przelicz na mm²
-                    number = number * 0.01;
-                    valueCell.innerText = number.toFixed(2) + " mm²";
-                } else if (unit === 'mm²') {
-                    // Jest mm² → przelicz na px²
-                    number = number / 0.01;
-                    valueCell.innerText = Math.round(number); // bez jednostki
-                }
-            } else if (keyWords_mm.includes(label)) {
-                if (!unit) {
-                    // Bez jednostki, liczba w px → przelicz na mm
-                    number = number * 0.1;
-                    valueCell.innerText = number.toFixed(2) + " mm";
-                } else if (unit === 'mm') {
-                    // Jest mm → przelicz na px
-                    number = number / 0.1;
-                    valueCell.innerText = Math.round(number); // bez jednostki
-                }
-            }
-        });
+    
+    // usuwa niepotrzebne parametry
+    function removeRowsWithMatchingParams() {
+    // Przechodzimy przez wszystkie wiersze w tabelach
+    const rows = document.querySelectorAll("tr");
+    rows.forEach(row => {
+        const cells = row.querySelectorAll("td, th");
+        for (const cell of cells) {
+        if (params.includes(cell.textContent.trim())) {
+            row.remove();
+            break;
+        }
+        }
     });
-}
-//################################# - funkcje dla przyciskó akcji
+    }
+
+
+    // zmienia parametry wymagające zmiany
+    function applyConfigChanges(){
+        mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
+    }
+    // czyści dane przetworzone
+    function clearSources() {
+        sources = {};
+        processed_sources = {};
+        alert('Dane źródłowe i wyniki zostały wyczyszczone.');
+    }
+
+
+    function convertTableUnits() { // do wyrzucenia
+        // przyjmujemy, że 1 px przypada na długość boku płtyki
+        // przyjmujemy, że płytka ma 10 cm
+
+        const keyWords_mm2 = [ 'spotSurface'];
+        const keyWords_mm = ['x', 'y', 'width', 'height'];
+        const allTables = document.querySelectorAll("table");
+
+        allTables.forEach(table => {
+            const rows = table.querySelectorAll("tr");
+            rows.forEach(row => {
+                const cells = row.querySelectorAll("td, th");
+                if (cells.length < 2) return;
+
+                const label = cells[0].innerText.trim();
+                const valueCell = cells[1];
+
+                const text = valueCell.innerText.trim();
+
+                // Dopasuj liczby i jednostki
+                const match = text.match(/^([0-9.,]+)\s*(mm²|mm)?$/i);
+                if (!match) return;
+
+                let number = parseFloat(match[1].replace(",", "."));
+                const unit = match[2]?.toLowerCase();
+
+                if (keyWords_mm2.includes(label)) {
+                    if (!unit) {
+                        // Bez jednostki, liczba w px² → przelicz na mm²
+                        number = number * 0.01;
+                        valueCell.innerText = number.toFixed(2) + " mm²";
+                    } else if (unit === 'mm²') {
+                        // Jest mm² → przelicz na px²
+                        number = number / 0.01;
+                        valueCell.innerText = Math.round(number); // bez jednostki
+                    }
+                } else if (keyWords_mm.includes(label)) {
+                    if (!unit) {
+                        // Bez jednostki, liczba w px → przelicz na mm
+                        number = number * 0.1;
+                        valueCell.innerText = number.toFixed(2) + " mm";
+                    } else if (unit === 'mm') {
+                        // Jest mm → przelicz na px
+                        number = number / 0.1;
+                        valueCell.innerText = Math.round(number); // bez jednostki
+                    }
+                }
+            });
+        });
+    }
+//################################# - funkcje dla przycisków akcji
 
 
 //################################# - funkcje do definiowania przepływu pracy
@@ -239,6 +256,7 @@ const limit = 1;
 let corners;
 let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
 let data = loadFromStorage('procParams'); // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
+let ommitedParams = loadFromStorage('countedParams'); // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 
   // Definiowanie listy kluczy i callbacków do nasłuchiwania zmian w localStorage
   window.__watchList = [
@@ -253,6 +271,7 @@ let data = loadFromStorage('procParams'); // obiekt przetrzymuje wszystkie modyf
   addCommentCell('linkButtons', 'Zakładki Pomocnicze', document.body);
   createButtonGrid([
     ['⚙️ parametry przetwarzania', 'https://git.1ioe.top/TLC/v5/params.html'],
+    ['⚙️ parametry wyliczane', 'https://git.1ioe.top/TLC/v5/countedParams.html'],
   ]);
 
 // 4️⃣ Tworzymy panel parametrów analizy.
