@@ -671,3 +671,59 @@
 
 
 //################################# - funkcje do przetwarzania parametrów optymalizacyjnych
+
+
+//################################# - zbiór domyślnych modułów przetwarzania
+
+// full processing
+function postprocess_analysis_FULL(processedData) {
+    let data = processedData;
+    // poniżej oznaczam w jakiej kolejności muszą być wykonane funkcje analizy
+    data = analyzeQuantitive(data); // 1
+    data = analyzePeak(data); // 1
+    data = analyzeRelativeQuantities(data); // 2
+    data = addBoxLines(data); // 1
+    data = calculateBoxPositionMetrics(data); // 3
+    data = calculateBoxCharts(data); // 1
+    data = calculateWidthsAtThresholds(data); // 3
+    data = calculateRelativeWidths(data); // 4
+    data = calculateAsymmetryWidths(data); // 5
+    data = calculateChromatographicAsAndT(data); // 6
+    data = calculateHobsParameters(data); // 7
+    data = calculateNobsParameters(data); // 7
+    data = assignTracks(data); // 8
+    data = addPreviousTrackParameters(data); // 9
+    data = addAlphaParameters(data); // 10
+    data = addRSParameters(data); // 10
+    data = addSelectivityParameters(data); // 11
+    data = addEfficiencyParameters(data); // 11
+    data = addRetentionParameters(data); // 12
+    data = addRSParametersComplex(data); // 13
+    return data;
+}
+
+// quantity only
+function postprocess_analysis_QUANTITY(processedData) {
+    let data = processedData;
+    data = analyzeQuantitive(data); // 1
+    data = analyzePeak(data); // 1
+    data = analyzeRelativeQuantities(data); // 2
+    return data;
+}
+
+// quantity only
+function postprocess_analysis_QUANTITY(processedData) {
+    let data = processedData;
+    data = analyzeQuantitive(data); // 1
+    data = analyzePeak(data); // 1
+    data = analyzeRelativeQuantities(data); // 2
+    return data;
+}
+
+// basic quality only
+function postprocess_analysis_QUALITY_BASIC(processedData) {
+    let data = processedData;
+    data = addBoxLines(data); // 1
+    data = calculateBoxPositionMetrics(data); // 3
+    return data;
+}

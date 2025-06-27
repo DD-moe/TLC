@@ -1356,37 +1356,8 @@ parameterButtons('panel-akcji', [
 ]);
 
 // 6️⃣ Definiujemy funkcję przetwarzania końcowego.
-// Funkcja postprocess_analysis(data) wykonuje dodatkową analizę danych (np. statystyki, oznaczanie kolorów).
-// Może być wieloetapowa, np. filtrowanie, analiza kanału kolorów itp.
 function postprocess_analysis(processedData) {
-    let data = processedData;
-    // poniżej oznaczam w jakiej kolejności muszą być wykonane funkcje analizy
-    data = analyzeQuantitive(data); // 1
-    data = analyzePeak(data); // 1
-    data = analyzeRelativeQuantities(data); // 2
-    data = addBoxLines(data); // 1
-    data = calculateBoxPositionMetrics(data); // 3
-    data = calculateBoxCharts(data); // 1
-    data = calculateWidthsAtThresholds(data); // 3
-    data = calculateRelativeWidths(data); // 4
-    data = calculateAsymmetryWidths(data); // 5
-    data = calculateChromatographicAsAndT(data); // 6
-    data = calculateHobsParameters(data); // 7
-    data = calculateNobsParameters(data); // 7
-    data = assignTracks(data); // 8
-    data = addPreviousTrackParameters(data); // 9
-    data = addAlphaParameters(data); // 10
-    data = addRSParameters(data); // 10
-    data = addSelectivityParameters(data); // 11
-    data = addEfficiencyParameters(data); // 11
-    data = addRetentionParameters(data); // 12
-    data = addRSParametersComplex(data); // 13
-    
-    // Można dodać więcej funkcji analitycznych, np. na kanał zielony lub porównanie UV vs VIS
-    // data = analyzeGreenChannel(data);
-    // data = compareSpotsAcrossSources(data);
-
-    return data;
+    return postprocess_analysis_FULL(processedData);
 }
 
 
