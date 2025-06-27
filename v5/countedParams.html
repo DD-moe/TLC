@@ -42,20 +42,20 @@
 
     // Zakładamy, że na stronie są elementy o id: "opis", "kolor", "data"
     const formData = {
-        outputParams: `[
-    "x", "y", "width", "height", "spotSum", "spotSurface", "spotAverage", "maxIntensity", "maxX", "maxY",
-    "spotSumPercent", "spotSurfacePercent", "spotAveragePercent", "maxIntensityPercent",
-    "startLineX", "endLineX", "startLineY", "endLineY", "xTrackWidth", "yTrackWidth",
-    "xPeakonTrack", "yPeakonTrack", "xRF", "yRF", "xK", "yK", "xRM", "yRM",
-    "xW05", "yW05", "xW01", "yW01", "xW005", "yW005", "xW0", "yW0",
-    "xW05%", "yW05%", "xW01%", "yW01%", "xW005%", "yW005%",
-    "xA005", "xB005", "yA005", "yB005", "xA01", "xB01", "yA01", "yB01",
-    "xAs", "xT", "yAs", "yT", "xHobs0", "yHobs0", "xHobs05", "yHobs05",
-    "xNobsUSP", "yNobsUSP", "xNobsEPS", "yNobsEPS",
-    "tracksY", "tracksX", "previousX", "previousY", "alphaX", "RSx", "selectivityX",
-    "xRFavg", "xEfficiencyUSP", "xEfficiencyEPS", "xRetention", "yRetention",
-    "RSxUSP", "RSxEPS", "RSyUSP", "RSyEPS"
-  ]`,
+        outputParams: JSON.parse([
+  "x", "y", "width", "height", "spotSum", "spotSurface", "spotAverage", "maxIntensity", "maxX", "maxY",
+  "spotSumPercent", "spotSurfacePercent", "spotAveragePercent", "maxIntensityPercent",
+  "startLineX", "endLineX", "startLineY", "endLineY", "xTrackWidth", "yTrackWidth",
+  "xPeakonTrack", "yPeakonTrack", "xRF", "yRF", "xK", "yK", "xRM", "yRM",
+  "xW05", "yW05", "xW01", "yW01", "xW005", "yW005", "xW0", "yW0",
+  "xW05%", "yW05%", "xW01%", "yW01%", "xW005%", "yW005%",
+  "xA005", "xB005", "yA005", "yB005", "xA01", "xB01", "yA01", "yB01",
+  "xAs", "xT", "yAs", "yT", "xHobs0", "yHobs0", "xHobs05", "yHobs05",
+  "xNobsUSP", "yNobsUSP", "xNobsEPS", "yNobsEPS",
+  "tracksY", "tracksX", "previousX", "previousY", "alphaX", "RSx", "selectivityX",
+  "xRFavg", "xEfficiencyUSP", "xEfficiencyEPS", "xRetention", "yRetention",
+  "RSxUSP", "RSxEPS", "RSyUSP", "RSyEPS"
+])
     };
 
     // Zapisz dane do localStorage
