@@ -103,13 +103,15 @@
         }
 
         const keys = Object.keys(paramObject);
+        console.log(keys);
 
         keys.forEach(key => {
             if (paramObject[key] === true) {
                 delete paramObject[key];
             }
         });
-
+        console.log(keys);
+        
         const rows = document.querySelectorAll("tr");
         rows.forEach(row => {
             const cells = row.querySelectorAll("td, th");
