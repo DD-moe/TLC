@@ -71,11 +71,33 @@
             customEl.classList.add('form-control');
             inputElement = customEl;
           }
-        } else {
-          inputElement = document.createElement('input');
-          inputElement.type = inputType;
-          inputElement.className = 'form-control';
+        } else if (inputType === 'checkbox') {
+            inputElement = document.createElement('input');
+            inputElement.type = 'checkbox';
+            inputElement.className = 'form-check-input';
+            inputElement.id = inputId;
+            inputElement.name = inputId;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'form-check';
+
+            label.className = 'form-check-label ms-2';
+            label.prepend(inputElement);
+
+            wrapper.appendChild(label);
+            listItem.innerHTML = ''; // wyczyść, by nie dodawać podwójnie
+            listItem.appendChild(wrapper);
+          } else {
+            inputElement = document.createElement('input');
+            inputElement.type = inputType;
+            inputElement.className = 'form-control';
+            inputElement.id = inputId;
+            inputElement.name = inputId;
+
+            listItem.appendChild(label);
+            listItem.appendChild(inputElement);
         }
+
 
         inputElement.id = inputId;
         inputElement.name = inputId;
@@ -134,11 +156,33 @@
             customEl.classList.add('form-control');
             inputElement = customEl;
           }
+        } else if (inputType === 'checkbox') {
+          inputElement = document.createElement('input');
+          inputElement.type = 'checkbox';
+          inputElement.className = 'form-check-input';
+          inputElement.id = inputId;
+          inputElement.name = inputId;
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'form-check';
+
+          label.className = 'form-check-label ms-2';
+          label.prepend(inputElement);
+
+          wrapper.appendChild(label);
+          listItem.innerHTML = ''; // wyczyść, by nie dodawać podwójnie
+          listItem.appendChild(wrapper);
         } else {
           inputElement = document.createElement('input');
           inputElement.type = inputType;
           inputElement.className = 'form-control';
+          inputElement.id = inputId;
+          inputElement.name = inputId;
+
+          listItem.appendChild(label);
+          listItem.appendChild(inputElement);
         }
+
 
         inputElement.id = inputId;
         inputElement.name = inputId;
