@@ -313,7 +313,7 @@ parameterButtons('panel-akcji', [
     ['🔁📐', 'zamień jednostki z pikseli na mm / mm2 i na odwrót', convertTableUnits],
     ['🧪', 'Zastosuj zmianę kluczowych parametrów, oznaczonych symbolem: "⚠️".', applyConfigChanges],
     ['🧹', 'Wyczyść wyniki pośrednie, aby dodać nowe obazy do przetwarzania. załadowanie ponowne zdjęć bez kliknięcia tego przycisku może niekiedy nie rozpocząć automatycznie kolejki przetwarzania.', clearSources],
-    ['💾', 'Zapisz dane na dysku.', () => alert('Zapisano!')],
+    ['💾', 'Zapisz dane na dysku.', () => window.print()],
     ['🧹📐', 'Usuń niechciane wyniki.', removeOutputParams],
 ]);
 
