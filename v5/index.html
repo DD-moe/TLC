@@ -92,37 +92,30 @@
     
     // właściwa funkcja usówania
     function removeOutputParams() {
-        removeRowsWithMatchingParamsFromString(ommitedParams);
+        removeRowsWithMatchingParamsFromObject(ommitedParams);
     }
 
-    // usuwa niepotrzebne parametry
-    function removeRowsWithMatchingParamsFromString(paramString) {
-        let params;
-        try {
-            params = JSON.parse(paramString);
-            if (!Array.isArray(params)) {
-            console.error("Provided string is not a valid array.");
-            return;
-            }
-        } catch (e) {
-            console.error("Invalid JSON array string:", e);
+    // Usuwa wiersze zawierające tekst będący kluczem podanego obiektu
+    function removeRowsWithMatchingParamsFromObject(paramObject) {
+        if (typeof paramObject !== "object" || paramObject === null || Array.isArray(paramObject)) {
+            console.error("Provided argument is not a valid object.");
             return;
         }
 
-        // Przechodzimy przez wszystkie wiersze w tabeli
+        const keys = Object.keys(paramObject);
+
         const rows = document.querySelectorAll("tr");
         rows.forEach(row => {
             const cells = row.querySelectorAll("td, th");
             for (const cell of cells) {
-            if (params.includes(cell.textContent.trim())) {
-                row.remove();
-                break;
-            }
+                const cellText = cell.textContent.trim();
+                if (keys.includes(cellText)) {
+                    row.remove();
+                    break;
+                }
             }
         });
     }
-
-
 
     // zmienia parametry wymagające zmiany
     function applyConfigChanges(){

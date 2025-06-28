@@ -36,7 +36,8 @@
 
     // parametry
     const inputs = [
-      ["nie wyliczane parametry", "", "text", "outputParams"],
+      ["x", "", "checkbox", "x"],
+      ["y", "", "checkbox", "y"],
     ];
 
     // generuje luistę wszystkich parametrów
@@ -44,20 +45,8 @@
 
     // Zakładamy, że na stronie są elementy o id: "opis", "kolor", "data"
     const formData = {
-        outputParams: JSON.stringify([
-  "x", "y", "width", "height", "spotSum", "spotSurface", "spotAverage", "maxIntensity", "maxX", "maxY",
-  "spotSumPercent", "spotSurfacePercent", "spotAveragePercent", "maxIntensityPercent",
-  "startLineX", "endLineX", "startLineY", "endLineY", "xTrackWidth", "yTrackWidth",
-  "xPeakonTrack", "yPeakonTrack", "xRF", "yRF", "xK", "yK", "xRM", "yRM",
-  "xW05", "yW05", "xW01", "yW01", "xW005", "yW005", "xW0", "yW0",
-  "xW05%", "yW05%", "xW01%", "yW01%", "xW005%", "yW005%",
-  "xA005", "xB005", "yA005", "yB005", "xA01", "xB01", "yA01", "yB01",
-  "xAs", "xT", "yAs", "yT", "xHobs0", "yHobs0", "xHobs05", "yHobs05",
-  "xNobsUSP", "yNobsUSP", "xNobsEPS", "yNobsEPS",
-  "tracksY", "tracksX", "previousX", "previousY", "alphaX", "RSx", "selectivityX",
-  "xRFavg", "xEfficiencyUSP", "xEfficiencyEPS", "xRetention", "yRetention",
-  "RSxUSP", "RSxEPS", "RSyUSP", "RSyEPS"
-])
+        x: 'off',
+        y: 'on',
     };
 
     // Zapisz dane do localStorage
@@ -73,44 +62,6 @@
 
     // Wczytaj dane z localStorage i przypisz do inputów
     loadFromStorage("countedParams");
-    renderCheckboxes('checkbox-container', 'outputParams');
-
-    // 🔧 1. Generuj listę checkboxów do kontenera
-    function renderCheckboxes(containerId, SourceID) {
-    const container = document.getElementById(containerId);
-    const parameters = JSON.parse(document.getElementById(SourceID).value);
-    parameters.forEach(param => {
-        const div = document.createElement('div');
-        div.className = 'form-check col';
-
-        const checkbox = document.createElement('input');
-        checkbox.className = 'form-check-input';
-        checkbox.type = 'checkbox';
-        checkbox.name = param;
-        checkbox.id = `check-${param}`;
-        checkbox.checked = true;
-
-        const label = document.createElement('label');
-        label.className = 'form-check-label';
-        label.htmlFor = checkbox.id;
-        label.innerText = param;
-
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        container.appendChild(div);
-    });
-    }
-
-    // 🔧 2. Zbierz niezaznaczone checkboxy i zapisz do inputa jako JSON
-    function updateIgnoredParams(inputId) {
-    const unchecked = [];
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        if (!cb.checked) {
-        unchecked.push(cb.name);
-        }
-    });
-    document.getElementById(inputId).value = JSON.stringify(unchecked);
-    }
 
   </script>
 </body>
