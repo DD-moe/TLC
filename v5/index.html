@@ -138,7 +138,10 @@
         // przyjmujemy, że płytka ma 10 cm
 
         const keyWords_mm2 = [ 'spotSurface'];
-        const keyWords_mm = ['x', 'y', 'width', 'height'];
+        const keyWords_mm = ['x', 'y', 'width', 'height', 'yB01', 'yA01', 'xB01', 'xA01', 'yB005', 'yA005', 'xB005', 'xA005', 
+            'yW0', 'xW0', 'yW005', 'xW005', 'yW01', 'xW01', 'yW05', 'xW05', 'yPeakonTrack', 'xPeakonTrack',
+            'yTrackWidth', 'xTrackWidth', 'endLineY', 'startLineY', 'endLineX', 'startLineX', 'maxY', 'maxX'
+         ];
         const allTables = document.querySelectorAll("table");
 
         allTables.forEach(table => {
@@ -308,8 +311,8 @@ parameterTable('parametry-progu', [
 // funkcje te pozwalają na dodanie własnej niskopoziomowej logiki
 parameterButtons('panel-akcji', [
     ['🔁📐', 'zamień jednostki z pikseli na mm / mm2 i na odwrót', convertTableUnits],
-    ['🧪', 'Zastosuj zmianę parametrów.', applyConfigChanges],
-    ['🧹', 'Wyczyść dane źródłowe i wyniki.', clearSources],
+    ['🧪', 'Zastosuj zmianę kluczowych parametrów, oznaczonych symbolem: "⚠️".', applyConfigChanges],
+    ['🧹', 'Wyczyść wyniki pośrednie, aby dodać nowe obazy do przetwarzania. załadowanie ponowne zdjęć bez kliknięcia tego przycisku może niekiedy nie rozpocząć automatycznie kolejki przetwarzania.', clearSources],
     ['💾', 'Zapisz dane na dysku.', () => alert('Zapisano!')],
     ['🧹📐', 'Usuń niechciane wyniki.', removeOutputParams],
 ]);
