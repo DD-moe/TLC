@@ -203,7 +203,11 @@
       const data = {};
 
       inputs.forEach(input => {
-        data[input.id] = input.value;
+        if (input.type === 'checkbox') {
+          data[input.id] = input.checked;
+        } else{
+          data[input.id] = input.value;
+        }
       });
 
       localStorage.setItem(storageKey, JSON.stringify(data));
@@ -243,8 +247,12 @@
 
       Object.entries(data).forEach(([key, value]) => {
         const el = document.getElementById(key);
-        if (el && ("value" in el)) {
-          el.value = value;
+        if (el && ("value" in el || el.type === "checkbox")) {
+          if (el.type === 'checkbox' && typeof value === "boolean") {
+            el.checked = value;
+          } else {
+            el.value = value;
+          }
         }
       });
 

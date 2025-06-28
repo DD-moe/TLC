@@ -104,6 +104,12 @@
 
         const keys = Object.keys(paramObject);
 
+        keys.forEach(key => {
+            if (paramObject[key] === true) {
+                delete paramObject[key];
+            }
+        });
+
         const rows = document.querySelectorAll("tr");
         rows.forEach(row => {
             const cells = row.querySelectorAll("td, th");
