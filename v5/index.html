@@ -95,35 +95,31 @@
         removeRowsWithMatchingParamsFromObject(ommitedParams);
     }
 
-    // Usuwa wiersze zawierające tekst będący kluczem podanego obiektu
+    // Usuwa wiersze zawierające tekst będący kluczem obiektu, którego wartość to false
     function removeRowsWithMatchingParamsFromObject(paramObject) {
         if (typeof paramObject !== "object" || paramObject === null || Array.isArray(paramObject)) {
             console.error("Provided argument is not a valid object.");
             return;
         }
 
-        const keys = Object.keys(paramObject);
-        console.log(keys);
+        // Pobieramy tylko te klucze, których wartość to false (czyli niechciane parametry)
+        const keysToRemove = Object.keys(paramObject).filter(key => paramObject[key] === false);
 
-        keys.forEach(key => {
-            if (paramObject[key] === true) {
-                delete paramObject[key];
-            }
-        });
-        console.log(keys);
-        
+        if (keysToRemove.length === 0) return;
+
         const rows = document.querySelectorAll("tr");
         rows.forEach(row => {
             const cells = row.querySelectorAll("td, th");
             for (const cell of cells) {
                 const cellText = cell.textContent.trim();
-                if (keys.includes(cellText)) {
+                if (keysToRemove.includes(cellText)) {
                     row.remove();
                     break;
                 }
             }
         });
     }
+
 
     // zmienia parametry wymagające zmiany
     function applyConfigChanges(){
