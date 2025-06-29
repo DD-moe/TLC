@@ -71,7 +71,7 @@
      * @param {number} smallWidth - Szerokość pomniejszonego obrazu
      * @param {number} smallHeight - Wysokość pomniejszonego obrazu
      */
-    function processColumnsWithPolynomialRegression(min_data, scale, full_data, width, height, smallWidth, smallHeight) {
+    function processColumnsWithPolynomialRegression(min_data, scale, full_data, width, height, smallWidth, smallHeight, processingParameters) {
         for (let x = 0; x < smallWidth; x++) {
             const data = [];
 
@@ -83,7 +83,7 @@
             }
 
             // Trenuj model
-            const { model } = iterativePolynomialRegression(data);
+            const { model } = iterativePolynomialRegression(data, processingParameters);
 
             // Predykcja dla pełnego obrazu
             for (let y = 0; y < height; y++) {
@@ -108,7 +108,7 @@
      * @param {Array<{x: number, y: number}>} data - Dane wejściowe.
      * @returns {Object} Obiekt z końcowym modelem, oczyszczonymi danymi i historią błędów.
      */
-    function iterativePolynomialRegression(data) {
+    function iterativePolynomialRegression(data, processingParameters) {
         const originalLength = data.length;
         let currentData = [...data];
         let previousAvgErrorFactor = Infinity;
@@ -141,7 +141,7 @@
             // Warunek zakończenia
             if (
                 //avgErrorFactor > previousAvgErrorFactor ||
-                currentData.length <= originalLength / 2.5 // INPUT*
+                currentData.length <= originalLength * processingParameters.chooseLightestPercent / 100// INPUT*DONE
             ) {
                 break;
             }
@@ -149,7 +149,7 @@
             previousAvgErrorFactor = avgErrorFactor;
 
             // Usuń 10% punktów z największym błędem
-            const threshold = Math.ceil(currentData.length * 0.1); // INPUT*
+            const threshold = Math.ceil(currentData.length * processingParameters.deleteWorstPercent / 100); // INPUT*DONE
             errors.sort((a, b) => b.error - a.error);
             currentData = errors.slice(threshold).map(e => ({ x: e.x, y: e.y }));
         }

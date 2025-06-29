@@ -333,7 +333,8 @@
             newCanvas.width,
             newCanvas.height,
             smallCanvas.width,
-            smallCanvas.height
+            smallCanvas.height,
+            data
         );
 
         // 10 dokonujemy subtrakcji tła
