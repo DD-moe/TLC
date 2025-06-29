@@ -2,8 +2,8 @@
     function extractBlobsFromCanvas(id, sourceCanvas, processingParameters) {
 
         // zakładamy zmienne bazowe:
-        const treshold =  processingParameters.detectSpotTreshold; // INPUT*
-        const edgeThickness = processingParameters.edgeThickness; // INPUT*
+        const treshold =  processingParameters.detectSpotTreshold; // INPUT*DONE
+        const edgeThickness = processingParameters.edgeThickness; // INPUT*DONE
 
         // 1. Usuń istniejący kontener
         const existing = document.getElementById(`${id}_mid_process_blobs`);
@@ -55,7 +55,7 @@
             let cnt = contours.get(i);
             let rect = cv.boundingRect(cnt);
 
-            if (rect.width * rect.height > processingParameters.minSpotSize) { // Odrzuć drobne zakłócenia // INPUT*
+            if (rect.width * rect.height > processingParameters.minSpotSize) { // Odrzuć drobne zakłócenia // INPUT*DONE
                 let expandX = Math.round(rect.width * 0.08);
                 let expandY = Math.round(rect.height * 0.08);
 

@@ -26,7 +26,7 @@
     }
 
     // oblicza gdzie jest peak i jaką ma wartość
-    function analyzePeak(boxes) { // INPUT*  (podaj jenostkę odległości na piksel)
+    function analyzePeak(boxes) { 
         return boxes.map(box => {
             const { imageData } = box;
             const { data, width, height } = imageData;
@@ -56,7 +56,7 @@
         });
     }
 
-    // oblicza wartości procentowe dla parametró ilościowych
+    // oblicza wartości procentowe dla parametrów ilościowych
     function analyzeRelativeQuantities(boxes) {
         // Inicjalizacja wartości maksymalnych
         let maxValues = {
@@ -93,12 +93,12 @@
     }
 
     // dodaje linie startu i mety : !!! na razie ustawione na stałe
-    function addBoxLines(boxes) {
+    function addBoxLines(boxes, processingParameters) {
         return boxes.map(box => {
-            box.startLineX = 100; // INPUT*
-            box.endLineX = 900; // INPUT*
-            box.startLineY = 100; // INPUT*
-            box.endLineY = 900; // INPUT*
+            box.startLineX = processingParameters.startLineX; // INPUT*
+            box.endLineX = processingParameters.endLineX; // INPUT*
+            box.startLineY = processingParameters.startLineY; // INPUT*
+            box.endLineY = processingParameters.endLineY; // INPUT*
             return box;
         });
     }
@@ -676,13 +676,13 @@
 //################################# - zbiór domyślnych modułów przetwarzania
 
 // full processing
-function postprocess_analysis_FULL(processedData) {
+function postprocess_analysis_FULL(processedData, processingParameters) {
     let data = processedData;
     // poniżej oznaczam w jakiej kolejności muszą być wykonane funkcje analizy
     data = analyzeQuantitive(data); // 1
     data = analyzePeak(data); // 1
     data = analyzeRelativeQuantities(data); // 2
-    data = addBoxLines(data); // 1
+    data = addBoxLines(data, processingParameters); // 1
     data = calculateBoxPositionMetrics(data); // 3
     data = calculateBoxCharts(data); // 1
     data = calculateWidthsAtThresholds(data); // 3
@@ -721,9 +721,9 @@ function postprocess_analysis_QUANTITY(processedData) {
 }
 
 // basic quality only
-function postprocess_analysis_QUALITY_BASIC(processedData) {
+function postprocess_analysis_QUALITY_BASIC(processedData, processingParameters) {
     let data = processedData;
-    data = addBoxLines(data); // 1
+    data = addBoxLines(data, processingParameters); // 1
     data = calculateBoxPositionMetrics(data); // 3
     return data;
 }

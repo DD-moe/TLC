@@ -40,6 +40,10 @@
       ["różnica koloru pikseli dla detekcji plamek", "", "number", "detectSpotTreshold"], // 0-255 - działa już dla przetworzonego kanału liminancji
       ["ile pikseli odrzucić dla każdej krawędzi", "", "number", "edgeThickness"], // od każdej strony x pikseli grubości zostanie zamalowane na czarno
       ["minimalny rozmiar plamki w pikselach", "", "number", "minSpotSize"], // ile pikselu musi mieć plamka, by nie była od razu odrzucona (liczone wysokość razy szerokość bounding box)
+      ["linia startu w pikselach dla osi X", "", "number", "startLineX"], // 1 mm to 10 px
+      ["linia mety w pikselach dla osi X", "", "number", "endLineX"], // 1 mm to 10 px
+      ["linia startu w pikselach dla osi Y", "", "number", "startLineY"], // 1 mm to 10 px
+      ["linia mety w pikselach dla osi Y", "", "number", "endLineY"], // 1 mm to 10 px
     ];
 
     // generuje lustę wszystkich parametrów
@@ -53,6 +57,10 @@
         detectSpotTreshold: 20,
         edgeThickness: 10,
         minSpotSize: 10,
+        startLineX: 100,
+        endLineX: 900,
+        startLineY: 100,
+        endLineY: 900,
     };
 
     // Zapisz dane do localStorage
