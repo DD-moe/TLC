@@ -413,8 +413,8 @@
 
     // wyznacza tracks dla każdej wykrytej plamki
     function assignTracks(boxes, processingParameters) {
-        const TOLERANCE = processingParameters.trackTolerance; // INPUT*
-        const MIN_SURFACE = processingParameters.minSpotSurfaceTrack; // INPUT*
+        const TOLERANCE = processingParameters.trackTolerance; // INPUT*DONE
+        const MIN_SURFACE = processingParameters.minSpotSurfaceTrack; // INPUT*DONE
 
         return boxes.map((box, idx) => {
             const xSum = box.x + box.width;
