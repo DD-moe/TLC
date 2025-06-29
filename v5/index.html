@@ -45,7 +45,7 @@
         corners = assignCorners(detectBrightCorners(id, canvas));
         console.log(corners);  // 4 punkty najbliższe narożnikom
         // przetwarza właściwie ten obraz
-        mid_process(id, canvas, sources, processed_sources, window.data);
+        mid_process(id, canvas, sources, processed_sources, data);
     }
 
 //################################# - funkcje do preprocess
@@ -212,16 +212,16 @@
             if (currentSize === 0) {
                 pre_process(id, canvas, sources, processed_sources);
             } else if (currentSize === 1) {
-                mid_process(id, canvas, sources, processed_sources, window.data);
+                mid_process(id, canvas, sources, processed_sources, data);
                 final_process(sources, processed_sources);
             }
         } else { // limit >= 3
             if (currentSize === 0) {
                 pre_process(id, canvas, sources, processed_sources);
             } else if (currentSize < limit - 1) {
-                mid_process(id, canvas, sources, processed_sources, window.data);
+                mid_process(id, canvas, sources, processed_sources, data);
             } else if (currentSize === limit - 1) {
-                mid_process(id, canvas, sources, processed_sources, window.data);
+                mid_process(id, canvas, sources, processed_sources, data);
                 final_process(sources, processed_sources);
             }
         }
