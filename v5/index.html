@@ -54,6 +54,8 @@
 
     // funkcja do właściwego przetwarzania danych:
     function mid_process(id, canvas, sources, processed_sources, processingParameters) {
+        console.log(processingParameters);
+        console.log(window.data);
 
         if (mode === 'normalise') { // protokół uproszczony dla normalizacji fizycznej oświetlenia
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
