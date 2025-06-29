@@ -1,0 +1,129 @@
+<ul class="list-group">
+  <li class="list-group-item">
+    <strong>odrzuć najciemniejsze x % pikseli</strong><br>
+<small class="text-muted">W obrębie bounding boxa wykrytej plamki odrzucany jest podany procent najciemniejszych pikseli 🕳️.<br>
+Są one traktowane jako szum i nie są uwzględniane przy określaniu granic plamki.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>wybierz x % najjaśniejszych pikseli</strong><br>
+<small class="text-muted">Określa procent najjaśniejszych pikseli branych pod uwagę przy tworzeniu tła ✨.<br>
+Tło generowane jest za pomocą regresji wielomianowej – kolumna po kolumnie (1 px szerokości na całą wysokość obrazu).<br>
+Dla każdej kolumny wybierane są piksele najmniej odstające od krzywej regresji, ale tylko te o niższej intensywności (czyli potencjalne plamki 🎯).</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>usuń x % najmniej dopasowanych punktów na iterację</strong><br>
+<small class="text-muted">Podczas każdej iteracji normalizacji tła usuwany jest określony procent najmniej dopasowanych pikseli 🧹.<br>
+Niższe wartości = większa stabilność, ale wolniejsze działanie.<br>
+Np. 10% oznacza, że co iterację odrzucane są 1/10 najgorzej dopasowanych danych.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>różnica koloru pikseli dla detekcji plamek</strong><br>
+<small class="text-muted">Zakres: <code>0–255</code>. Próg detekcji w przetworzonym kanale luminancji 🌑➡️🌕.<br>
+Np. próg = 20 oznacza, że plamka musi różnić się od tła o co najmniej 20 jednostek jasności.<br>
+Niskie wartości wykrywają słabsze plamki, ale zwiększają ryzyko fałszywych detekcji 🔍.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>ile pikseli odrzucić dla każdej krawędzi</strong><br>
+<small class="text-muted">Z każdej krawędzi obrazu usuwana (zamalowana na czarno) jest podana liczba pikseli ⬛.<br>
+Np. 20 oznacza zamalowanie 20 px od lewej, prawej, góry i dołu, co zapobiega wykrywaniu artefaktów na krawędziach.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>minimalny rozmiar plamki w pikselach</strong><br>
+<small class="text-muted">Minimalna powierzchnia (wys. × szer.) bounding boxa, by plamka została zakwalifikowana do analizy 📏.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>linia startu w pikselach dla osi X</strong><br>
+<small class="text-muted">Pozycja końcowa na osi X (w pikselach). 1 mm ≈ 10 px 🔚.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>linia mety w pikselach dla osi X</strong><br>
+
+    <small class="text-muted">Pozycja końcowa na osi X w pikselach (1 mm ≈ 10 px).</small>
+  </li>
+  <li class="list-group-item">
+    <strong>linia startu w pikselach dla osi Y</strong><br>
+<small class="text-muted">Pozycja startowa na osi Y (w pikselach). 1 mm ≈ 10 px 📐.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>linia mety w pikselach dla osi Y</strong><br>
+<small class="text-muted">Pozycja końcowa na osi Y (w pikselach). 1 mm ≈ 10 px 🔚.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>tolerancja dla przemieszczenia plamki przy wyznaczeniu track</strong><br>
+<small class="text-muted">Dopuszczalne przesunięcie plamki w osi prostopadłej (w pikselach) przy tworzeniu ścieżki 🔁.<br>
+Umożliwia grupowanie plamek w jednej ścieżce mimo drobnych nierówności.<br>
+Większa tolerancja = większa odporność, ale też ryzyko połączenia dwóch ścieżek 🚧.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>minimalna powierzchnia plamki przy wyznaczaniu track</strong><br>
+<small class="text-muted">Minimalna rzeczywista powierzchnia plamki (w pikselach), by została uwzględniona przy tworzeniu ścieżki 🔬.<br>
+Zbyt małe plamki są traktowane jako artefakty.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>blurr przed wyznaczaniem narożników płytki</strong><br>
+<small class="text-muted">Rozmycie obrazu przed wykrywaniem narożników 🔍.<br>
+Niewielki blur zwiększa powtarzalność detekcji narożników w przypadku zaszumionego obrazu.<br>
+💡 Zalecane: 1 px na każde 3000 px długości obrazu.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>próg jasności dla wyznaczania narożników płytki</strong><br>
+<small class="text-muted">Minimalna jasność (średnia RGB) wymagana do zakwalifikowania punktu jako narożnik 🔦.<br>
+Niskie wartości pomagają w słabym oświetleniu, ale mogą wykrywać artefakty.<br>
+🖌️ W razie potrzeby narożniki można poprawić ręcznie (np. fizycznie markerem lub wirtualnie w aplikacji).</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>blurr po wyznaczeniu narożników</strong><br>
+<small class="text-muted">Rozmycie stosowane po wykryciu narożników – do dalszego przetwarzania 🔄.<br>
+Może być większe niż przy detekcji narożników.<br>
+📌 Zalecenie: 1 px na każde 2000 px długości obrazu.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>Waga dla kanału czerwonego</strong><br>
+<small class="text-muted">Waga kanału czerwonego 🔴. Suma wag RGB musi wynosić 1.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>Waga dla kanału zielonego</strong><br>
+<small class="text-muted">Waga kanału zielonego 🟢. Suma wag RGB musi wynosić 1.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>Waga dla kanału niebieskiego</strong><br>
+<small class="text-muted">Waga kanału niebieskiego 🔵. Suma wag RGB musi wynosić 1.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>wielkość siatki dla normalizacji tła</strong><br>
+<small class="text-muted">Rozmiar siatki (gridSize × gridSize) używanej do normalizacji tła 🎛️.<br>
+W trybie „normalise” stosowana jest fizyczna normalizacja – bez regresji, tylko przez odejmowanie jednolitych kolorów z oczek siatki.<br>
+🟩 Rekomendowane: 1 – większe wartości tylko eksperymentalnie.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>x % najjaśniejszych pikseli na oczko siatki</strong><br>
+<small class="text-muted">Na ich podstawie wyznaczane jest tło w każdym oczku siatki 🌟.<br>
+Brane są pod uwagę tylko najjaśniejsze piksele w obrębie danego fragmentu.</small>
+
+  </li>
+  <li class="list-group-item">
+    <strong>x razy mniejszy obraz do regresji wielomianowej do usuwania tła</strong><br>
+<small class="text-muted">Współczynnik zmniejszenia obrazu w pionie przy obliczaniu regresji tła ⏬.<br>
+Obraz jest pionowo skalowany przed analizą – im większa redukcja, tym szybsze przetwarzanie.<br>
+🔁 Nie zmniejszaj poniżej <b>20</b>. Gdy ścieżki są gęste – wartość zmniejsz, np. do 10.</small>
+
+  </li>
+</ul>

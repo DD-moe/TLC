@@ -461,3 +461,44 @@
     }
 
 //################################# - funkcje pól pomocniczych
+
+//################################# - ładowanie oddzielnych plików zawartości
+
+  // ładuje instrukcję z oddzielnej strony html
+  async function loadInstruction(link, containerElement, id) {
+    try {
+      // Pobierz HTML z linku
+      const response = await fetch(link);
+      if (!response.ok) throw new Error('Błąd ładowania: ' + response.status);
+      const htmlContent = await response.text();
+
+      // Sprawdź, czy taki ID już istnieje w dokumencie
+      if (document.getElementById(id)) {
+        console.warn(`Element o ID "${id}" już istnieje. Pomijam.`);
+        return;
+      }
+
+      // Stwórz główny kontener
+      const wrapper = document.createElement('div');
+      wrapper.className = 'card my-3 shadow';
+      wrapper.id = 'card_' + id;
+
+      wrapper.innerHTML = `
+        <div class="card-header">
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#${id}" aria-expanded="false" aria-controls="${id}">
+            Pokaż instrukcję
+          </button>
+        </div>
+        <div id="${id}" class="collapse">
+          <div class="card-body">
+            ${htmlContent}
+          </div>
+        </div>
+      `;
+
+      // Dodaj do wskazanego elementu
+      containerElement.appendChild(wrapper);
+    } catch (error) {
+      console.error(`Błąd podczas ładowania instrukcji "${id}":`, error);
+    }
+  }
