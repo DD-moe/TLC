@@ -44,6 +44,8 @@
       ["linia mety w pikselach dla osi X", "", "number", "endLineX"], // 1 mm to 10 px
       ["linia startu w pikselach dla osi Y", "", "number", "startLineY"], // 1 mm to 10 px
       ["linia mety w pikselach dla osi Y", "", "number", "endLineY"], // 1 mm to 10 px
+      ["tolerancja dla przemieszczenia plamki przy wyznacaniu track", "", "number", "trackTolerance"], // ile przesunięcia w prostopadłej osi w px jest tolerowane
+      ["minimalna powierzchnia plamki przy wyznaczaniu track", "", "number", "minSpotSurfaceTrack"], // w px - rzeczywista plamka a nie bounding box
     ];
 
     // generuje lustę wszystkich parametrów
@@ -61,6 +63,8 @@
         endLineX: 900,
         startLineY: 100,
         endLineY: 900,
+        trackTolerance: 50,
+        minSpotSurfaceTrack: 1000,
     };
 
     // Zapisz dane do localStorage

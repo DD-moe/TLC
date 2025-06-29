@@ -95,10 +95,10 @@
     // dodaje linie startu i mety : !!! na razie ustawione na stałe
     function addBoxLines(boxes, processingParameters) {
         return boxes.map(box => {
-            box.startLineX = processingParameters.startLineX; // INPUT*
-            box.endLineX = processingParameters.endLineX; // INPUT*
-            box.startLineY = processingParameters.startLineY; // INPUT*
-            box.endLineY = processingParameters.endLineY; // INPUT*
+            box.startLineX = processingParameters.startLineX; // INPUT*DONE
+            box.endLineX = processingParameters.endLineX; // INPUT*DONE
+            box.startLineY = processingParameters.startLineY; // INPUT*DONE
+            box.endLineY = processingParameters.endLineY; // INPUT*DONE
             return box;
         });
     }
@@ -412,9 +412,9 @@
     }
 
     // wyznacza tracks dla każdej wykrytej plamki
-    function assignTracks(boxes) {
-        const TOLERANCE = 50; // INPUT*
-        const MIN_SURFACE = 1000; // INPUT*
+    function assignTracks(boxes, processingParameters) {
+        const TOLERANCE = processingParameters.trackTolerance; // INPUT*
+        const MIN_SURFACE = processingParameters.minSpotSurfaceTrack; // INPUT*
 
         return boxes.map((box, idx) => {
             const xSum = box.x + box.width;
@@ -691,7 +691,7 @@ function postprocess_analysis_FULL(processedData, processingParameters) {
     data = calculateChromatographicAsAndT(data); // 6
     data = calculateHobsParameters(data); // 7
     data = calculateNobsParameters(data); // 7
-    data = assignTracks(data); // 8
+    data = assignTracks(data, processingParameters); // 8
     data = addPreviousTrackParameters(data); // 9
     data = addAlphaParameters(data); // 10
     data = addRSParameters(data); // 10
