@@ -46,6 +46,15 @@
       ["linia mety w pikselach dla osi Y", "", "number", "endLineY"], // 1 mm to 10 px
       ["tolerancja dla przemieszczenia plamki przy wyznacaniu track", "", "number", "trackTolerance"], // ile przesunięcia w prostopadłej osi w px jest tolerowane
       ["minimalna powierzchnia plamki przy wyznaczaniu track", "", "number", "minSpotSurfaceTrack"], // w px - rzeczywista plamka a nie bounding box
+      ["blurr przed wyznaczaniem narożników płytki", "", "number", "cornersBlurr"], // blurr w px na początku przetwarzania - nie używaj zbyt dużego
+      ["próg jasności dla wyznaczania narożników płytki", "", "number", "cornersTreshold"], // jasność prosta - jako średnia z 3 kanałów rgb. 
+      ["blurr po wyznaczeniu narożników", "", "number", "extractionBlurr"], // blurr w px - dla właściwego przetwarzania płytki, może być większy niż ten dla wyznaczania narożników
+      ["Waga dla kanału czerwonego", "", "number", "R"], // suma dla 3 kanałów ma się równać 1
+      ["Waga dla kanału zielonego", "", "number", "G"], // suma dla 3 kanałów ma się równać 1
+      ["Waga dla kanału niebieskiego", "", "number", "B"], // suma dla 3 kanałów ma się równać 1
+      ["wielkość siatki dla normalizacji tła", "", "number", "gridSize"], // dla komory do fotografii z dobrym dyfuzorem - tylko 1; liczba oczek siatki to gridSize * gridSize
+      ["x % najjaśniejszych pikseli na oczko siatki", "", "number", "gridTopPercent"], // na ich podstawie wyznaczane jest jednolite tło na oczko siatki
+      ["x razy mniejszy obraz do regresji wielomianowej do usówania tła", "", "number", "reggressionScale"] // how much times is smaller in y dimension image to train polynomial reggression for background normalisation
     ];
 
     // generuje lustę wszystkich parametrów
@@ -65,6 +74,15 @@
         endLineY: 900,
         trackTolerance: 50,
         minSpotSurfaceTrack: 1000,
+        cornersBlurr: 1,
+        cornersTreshold: 80,
+        extractionBlurr: 1,
+        R: 0.299,
+        G: 0.587,
+        B: 0.114,
+        gridSize: 1,
+        gridTopPercent: 5,
+        reggressionScale: 20
     };
 
     // Zapisz dane do localStorage

@@ -42,7 +42,7 @@
 
     // funkcja do wstępnego przetwarzania po załądowaniu pierwszej płytki
     function pre_process(id, canvas, sources, processed_sources) {
-        corners = assignCorners(detectBrightCorners(id, canvas));
+        corners = assignCorners(detectBrightCorners(id, canvas, data));
         console.log(corners);  // 4 punkty najbliższe narożnikom
         // przetwarza właściwie ten obraz
         mid_process(id, canvas, sources, processed_sources, data);
@@ -57,7 +57,7 @@
 
         if (mode === 'normalise') { // protokół uproszczony dla normalizacji fizycznej oświetlenia
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
-            const extracted_canvas = extractDocumentFromCanvas(id, canvas);
+            const extracted_canvas = extractDocumentFromCanvas(id, canvas, data);
             let boxes = extractBlobsFromCanvas(id, extracted_canvas, data); 
             boxes = maskDarkest5Percent(boxes, processingParameters.maskDarkestPercent); // INPUT*DONE (ile procent odrzucić)
             processed_sources[id] = boxes;

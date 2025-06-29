@@ -6,7 +6,7 @@
     }
 
     // wykrywa narożniki płytki
-    function detectBrightCorners(id, canvas) {
+    function detectBrightCorners(id, canvas, processingParameters) {
         // Usuń istniejący kontener jeśli już jest
         const existing = document.getElementById(`${id}_process`);
         if (existing) {
@@ -46,7 +46,7 @@
         mainCtx.drawImage(canvas, 0, 0);
 
         // Rozmycie
-        blurCtx.filter = 'blur(1px)'; // INPUT*
+        blurCtx.filter = `blur(${processingParameters.cornersBlurr}px)`; // INPUT*
         blurCtx.drawImage(canvas, 0, 0);
         blurCtx.filter = 'none';
 
@@ -54,7 +54,7 @@
         const imgData = blurCtx.getImageData(0, 0, width, height);
         const data = imgData.data;
 
-        const treshold = 80; // INPUT*
+        const treshold = processingParameters.cornersTreshold; // INPUT*
         const brightPoints = [];
 
         for (let y = 0; y < height; y++) {
@@ -123,7 +123,7 @@
 
 
     // wycina płytkę ze zdjęcia - i normalizuje za pomocą uproszczonej metody grid
-    function extractDocumentFromCanvas(id, sourceCanvas) {
+    function extractDocumentFromCanvas(id, sourceCanvas, processingParameters) {
         // 1. Usuń istniejący kontener
         const existing = document.getElementById(`${id}_mid_process`);
         if (existing) existing.remove();
@@ -146,7 +146,7 @@
         blurCanvas.id = `midCanvas-${id}`;
 
         const ctx = blurCanvas.getContext('2d');
-        ctx.filter = 'blur(1px)'; // INPUT*
+        ctx.filter = `blur(${processingParameters.extractionBlurr}px)`; // INPUT*
         ctx.drawImage(sourceCanvas, 0, 0);
 
         container.appendChild(blurCanvas);
@@ -155,7 +155,7 @@
         // 5. Wykonaj ekstrakcję z jscanify
         const scanner = new jscanify();
 
-        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners); // INPUT* // INPUT*
+        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners); // INPUT* // INPUT* !!! zostawiamy dla zasady
         newCanvas.id = `midCanvas-${id}`;
 
         // 6. Podmień canvas
@@ -171,7 +171,7 @@
             const g = data[i + 1];
             const b = data[i + 2];
 
-            const luminance = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // INPUT* // INPUT* // INPUT*
+            const luminance = Math.round(processingParameters.R * r + processingParameters.G * g + processingParameters.B * b); // INPUT* // INPUT* // INPUT*
 
             data[i] = luminance;     // R
             data[i + 1] = luminance; // G
@@ -184,8 +184,8 @@
         // 8. odejmujemy tło bazując na funkcji grid - do ustalania lokalnej intensywności tła
 
         // zakładamy zmienne:
-        const gridSize = 1; // INPUT*
-        const topPercent = 5; // INPUT*
+        const gridSize = processingParameters.gridSize; // INPUT*
+        const topPercent = processingParameters.gridTopPercent; // INPUT*
 
         const { width, height } = newCanvas;
         //imgData = ctx_new.getImageData(0, 0, width, height);
@@ -268,7 +268,7 @@
         blurCanvas.id = `midCanvas-${id}`;
 
         const ctx = blurCanvas.getContext('2d');
-        ctx.filter = 'blur(1px)'; // INPUT*
+        ctx.filter = `blur(${processingParameters.extractionBlurr}px)`; // INPUT*
         ctx.drawImage(sourceCanvas, 0, 0);
 
         container.appendChild(blurCanvas);
@@ -277,7 +277,7 @@
         // 5. Wykonaj ekstrakcję z jscanify
         const scanner = new jscanify();
 
-        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners); // INPUT* // INPUT*
+        const newCanvas = scanner.extractPaper(blurCanvas, 1000, 1000, corners); // INPUT* // INPUT* !!! zostawiamy jak jest dla poprawności
         newCanvas.id = `midCanvas-${id}`;
 
         // 6. Podmień canvas
@@ -293,7 +293,7 @@
             const g = data[i + 1];
             const b = data[i + 2];
 
-            const luminance = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // INPUT* // INPUT* // INPUT*
+            const luminance = Math.round(processingParameters.R * r + processingParameters.G * g + processingParameters.B * b); // INPUT* // INPUT* // INPUT*
 
             data[i] = luminance;     // R
             data[i + 1] = luminance; // G
@@ -304,7 +304,7 @@
         ctx_new.putImageData(imgData, 0, 0);
 
         // 8. Przeskaluj newCanvas na mniejszy (20x mniejszy - w osi y)
-        const scale = 20; // INPUT*
+        const scale = processingParameters.reggressionScale; // INPUT*
         const smallCanvas = document.createElement('canvas');
         smallCanvas.width = Math.floor(newCanvas.width);
         smallCanvas.height = Math.floor(newCanvas.height / scale);
