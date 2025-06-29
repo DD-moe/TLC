@@ -34,8 +34,9 @@
 
     // parametry
     const inputs = [
-      ["tolerancja wykrywania plamek", "", "number", "tolerance"],
-      ["próg wykrywania krawędzi płytki", "", "number", "treshold"],
+      ["odrzuć najciemniejsze x % pikseli", "", "number", "maskDarkestPercent"], // dla bounding box dla wykrytej plamki odrzuca tyle pro ent najciemniejszych pikseli
+      ["wybierz x % najjaśniejszych pikseli", "", "number", "chooseLightestPercent"], // ile procent najjaśniejszych pikseli jest wybranych do generownia tła
+      ["usuń x % najmniej dopasowynych punktów na iterację", "", "number", "deleteWorstPercent"], // dla normalizacji tła usóa x procent najmniej dopasowanych danych, im mniejsza wartość tym stabilniejsze obliczenia, ale i wolniej przebiegające
     ];
 
     // generuje lustę wszystkich parametrów
@@ -43,8 +44,9 @@
 
     // Zakładamy, że na stronie są elementy o id: "opis", "kolor", "data"
     const formData = {
-        tolerance: 50,
-        treshold: 20
+        maskDarkestPercent: 15,
+        chooseLightestPercent: 40,
+        deleteWorstPercent: 10,
     };
 
     // Zapisz dane do localStorage

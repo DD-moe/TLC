@@ -59,7 +59,7 @@
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
             const extracted_canvas = extractDocumentFromCanvas(id, canvas);
             let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
-            boxes = maskDarkest5Percent(boxes, 15); // INPUT* (ile procent odrzucić)
+            boxes = maskDarkest5Percent(boxes, data.maskDarkestPercent); // INPUT*DONE (ile procent odrzucić)
             processed_sources[id] = boxes;
             sources[id] = extracted_canvas;
         }
@@ -67,7 +67,7 @@
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
             const extracted_canvas = extractDocumentFromCanvas_norm(id, canvas);
             let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
-            boxes = maskDarkest5Percent(boxes, 15); // INPUT*
+            boxes = maskDarkest5Percent(boxes, data.maskDarkestPercent); // INPUT*DONE
             processed_sources[id] = boxes;
             sources[id] = extracted_canvas;
         }
@@ -123,7 +123,7 @@
 
     // zmienia parametry wymagające zmiany
     function applyConfigChanges(){
-        mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
+        mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // 
     }
     // czyści dane przetworzone
     function clearSources() {
@@ -272,7 +272,7 @@ let sources = {};
 let processed_sources = {};
 const limit = 1;
 let corners;
-let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' // INPUT* 
+let mode = getString('normalisation_mode', 'unnormalise'); // 'normalise' , 'unnormalise' 
 let data = loadFromStorage('procParams'); // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 let ommitedParams = loadFromStorage('countedParams'); // obiekt przetrzymuje wszystkie modyfikowalne ustawienia
 

@@ -141,7 +141,7 @@
             // Warunek zakończenia
             if (
                 //avgErrorFactor > previousAvgErrorFactor ||
-                currentData.length <= originalLength / 2.5 // INPUT*
+                currentData.length <= originalLength * data.chooseLightestPercent / 100 // INPUT*DONE
             ) {
                 break;
             }
@@ -149,7 +149,7 @@
             previousAvgErrorFactor = avgErrorFactor;
 
             // Usuń 10% punktów z największym błędem
-            const threshold = Math.ceil(currentData.length * 0.10); // INPUT*
+            const threshold = Math.ceil(currentData.length * data.deleteWorstPercent / 100); // INPUT*DONE
             errors.sort((a, b) => b.error - a.error);
             currentData = errors.slice(threshold).map(e => ({ x: e.x, y: e.y }));
         }
