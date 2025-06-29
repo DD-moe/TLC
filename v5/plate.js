@@ -245,7 +245,7 @@
     }
 
     // ekstrachuje płytkę ze zdjęcia z normalizacją oświetlenia pełną typu polynomial reggression
-    function extractDocumentFromCanvas_norm(id, sourceCanvas) {
+    function extractDocumentFromCanvas_norm(id, sourceCanvas, processingParameters) {
         // 1. Usuń istniejący kontener
         const existing = document.getElementById(`${id}_mid_process`);
         if (existing) existing.remove();
@@ -334,7 +334,7 @@
             newCanvas.height,
             smallCanvas.width,
             smallCanvas.height,
-            data
+            processingParameters
         );
 
         // 10 dokonujemy subtrakcji tła

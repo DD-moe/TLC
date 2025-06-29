@@ -67,7 +67,7 @@
         }
         else if (mode === 'unnormalise') { // protokół dla zdjęć bez normalizacji fizycznej oświetlenia
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
-            const extracted_canvas = extractDocumentFromCanvas_norm(id, canvas);
+            const extracted_canvas = extractDocumentFromCanvas_norm(id, canvas, data);
             let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
             boxes = maskDarkest5Percent(boxes, processingParameters.maskDarkestPercent); // INPUT*DONE
             processed_sources[id] = boxes;
