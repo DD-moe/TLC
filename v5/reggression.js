@@ -141,7 +141,7 @@
             // Warunek zakończenia
             if (
                 //avgErrorFactor > previousAvgErrorFactor ||
-                currentData.length <= originalLength * parseFloat(data.chooseLightestPercent) / 100 // INPUT*DONE
+                currentData.length <= originalLength / 2.5 // INPUT*
             ) {
                 break;
             }
@@ -149,7 +149,7 @@
             previousAvgErrorFactor = avgErrorFactor;
 
             // Usuń 10% punktów z największym błędem
-            const threshold = Math.ceil(currentData.length * parseFloat(data.deleteWorstPercent) / 100); // INPUT*DONE
+            const threshold = Math.ceil(currentData.length * 0.1); // INPUT*
             errors.sort((a, b) => b.error - a.error);
             currentData = errors.slice(threshold).map(e => ({ x: e.x, y: e.y }));
         }
