@@ -37,6 +37,9 @@
       ["odrzuć najciemniejsze x % pikseli", "", "number", "maskDarkestPercent"], // dla bounding box dla wykrytej plamki odrzuca tyle pro ent najciemniejszych pikseli
       ["wybierz x % najjaśniejszych pikseli", "", "number", "chooseLightestPercent"], // ile procent najjaśniejszych pikseli jest wybranych do generownia tła
       ["usuń x % najmniej dopasowynych punktów na iterację", "", "number", "deleteWorstPercent"], // dla normalizacji tła usóa x procent najmniej dopasowanych danych, im mniejsza wartość tym stabilniejsze obliczenia, ale i wolniej przebiegające
+      ["różnica koloru pikseli dla detekcji plamek", "", "number", "detectSpotTreshold"], // 0-255 - działa już dla przetworzonego kanału liminancji
+      ["ile pikseli odrzucić dla każdej krawędzi", "", "number", "edgeThickness"], // od każdej strony x pikseli grubości zostanie zamalowane na czarno
+      ["minimalny rozmiar plamki w pikselach", "", "number", "minSpotSize"], // ile pikselu musi mieć plamka, by nie była od razu odrzucona (liczone wysokość razy szerokość bounding box)
     ];
 
     // generuje lustę wszystkich parametrów
@@ -47,6 +50,9 @@
         maskDarkestPercent: 15,
         chooseLightestPercent: 40,
         deleteWorstPercent: 10,
+        detectSpotTreshold: 20,
+        edgeThickness: 10,
+        minSpotSize: 10,
     };
 
     // Zapisz dane do localStorage

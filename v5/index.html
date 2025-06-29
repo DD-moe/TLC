@@ -60,7 +60,7 @@
         if (mode === 'normalise') { // protokół uproszczony dla normalizacji fizycznej oświetlenia
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
             const extracted_canvas = extractDocumentFromCanvas(id, canvas);
-            let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
+            let boxes = extractBlobsFromCanvas(id, extracted_canvas, data); 
             boxes = maskDarkest5Percent(boxes, processingParameters.maskDarkestPercent); // INPUT*DONE (ile procent odrzucić)
             processed_sources[id] = boxes;
             sources[id] = extracted_canvas;
@@ -68,7 +68,7 @@
         else if (mode === 'unnormalise') { // protokół dla zdjęć bez normalizacji fizycznej oświetlenia
             addCommentCell(id+'_commentHeader', `dla obrazu: ${id}`, document.body);
             const extracted_canvas = extractDocumentFromCanvas_norm(id, canvas, data);
-            let boxes = extractBlobsFromCanvas(id, extracted_canvas); 
+            let boxes = extractBlobsFromCanvas(id, extracted_canvas, data); 
             boxes = maskDarkest5Percent(boxes, processingParameters.maskDarkestPercent); // INPUT*DONE
             processed_sources[id] = boxes;
             sources[id] = extracted_canvas;

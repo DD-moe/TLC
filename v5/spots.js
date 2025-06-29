@@ -1,9 +1,9 @@
     // funkcja do ekstrakcji niezlewających się plamek 2d
-    function extractBlobsFromCanvas(id, sourceCanvas) {
+    function extractBlobsFromCanvas(id, sourceCanvas, processingParameters) {
 
         // zakładamy zmienne bazowe:
-        const treshold =  20; // INPUT*
-        const edgeThickness = 10; // INPUT*
+        const treshold =  processingParameters.detectSpotTreshold; // INPUT*
+        const edgeThickness = processingParameters.edgeThickness; // INPUT*
 
         // 1. Usuń istniejący kontener
         const existing = document.getElementById(`${id}_mid_process_blobs`);
@@ -55,7 +55,7 @@
             let cnt = contours.get(i);
             let rect = cv.boundingRect(cnt);
 
-            if (rect.width * rect.height > 10) { // Odrzuć drobne zakłócenia // INPUT*
+            if (rect.width * rect.height > processingParameters.minSpotSize) { // Odrzuć drobne zakłócenia // INPUT*
                 let expandX = Math.round(rect.width * 0.08);
                 let expandY = Math.round(rect.height * 0.08);
 
