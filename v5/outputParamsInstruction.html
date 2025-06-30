@@ -122,17 +122,17 @@
     <mo>=</mo>
     <mfrac>
       <mrow>
-        <msub><mi>z</mi><mn>2</mn></msub>
+        <msub><mi>xPeakonTrack</mi><mn>2</mn></msub>
         <mo>&#x2212;</mo> <!-- minus sign -->
-        <msub><mi>z</mi><mn>1</mn></msub>
+        <msub><mi>xPeakonTrack</mi><mn>1</mn></msub>
       </mrow>
       <mrow>
         <mn>0.5</mn>
         <mo>&#x2062;</mo> <!-- invisible times for spacing -->
         <mo>(</mo>
-        <msub><mi>W</mi><mn>2</mn></msub>
+        <msub><mi>xW0</mi><mn>2</mn></msub>
         <mo>+</mo>
-        <msub><mi>W</mi><mn>1</mn></msub>
+        <msub><mi>xW0</mi><mn>1</mn></msub>
         <mo>)</mo>
       </mrow>
     </mfrac>
@@ -147,17 +147,17 @@
     <mo>=</mo>
     <mfrac>
       <mrow>
-        <msub><mi>z</mi><mn>2</mn></msub>
+        <msub><mi>yPeakonTrack</mi><mn>2</mn></msub>
         <mo>&#x2212;</mo> <!-- minus sign -->
-        <msub><mi>z</mi><mn>1</mn></msub>
+        <msub><mi>yPeakonTrack</mi><mn>1</mn></msub>
       </mrow>
       <mrow>
         <mn>0.5</mn>
         <mo>&#x2062;</mo> <!-- invisible times for spacing -->
         <mo>(</mo>
-        <msub><mi>W</mi><mn>2</mn></msub>
+        <msub><mi>yW0</mi><mn>2</mn></msub>
         <mo>+</mo>
-        <msub><mi>W</mi><mn>1</mn></msub>
+        <msub><mi>yW0</mi><mn>1</mn></msub>
         <mo>)</mo>
       </mrow>
     </mfrac>
@@ -208,76 +208,80 @@
 <li class="list-group-item"><strong>yRFavg</strong> <small>średnia arytmetyczna RF dwóch sąsiadujących plamek dla osi y</small></li>
 <li class="list-group-item"><strong>xEfficiencyUSP</strong> <small>
   <math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <mi>efficiency</mi>
-    <mo>=</mo>
-    <msqrt>
-      <mrow>
-        <mover>
-          <msub><mi>xRF</mi><mi>avg</mi></msub>
-          <mo>&#x00AF;</mo>
-        </mover>
-        <mo>&#x2062;</mo> <!-- invisible times -->
-        <mi>xNobsUSP</mi>
-      </mrow>
-    </msqrt>
-  </mrow>
-</math>
+    <mrow>
+      <mi>efficiency</mi>
+      <mo>=</mo>
+      <msqrt>
+        <mrow>
+          <mover>
+            <msub><mi>xRF</mi><mi>avg</mi></msub>
+            <mo>&#x00AF;</mo>
+          </mover>
+          <mo>&#x00D7;</mo>
+          <mi>xNobsUSP</mi>
+        </mrow>
+      </msqrt>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>xEfficiencyEPS</strong> <small>
   <math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <mi>efficiency</mi>
-    <mo>=</mo>
-    <msqrt>
-      <mrow>
-        <mover>
-          <msub><mi>yRF</mi><mi>avg</mi></msub>
-          <mo>&#x00AF;</mo>
-        </mover>
-        <mo>&#x2062;</mo> <!-- invisible times -->
-        <mi>xNobsEPS</mi>
-      </mrow>
-    </msqrt>
-  </mrow>
-</math>
+    <mrow>
+      <mi>efficiency</mi>
+      <mo>=</mo>
+      <msqrt>
+        <mrow>
+          <mover>
+            <msub><mi>xRF</mi><mi>avg</mi></msub>
+            <mo>&#x00AF;</mo>
+          </mover>
+          <mo>&#x00D7;</mo>
+          <mi>xNobsEPS</mi>
+        </mrow>
+      </msqrt>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>yEfficiencyUSP</strong> <small>
   <math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <mi>efficiency</mi>
-    <mo>=</mo>
-    <msqrt>
-      <mrow>
-        <mover>
-          <msub><mi>xRF</mi><mi>avg</mi></msub>
-          <mo>&#x00AF;</mo>
-        </mover>
-        <mo>&#x2062;</mo> <!-- invisible times -->
-        <mi>yNobsUSP</mi>
-      </mrow>
-    </msqrt>
-  </mrow>
-</math>
+    <mrow>
+      <mi>efficiency</mi>
+      <mo>=</mo>
+      <msqrt>
+        <mrow>
+          <mover>
+            <msub><mi>yRF</mi><mi>avg</mi></msub>
+            <mo>&#x00AF;</mo>
+          </mover>
+          <mo>&#x00D7;</mo>
+          <mi>yNobsUSP</mi>
+        </mrow>
+      </msqrt>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>yEfficiencyEPS</strong> <small>
   <math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <mi>efficiency</mi>
-    <mo>=</mo>
-    <msqrt>
-      <mrow>
-        <mover>
-          <msub><mi>xRF</mi><mi>avg</mi></msub>
-          <mo>&#x00AF;</mo>
-        </mover>
-        <mo>&#x2062;</mo> <!-- invisible times -->
-        <mi>yNobsEPS</mi>
-      </mrow>
-    </msqrt>
-  </mrow>
-</math>
+    <mrow>
+      <mi>efficiency</mi>
+      <mo>=</mo>
+      <msqrt>
+        <mrow>
+          <mover>
+            <msub><mi>yRF</mi><mi>avg</mi></msub>
+            <mo>&#x00AF;</mo>
+          </mover>
+          <mo>&#x00D7;</mo>
+          <mi>yNobsEPS</mi>
+        </mrow>
+      </msqrt>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>xRetention</strong> <small>
   <math xmlns="http://www.w3.org/1998/Math/MathML">
   <mrow>
@@ -308,58 +312,62 @@
 </small></li>
 <li class="list-group-item"><strong>RSxUSP</strong> <small>
   Złożony współczynnik rozdzielenia substancji dla osi x wg United States Pharmacopeia:
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <msub><mi>RS</mi><mi>UPS</mi></msub>
-    <mo>=</mo>
-    <mi>selectivity</mi>
-    <mo>&#x2062;</mo> <!-- invisible times -->
-    <mi>efficiency</mi>
-    <mo>&#x2062;</mo>
-    <mi>retention</mi>
-  </mrow>
-</math>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <msub><mi>RS</mi><mtext>USP</mtext></msub>
+      <mo>=</mo>
+      <mi>selectivity</mi>
+      <mo>&#x00D7;</mo>
+      <mi>efficiency</mi>
+      <mo>&#x00D7;</mo>
+      <mi>retention</mi>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>RSxEPS</strong> <small>
-    Złożony współczynnik rozdzielenia substancji dla osi x wg European Pharmacopeia:
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <msub><mi>RS</mi><mi>UPS</mi></msub>
-    <mo>=</mo>
-    <mi>selectivity</mi>
-    <mo>&#x2062;</mo> <!-- invisible times -->
-    <mi>efficiency</mi>
-    <mo>&#x2062;</mo>
-    <mi>retention</mi>
-  </mrow>
-</math>
+  Złożony współczynnik rozdzielenia substancji dla osi x wg European Pharmacopeia:
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <msub><mi>RS</mi><mtext>EP</mtext></msub>
+      <mo>=</mo>
+      <mi>selectivity</mi>
+      <mo>&#x00D7;</mo>
+      <mi>efficiency</mi>
+      <mo>&#x00D7;</mo>
+      <mi>retention</mi>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>RSyUSP</strong> <small>
-    Złożony współczynnik rozdzielenia substancji dla osi y wg United States Pharmacopeia:
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <msub><mi>RS</mi><mi>UPS</mi></msub>
-    <mo>=</mo>
-    <mi>selectivity</mi>
-    <mo>&#x2062;</mo> <!-- invisible times -->
-    <mi>efficiency</mi>
-    <mo>&#x2062;</mo>
-    <mi>retention</mi>
-  </mrow>
-</math>
+  Złożony współczynnik rozdzielenia substancji dla osi y wg United States Pharmacopeia:
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <msub><mi>RS</mi><mtext>USP</mtext></msub>
+      <mo>=</mo>
+      <mi>selectivity</mi>
+      <mo>&#x00D7;</mo>
+      <mi>efficiency</mi>
+      <mo>&#x00D7;</mo>
+      <mi>retention</mi>
+    </mrow>
+  </math>
 </small></li>
+
 <li class="list-group-item"><strong>RSyEPS</strong> <small>
-    Złożony współczynnik rozdzielenia substancji dla osi y wg European Pharmacopeia:
-<math xmlns="http://www.w3.org/1998/Math/MathML">
-  <mrow>
-    <msub><mi>RS</mi><mi>UPS</mi></msub>
-    <mo>=</mo>
-    <mi>selectivity</mi>
-    <mo>&#x2062;</mo> <!-- invisible times -->
-    <mi>efficiency</mi>
-    <mo>&#x2062;</mo>
-    <mi>retention</mi>
-  </mrow>
-</math>
+  Złożony współczynnik rozdzielenia substancji dla osi y wg European Pharmacopeia:
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <msub><mi>RS</mi><mtext>EP</mtext></msub>
+      <mo>=</mo>
+      <mi>selectivity</mi>
+      <mo>&#x00D7;</mo>
+      <mi>efficiency</mi>
+      <mo>&#x00D7;</mo>
+      <mi>retention</mi>
+    </mrow>
+  </math>
 </small></li>
+
 </ul>
