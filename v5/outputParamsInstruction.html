@@ -41,8 +41,8 @@
   </mfrac>
 </math>
 </small></li>
-<li class="list-group-item"><strong>xRM</strong> <small></small></li>
-<li class="list-group-item"><strong>yRM</strong> <small></small></li>
+<li class="list-group-item"><strong>xRM</strong> <small>Log (xK)</small></li>
+<li class="list-group-item"><strong>yRM</strong> <small>Log (yK)</small></li>
 <li class="list-group-item"><strong>xW05</strong> <small>Długość plamki na 50% wysokości w osi x</small></li>
 <li class="list-group-item"><strong>yW05</strong> <small>Długość plamki na 50% wysokości w osi y</small></li>
 <li class="list-group-item"><strong>xW01</strong> <small>Długość plamki na 10% wysokości w osi x</small></li>
@@ -69,34 +69,297 @@
 <li class="list-group-item"><strong>xT</strong> <small>Współczynnik ogonowania na osi x</small></li>
 <li class="list-group-item"><strong>yAs</strong> <small>Współczynnik asymetrii na osi y</small></li>
 <li class="list-group-item"><strong>yT</strong> <small>Współczynnik ogonowania na osi y</small></li>
-<li class="list-group-item"><strong>xHobs0</strong> <small></small></li>
-<li class="list-group-item"><strong>yHobs0</strong> <small></small></li>
-<li class="list-group-item"><strong>xHobs05</strong> <small></small></li>
-<li class="list-group-item"><strong>yHobs05</strong> <small></small></li>
-<li class="list-group-item"><strong>xNobsUSP</strong> <small></small></li>
-<li class="list-group-item"><strong>yNobsUSP</strong> <small></small></li>
-<li class="list-group-item"><strong>xNobsEPS</strong> <small></small></li>
-<li class="list-group-item"><strong>yNobsEPS</strong> <small></small></li>
+<li class="list-group-item"><strong>xHobs0</strong> <small>Wysokość równoważna półce teoretycznej dla osi x i na wysokości podstawy plamki</small></li>
+<li class="list-group-item"><strong>yHobs0</strong> <small>Wysokość równoważna półce teoretycznej dla osi y i na wysokości podstawy plamki</small></li>
+<li class="list-group-item"><strong>xHobs05</strong> <small>Wysokość równoważna półce teoretycznej dla osi x i na 50% wysokości plamki</small></li>
+<li class="list-group-item"><strong>yHobs05</strong> <small>Wysokość równoważna półce teoretycznej dla osi y i na 50% wysokości plamki</small></li>
+<li class="list-group-item"><strong>xNobsUSP</strong> <small>liczba półek teoretycznych dla osi x wg. United States Pharmacopeia</small></li>
+<li class="list-group-item"><strong>yNobsUSP</strong> <small>liczba półek teoretycznych dla osi y wg. United States Pharmacopeia</small></li>
+<li class="list-group-item"><strong>xNobsEPS</strong> <small>liczba półek teoretycznych dla osi x wg. European Pharmacopeia</small></li>
+<li class="list-group-item"><strong>yNobsEPS</strong> <small>liczba półek teoretycznych dla osi y wg. European Pharmacopeia</small></li>
 <li class="list-group-item"><strong>tracksY</strong> <small>Numery plamek należące do tej samej ścieżki w osi x</small></li>
 <li class="list-group-item"><strong>tracksX</strong> <small>Numery plamek należące do tej samej ścieżki w osi y</small></li>
 <li class="list-group-item"><strong>previousX</strong> <small>Poprzedni element na tej samej ścieżce w osi x</small></li>
 <li class="list-group-item"><strong>previousY</strong> <small>Poprzedni element na tej samej ścieżce w osi x</small></li>
-<li class="list-group-item"><strong>alphaX</strong> <small></small></li>
-<li class="list-group-item"><strong>alphaY</strong> <small></small></li>
-<li class="list-group-item"><strong>RSx</strong> <small></small></li>
-<li class="list-group-item"><strong>RSy</strong> <small></small></li>
-<li class="list-group-item"><strong>selectivityX</strong> <small></small></li>
-<li class="list-group-item"><strong>selectivityY</strong> <small></small></li>
-<li class="list-group-item"><strong>xRFavg</strong> <small></small></li>
-<li class="list-group-item"><strong>yRFavg</strong> <small></small></li>
-<li class="list-group-item"><strong>xEfficiencyUSP</strong> <small></small></li>
-<li class="list-group-item"><strong>xEfficiencyEPS</strong> <small></small></li>
-<li class="list-group-item"><strong>yEfficiencyUSP</strong> <small></small></li>
-<li class="list-group-item"><strong>yEfficiencyEPS</strong> <small></small></li>
-<li class="list-group-item"><strong>xRetention</strong> <small></small></li>
-<li class="list-group-item"><strong>yRetention</strong> <small></small></li>
-<li class="list-group-item"><strong>RSxUSP</strong> <small></small></li>
-<li class="list-group-item"><strong>RSxEPS</strong> <small></small></li>
-<li class="list-group-item"><strong>RSyUSP</strong> <small></small></li>
-<li class="list-group-item"><strong>RSyEPS</strong> <small></small></li>
+<li class="list-group-item"><strong>alphaX</strong> <small>współczynnik rozdzielenia między substancjami dla osi x:
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>&#945;</mi> <!-- alpha -->
+    <mo>=</mo>
+    <mfrac>
+      <msub><mi>K</mi><mn>2</mn></msub>
+      <msub><mi>k</mi><mn>1</mn></msub>
+    </mfrac>
+    <mo>,</mo>
+    <msub><mi>K</mi><mn>2</mn></msub>
+    <mo>&gt;</mo>
+    <msub><mi>k</mi><mn>1</mn></msub>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>alphaY</strong> <small>
+  współczynnik rozdzielenia między substancjami dla osi y:
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>&#945;</mi> <!-- alpha -->
+    <mo>=</mo>
+    <mfrac>
+      <msub><mi>K</mi><mn>2</mn></msub>
+      <msub><mi>k</mi><mn>1</mn></msub>
+    </mfrac>
+    <mo>,</mo>
+    <msub><mi>K</mi><mn>2</mn></msub>
+    <mo>&gt;</mo>
+    <msub><mi>k</mi><mn>1</mn></msub>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>RSx</strong> <small>
+  prosty współczynnik rozdzielenia substancji dla osi x:
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>RS</mi>
+    <mo>=</mo>
+    <mfrac>
+      <mrow>
+        <msub><mi>z</mi><mn>2</mn></msub>
+        <mo>&#x2212;</mo> <!-- minus sign -->
+        <msub><mi>z</mi><mn>1</mn></msub>
+      </mrow>
+      <mrow>
+        <mn>0.5</mn>
+        <mo>&#x2062;</mo> <!-- invisible times for spacing -->
+        <mo>(</mo>
+        <msub><mi>W</mi><mn>2</mn></msub>
+        <mo>+</mo>
+        <msub><mi>W</mi><mn>1</mn></msub>
+        <mo>)</mo>
+      </mrow>
+    </mfrac>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>RSy</strong> <small>
+  prosty współczynnik rozdzielenia substancji dla osi y:
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>RS</mi>
+    <mo>=</mo>
+    <mfrac>
+      <mrow>
+        <msub><mi>z</mi><mn>2</mn></msub>
+        <mo>&#x2212;</mo> <!-- minus sign -->
+        <msub><mi>z</mi><mn>1</mn></msub>
+      </mrow>
+      <mrow>
+        <mn>0.5</mn>
+        <mo>&#x2062;</mo> <!-- invisible times for spacing -->
+        <mo>(</mo>
+        <msub><mi>W</mi><mn>2</mn></msub>
+        <mo>+</mo>
+        <msub><mi>W</mi><mn>1</mn></msub>
+        <mo>)</mo>
+      </mrow>
+    </mfrac>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>selectivityX</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <mi>selectivity</mi>
+      <mo>=</mo>
+      <mn>0.25</mn>
+      <mo>&#x22C5;</mo> <!-- middle dot for multiplication -->
+      <mo>&#x230A;</mo> <!-- floor left -->
+      <mrow>
+        <mfrac>
+          <msub><mi>xK</mi><mn>2</mn></msub>
+          <msub><mi>xK</mi><mn>1</mn></msub>
+        </mfrac>
+        <mo>&#x2212;</mo>
+        <mn>1</mn>
+      </mrow>
+      <mo>&#x230B;</mo> <!-- floor right -->
+    </mrow>
+  </math>
+</small></li>
+<li class="list-group-item"><strong>selectivityY</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+      <mi>selectivity</mi>
+      <mo>=</mo>
+      <mn>0.25</mn>
+      <mo>&#x22C5;</mo> <!-- middle dot -->
+      <mo>&#x230A;</mo> <!-- floor left -->
+      <mrow>
+        <mfrac>
+          <msub><mi>yK</mi><mn>2</mn></msub>
+          <msub><mi>yK</mi><mn>1</mn></msub>
+        </mfrac>
+        <mo>&#x2212;</mo>
+        <mn>1</mn>
+      </mrow>
+      <mo>&#x230B;</mo> <!-- floor right -->
+    </mrow>
+  </math>
+</small></li>
+<li class="list-group-item"><strong>xRFavg</strong> <small>średnia arytmetyczna RF dwóch sąsiadujących plamek dla osi x</small></li>
+<li class="list-group-item"><strong>yRFavg</strong> <small>średnia arytmetyczna RF dwóch sąsiadujących plamek dla osi y</small></li>
+<li class="list-group-item"><strong>xEfficiencyUSP</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>efficiency</mi>
+    <mo>=</mo>
+    <msqrt>
+      <mrow>
+        <mover>
+          <msub><mi>xRF</mi><mi>avg</mi></msub>
+          <mo>&#x00AF;</mo>
+        </mover>
+        <mo>&#x2062;</mo> <!-- invisible times -->
+        <mi>xNobsUSP</mi>
+      </mrow>
+    </msqrt>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>xEfficiencyEPS</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>efficiency</mi>
+    <mo>=</mo>
+    <msqrt>
+      <mrow>
+        <mover>
+          <msub><mi>yRF</mi><mi>avg</mi></msub>
+          <mo>&#x00AF;</mo>
+        </mover>
+        <mo>&#x2062;</mo> <!-- invisible times -->
+        <mi>xNobsEPS</mi>
+      </mrow>
+    </msqrt>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>yEfficiencyUSP</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>efficiency</mi>
+    <mo>=</mo>
+    <msqrt>
+      <mrow>
+        <mover>
+          <msub><mi>xRF</mi><mi>avg</mi></msub>
+          <mo>&#x00AF;</mo>
+        </mover>
+        <mo>&#x2062;</mo> <!-- invisible times -->
+        <mi>yNobsUSP</mi>
+      </mrow>
+    </msqrt>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>yEfficiencyEPS</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>efficiency</mi>
+    <mo>=</mo>
+    <msqrt>
+      <mrow>
+        <mover>
+          <msub><mi>xRF</mi><mi>avg</mi></msub>
+          <mo>&#x00AF;</mo>
+        </mover>
+        <mo>&#x2062;</mo> <!-- invisible times -->
+        <mi>yNobsEPS</mi>
+      </mrow>
+    </msqrt>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>xRetention</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>retention</mi>
+    <mo>=</mo>
+    <mn>1</mn>
+    <mo>&#x2212;</mo>
+    <mover>
+      <msub><mi>xRF</mi><mi>avg</mi></msub>
+      <mo>&#x00AF;</mo>
+    </mover>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>yRetention</strong> <small>
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <mi>retention</mi>
+    <mo>=</mo>
+    <mn>1</mn>
+    <mo>&#x2212;</mo>
+    <mover>
+      <msub><mi>yRF</mi><mi>avg</mi></msub>
+      <mo>&#x00AF;</mo>
+    </mover>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>RSxUSP</strong> <small>
+  Złożony współczynnik rozdzielenia substancji dla osi x wg United States Pharmacopeia:
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <msub><mi>RS</mi><mi>UPS</mi></msub>
+    <mo>=</mo>
+    <mi>selectivity</mi>
+    <mo>&#x2062;</mo> <!-- invisible times -->
+    <mi>efficiency</mi>
+    <mo>&#x2062;</mo>
+    <mi>retention</mi>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>RSxEPS</strong> <small>
+    Złożony współczynnik rozdzielenia substancji dla osi x wg European Pharmacopeia:
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <msub><mi>RS</mi><mi>UPS</mi></msub>
+    <mo>=</mo>
+    <mi>selectivity</mi>
+    <mo>&#x2062;</mo> <!-- invisible times -->
+    <mi>efficiency</mi>
+    <mo>&#x2062;</mo>
+    <mi>retention</mi>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>RSyUSP</strong> <small>
+    Złożony współczynnik rozdzielenia substancji dla osi y wg United States Pharmacopeia:
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <msub><mi>RS</mi><mi>UPS</mi></msub>
+    <mo>=</mo>
+    <mi>selectivity</mi>
+    <mo>&#x2062;</mo> <!-- invisible times -->
+    <mi>efficiency</mi>
+    <mo>&#x2062;</mo>
+    <mi>retention</mi>
+  </mrow>
+</math>
+</small></li>
+<li class="list-group-item"><strong>RSyEPS</strong> <small>
+    Złożony współczynnik rozdzielenia substancji dla osi y wg European Pharmacopeia:
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+    <msub><mi>RS</mi><mi>UPS</mi></msub>
+    <mo>=</mo>
+    <mi>selectivity</mi>
+    <mo>&#x2062;</mo> <!-- invisible times -->
+    <mi>efficiency</mi>
+    <mo>&#x2062;</mo>
+    <mi>retention</mi>
+  </mrow>
+</math>
+</small></li>
 </ul>
