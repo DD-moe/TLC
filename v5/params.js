@@ -205,7 +205,11 @@
       inputs.forEach(input => {
         if (input.type === 'checkbox') {
           data[input.id] = input.checked;
-        } else{
+        } 
+        else if (input.type === 'number'){
+          data[input.id] = parseFloat(input.value);
+        }
+        else{
           data[input.id] = input.value;
         }
       });
