@@ -304,6 +304,7 @@ parameterTable('parametry-progu', [
     ['⚠️ tryb normalizacji oświetlenia (normalise / unnormalise):', 'normalisation_mode', 'unnormalise'], 
     // ✅ - tego użyj dla parametrów nie wymagających zatwiedzenia
 ]);
+  addCommentCell('lightMode', 'normalise - brak normalizacji programowej - odejmowana jest od wszystkich pikseli wartość równa średnie tła; \n unnormalise - odejmowane jest tło wyznaczoe za pomocą regresji liniowej dla każdej kolumny obrazu. ', document.body);
 
 // 5️⃣ Tworzymy panel z przyciskami do akcji.
 // Funkcja parameterButtons(id, lista_przycisków) generuje przyciski interaktywne.
