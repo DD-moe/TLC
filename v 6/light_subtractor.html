@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>2D Regresja Obrazu</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h3>select type of operation:</h3>
+<select id="selectOperation">
+    <option value="subtract">reconstructed - original</option>
+    <option value="divide">reconstructed / original * 255 - 255</option>
+    <option value="normalise">(reconstructed - original) / reconstructed * 255</option>
+</select>
+<input type="file" id="fileInput" accept="image/*"><br>
+<h3>Original Image transformed to Grayscale</h3>
+<canvas id="originalCanvas"></canvas>
+<h3>Reconstructed Image</h3>
+<canvas id="reconstructedCanvas"></canvas>
+<h3>Extracted spots and light normalised</h3>
+<canvas id="subtractedCanvas"></canvas>
+
+<script>
+// === Regresja 2D ===
+
+function generateFeatures(x, y) {
+  return [1, x, y, x * x, x * y, y * y];
+}
+
+function fitPolynomial2D(data) {
+  const X = [], Y = [];
+  for (const {x, y, z} of data) {
+    X.push(generateFeatures(x, y));
+    Y.push(z);
+  }
+
+  const XT = transpose(X);
+  const XT_X = multiplyMatrices(XT, X);
+  const XT_Y = multiplyMatrixVector(XT, Y);
+  const coeffs = solveLinearSystem(XT_X, XT_Y);
+  return coeffs;
+}
+
+function predict(x, y, coeffs) {
+  const features = generateFeatures(x, y);
+  return features.reduce((sum, val, i) => sum + val * coeffs[i], 0);
+}
+
+// === Operacje macierzowe ===
+
+function transpose(matrix) {
+  return matrix[0].map((_, colIndex) => matrix.map(row => row[colIndex]));
+}
+
+function multiplyMatrices(A, B) {
+  const result = Array.from({length: A.length}, () => Array(B[0].length).fill(0));
+  for (let i = 0; i < A.length; i++) {
+    for (let j = 0; j < B[0].length; j++) {
+      for (let k = 0; k < B.length; k++) {
+        result[i][j] += A[i][k] * B[k][j];
+      }
+    }
+  }
+  return result;
+}
+
+function multiplyMatrixVector(A, v) {
+  return A.map(row => row.reduce((sum, val, i) => sum + val * v[i], 0));
+}
+
+function solveLinearSystem(A, B) {
+  const n = A.length;
+  const M = A.map((row, i) => [...row, B[i]]);
+
+  for (let i = 0; i < n; i++) {
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(M[k][i]) > Math.abs(M[maxRow][i])) {
+        maxRow = k;
+      }
+    }
+    [M[i], M[maxRow]] = [M[maxRow], M[i]];
+
+    for (let k = i + 1; k < n; k++) {
+      const factor = M[k][i] / M[i][i];
+      for (let j = i; j <= n; j++) {
+        M[k][j] -= factor * M[i][j];
+      }
+    }
+  }
+
+  const x = Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    x[i] = M[i][n] / M[i][i];
+    for (let k = i - 1; k >= 0; k--) {
+      M[k][n] -= M[k][i] * x[i];
+    }
+  }
+  return x;
+}
+
+// === Obsługa obrazu ===
+
+const fileInput = document.getElementById('fileInput');
+const originalCanvas = document.getElementById('originalCanvas');
+const reconstructedCanvas = document.getElementById('reconstructedCanvas');
+const subtractedCanvas = document.getElementById('subtractedCanvas');
+
+fileInput.addEventListener('change', handleImage);
+
+function handleImage(e) {
+  const file = e.target.files[0];
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+
+  img.onload = () => {
+    const w = img.width;
+    const h = img.height;
+    originalCanvas.width = w;
+    originalCanvas.height = h;
+    reconstructedCanvas.width = w;
+    reconstructedCanvas.height = h;
+    subtractedCanvas.width = w;
+    subtractedCanvas.height = h;
+
+    const ctx = originalCanvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data; // dane pierwotne
+
+    // Przekształcenie na grayscale
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      data[i] = data[i+1] = data[i+2] = gray;
+    }
+    ctx.putImageData(imageData, 0, 0);
+
+    // Przygotuj dane do regresji
+    const trainingData = [];
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4;
+        trainingData.push({x, y, z: data[idx]}); // kanał R (w szarości wszystkie kanały są równe)
+      }
+    }
+
+    const coeffs = fitPolynomial2D(trainingData);
+    console.log("Współczynniki:", coeffs);
+
+    // Rekonstrukcja obrazu
+    const newCtx = reconstructedCanvas.getContext('2d');
+    const newImageData = newCtx.createImageData(w, h);
+    const newData = newImageData.data; // dane odtworzone
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        let val = predict(x, y, coeffs);
+        val = Math.max(0, Math.min(255, val)); // ograniczenie do 0-255
+        const idx = (y * w + x) * 4;
+        newData[idx] = newData[idx + 1] = newData[idx + 2] = val;
+        newData[idx + 3] = 255;
+      }
+    }
+    newCtx.putImageData(newImageData, 0, 0);
+    
+        // Subtrakcja obrazu
+    const subCtx = subtractedCanvas.getContext('2d');
+    const operationType = document.getElementById("selectOperation").value;
+    if (operationType === 'subtract') {
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const idx = (y * w + x) * 4;
+                newData[idx] = newData[idx + 1] = newData[idx + 2] = newData[idx] - data[idx];
+            }
+        }	
+    }
+    if (operationType === 'divide') {
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const idx = (y * w + x) * 4;
+                newData[idx] = newData[idx + 1] = newData[idx + 2] = newData[idx] / data[idx] * 255 - 255;
+            }
+        }	
+    }
+    if (operationType === 'normalise') {
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const idx = (y * w + x) * 4;
+                newData[idx] = newData[idx + 1] = newData[idx + 2] = (newData[idx] - data[idx]) / newData[idx] * 255;
+            }
+        }	
+    }    
+    subCtx.putImageData(newImageData, 0, 0);
+  };
+
+  img.src = url;
+}
+</script>
+
+</body>
+</html>
