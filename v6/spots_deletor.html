@@ -30,8 +30,14 @@
     <select id="selectSource">
         <option value="spots" selected>wyznaczone plamki</option>
         <option value="raw">obraz źródłowy</option>
-    </select>
+    </select><br>
 
+  <h3>8. jaki obraz plamek zapisać</h3>
+    <select id="selectType">
+        <option value="spots" selected>wyznaczone plamki</option>
+        <option value="raw">obraz źródłowy</option>
+        <option value="both">oba rodzaje</option>
+    </select><br>    
 
   <button onclick="applyMask()">Zastosuj maskę</button>
   <button onclick="drawBoundingBoxes()">Pokaż bounding boxy</button>
@@ -220,8 +226,17 @@ async function saveAllPatches() {
     const patchResult = cropCanvas(resultCanvas, newX, newY, newWidth, newHeight);
 
     // Zapisz pliki do folderu
-    await saveCanvasToFile(patchImg, dirHandle, `${index}_Image.png`);
-    await saveCanvasToFile(patchResult, dirHandle, `${index}_Result.png`);
+    const selectType = document.getElementById("selectType").value;
+    if (selectType === "spots") {
+        await saveCanvasToFile(patchResult, dirHandle, `${index}_Result.png`);
+    }
+    else if (selectType === "raw") {
+        await saveCanvasToFile(patchImg, dirHandle, `${index}_Image.png`);
+    }
+    else{
+        await saveCanvasToFile(patchImg, dirHandle, `${index}_Image.png`);
+        await saveCanvasToFile(patchResult, dirHandle, `${index}_Result.png`);
+    }
 
     index++;
   }
