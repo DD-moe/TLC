@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Maskowanie przez alpha</title>
+  <style>
+    canvas { border: 1px solid black; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h3>1. Załaduj maskę (czarno-biała)</h3>
+  <input type="file" id="maskInput"><br>
+  <h3>2. Załaduj obraz właściwy</h3>
+  <input type="file" id="imageInput"><br>
+  <h3>3. Ustaw próg maski (0–255):</h3>
+  <input type="number" id="threshold" value="128" min="0" max="255"><br><br>
+  <button onclick="applyMask()">Zastosuj maskę</button><br><br>
+
+  <canvas id="canvasMask" hidden></canvas>
+  <canvas id="canvasImage" hidden></canvas>
+  <canvas id="resultCanvas"></canvas>
+
+  <script>
+    let maskImg = new Image();
+    let imageImg = new Image();
+
+    const maskInput = document.getElementById("maskInput");
+    const imageInput = document.getElementById("imageInput");
+
+    maskInput.addEventListener("change", e => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        maskImg.src = reader.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    imageInput.addEventListener("change", e => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        imageImg.src = reader.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function applyMask() {
+      const threshold = parseInt(document.getElementById("threshold").value);
+
+      const maskCanvas = document.getElementById("canvasMask");
+      const imageCanvas = document.getElementById("canvasImage");
+      const resultCanvas = document.getElementById("resultCanvas");
+
+      const maskCtx = maskCanvas.getContext("2d");
+      const imageCtx = imageCanvas.getContext("2d");
+      const resultCtx = resultCanvas.getContext("2d");
+
+      const width = imageImg.width;
+      const height = imageImg.height;
+
+      // Ustawiamy wymiary
+      maskCanvas.width = imageCanvas.width = resultCanvas.width = width;
+      maskCanvas.height = imageCanvas.height = resultCanvas.height = height;
+
+      // Rysujemy oba obrazy na ukrytych canvasach
+      maskCtx.drawImage(maskImg, 0, 0, width, height);
+      imageCtx.drawImage(imageImg, 0, 0, width, height);
+
+      const maskData = maskCtx.getImageData(0, 0, width, height).data;
+      const imageData = imageCtx.getImageData(0, 0, width, height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const maskValue = maskData[i]; // zakładamy R = G = B
+        data[i + 3] = (maskValue >= threshold) ? 0 : 255; // alpha
+      }
+
+      resultCtx.putImageData(imageData, 0, 0);
+    }
+  </script>
+</body>
+</html>
