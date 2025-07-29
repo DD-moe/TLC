@@ -2,10 +2,12 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Maskowanie przez alpha</title>
+  <title>Maskowanie przez alpha i bounding boxy</title>
   <style>
     canvas { border: 1px solid black; margin: 5px; }
+    input { margin-bottom: 5px; }
   </style>
+  <script src="https://docs.opencv.org/4.x/opencv.js"></script>
 </head>
 <body>
   <h3>1. Załaduj maskę (czarno-biała)</h3>
@@ -13,12 +15,33 @@
   <h3>2. Załaduj obraz właściwy</h3>
   <input type="file" id="imageInput"><br>
   <h3>3. Ustaw próg maski (0–255):</h3>
-  <input type="number" id="threshold" value="128" min="0" max="255"><br><br>
-  <button onclick="applyMask()">Zastosuj maskę</button><br><br>
+  <input type="number" id="threshold" value="128" min="0" max="255"><br>
+
+  <h3>4. Ustaw próg do bounding boxes (0–255):</h3>
+  <input type="number" id="bboxThreshold" value="200" min="0" max="255"><br>
+
+  <h3>5. Minimalna wielkość obszaru (w pikselach):</h3>
+  <input type="number" id="minArea" value="100" min="0"><br>
+
+  <h3>6. Współczynnik skalowania bounding boxes:</h3>
+  <input type="number" id="scaleFactor" value="1.2" step="0.1" min="1"><br>
+
+  <h3>7. jakie tło zastosować w podglądzie wyznaczania plamek</h3>
+    <select id="selectSource">
+        <option value="spots" selected>wyznaczone plamki</option>
+        <option value="raw">obraz źródłowy</option>
+    </select>
+
+
+  <button onclick="applyMask()">Zastosuj maskę</button>
+  <button onclick="drawBoundingBoxes()">Pokaż bounding boxy</button>
+  <button onclick="saveAllPatches()">Zapisz wycięte plamki</button>
+  <br><br>
 
   <canvas id="canvasMask" hidden></canvas>
   <canvas id="canvasImage" hidden></canvas>
   <canvas id="resultCanvas"></canvas>
+  <canvas id="bboxCanvas"></canvas>
 
   <script>
     let maskImg = new Image();
@@ -29,23 +52,18 @@
 
     maskInput.addEventListener("change", e => {
       const reader = new FileReader();
-      reader.onload = () => {
-        maskImg.src = reader.result;
-      };
+      reader.onload = () => { maskImg.src = reader.result; };
       reader.readAsDataURL(e.target.files[0]);
     });
 
     imageInput.addEventListener("change", e => {
       const reader = new FileReader();
-      reader.onload = () => {
-        imageImg.src = reader.result;
-      };
+      reader.onload = () => { imageImg.src = reader.result; };
       reader.readAsDataURL(e.target.files[0]);
     });
 
     function applyMask() {
       const threshold = parseInt(document.getElementById("threshold").value);
-
       const maskCanvas = document.getElementById("canvasMask");
       const imageCanvas = document.getElementById("canvasImage");
       const resultCanvas = document.getElementById("resultCanvas");
@@ -57,11 +75,9 @@
       const width = imageImg.width;
       const height = imageImg.height;
 
-      // Ustawiamy wymiary
       maskCanvas.width = imageCanvas.width = resultCanvas.width = width;
       maskCanvas.height = imageCanvas.height = resultCanvas.height = height;
 
-      // Rysujemy oba obrazy na ukrytych canvasach
       maskCtx.drawImage(maskImg, 0, 0, width, height);
       imageCtx.drawImage(imageImg, 0, 0, width, height);
 
@@ -70,12 +86,171 @@
       const data = imageData.data;
 
       for (let i = 0; i < data.length; i += 4) {
-        const maskValue = maskData[i]; // zakładamy R = G = B
-        data[i + 3] = (maskValue >= threshold) ? 0 : 255; // alpha
+        const maskValue = maskData[i];
+        data[i + 3] = (maskValue >= threshold) ? 0 : 255;
       }
 
       resultCtx.putImageData(imageData, 0, 0);
     }
+
+    function drawBoundingBoxes() {
+      const resultCanvas = document.getElementById("resultCanvas");
+      const bboxThreshold = parseInt(document.getElementById("bboxThreshold").value);
+      const minArea = parseInt(document.getElementById("minArea").value);
+      const scaleFactor = parseFloat(document.getElementById("scaleFactor").value);
+
+      const maskCanvas = document.getElementById("canvasMask");
+      const bboxCanvas = document.getElementById("bboxCanvas");
+      const ctx = bboxCanvas.getContext("2d");
+
+      const width = maskCanvas.width;
+      const height = maskCanvas.height;
+
+      bboxCanvas.width = width;
+      bboxCanvas.height = height;
+
+      ctx.clearRect(0, 0, width, height);
+      let source;
+      const selectSource = document.getElementById("selectSource").value;
+      if (selectSource === "spots") {
+        source = resultCanvas;
+      }
+      else{ // raw
+        source = imageImg;
+      }
+      ctx.drawImage(source, 0, 0, width, height); // Draw image as background
+
+      let src = cv.imread(maskCanvas);
+      let gray = new cv.Mat();
+      let thresh = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      cv.threshold(gray, thresh, bboxThreshold, 255, cv.THRESH_BINARY);
+
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+      let index = 1;
+      for (let i = 0; i < contours.size(); i++) {
+        let cnt = contours.get(i);
+        let area = cv.contourArea(cnt);
+
+        if (area < minArea) continue;
+
+        let rect = cv.boundingRect(cnt);
+
+        let x = rect.x;
+        let y = rect.y;
+        let w = rect.width;
+        let h = rect.height;
+
+        let centerX = x + w / 2;
+        let centerY = y + h / 2;
+        let newW = w * scaleFactor;
+        let newH = h * scaleFactor;
+        let newX = centerX - newW / 2;
+        let newY = centerY - newH / 2;
+
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(newX, newY, newW, newH);
+
+        ctx.fillStyle = "red";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(index++, newX + 4, newY + 18);
+      }
+
+      // Clean up
+      src.delete(); gray.delete(); thresh.delete();
+      contours.delete(); hierarchy.delete();
+    }
+
+async function saveAllPatches() {
+  const width = imageImg.width;
+  const height = imageImg.height;
+
+  // Pobierz canvas'y
+  const imageCanvas = document.getElementById("canvasImage");
+  const resultCanvas = document.getElementById("resultCanvas");
+
+  const bboxCanvas = document.getElementById("bboxCanvas");
+  const ctx = bboxCanvas.getContext("2d");
+
+  // Ustawienie OpenCV
+  let src = cv.imread("canvasMask");
+  let gray = new cv.Mat();
+  let thresh = new cv.Mat();
+  const bboxThreshold = parseInt(document.getElementById("bboxThreshold").value);
+  const minArea = parseInt(document.getElementById("minArea").value);
+  const scaleFactor = parseFloat(document.getElementById("scaleFactor").value);
+
+  cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+  cv.threshold(gray, thresh, bboxThreshold, 255, cv.THRESH_BINARY);
+
+  let contours = new cv.MatVector();
+  let hierarchy = new cv.Mat();
+  cv.findContours(thresh, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+  // 🔐 Wybór folderu przez użytkownika
+  const dirHandle = await window.showDirectoryPicker();
+
+  let index = 1;
+  for (let i = 0; i < contours.size(); i++) {
+    let cnt = contours.get(i);
+    let area = cv.contourArea(cnt);
+    if (area < minArea) continue;
+
+    let rect = cv.boundingRect(cnt);
+    let x = rect.x;
+    let y = rect.y;
+    let w = rect.width;
+    let h = rect.height;
+
+    let centerX = x + w / 2;
+    let centerY = y + h / 2;
+    let newW = w * scaleFactor;
+    let newH = h * scaleFactor;
+    let newX = Math.max(0, Math.floor(centerX - newW / 2));
+    let newY = Math.max(0, Math.floor(centerY - newH / 2));
+    let newWidth = Math.min(width - newX, Math.floor(newW));
+    let newHeight = Math.min(height - newY, Math.floor(newH));
+
+    // Wytnij z imageCanvas i resultCanvas
+    const patchImg = cropCanvas(imageCanvas, newX, newY, newWidth, newHeight);
+    const patchResult = cropCanvas(resultCanvas, newX, newY, newWidth, newHeight);
+
+    // Zapisz pliki do folderu
+    await saveCanvasToFile(patchImg, dirHandle, `${index}_Image.png`);
+    await saveCanvasToFile(patchResult, dirHandle, `${index}_Result.png`);
+
+    index++;
+  }
+
+  // Sprzątanie
+  src.delete(); gray.delete(); thresh.delete();
+  contours.delete(); hierarchy.delete();
+
+  alert("Wszystkie plamki zapisane.");
+}
+
+function cropCanvas(sourceCanvas, x, y, w, h) {
+  const temp = document.createElement("canvas");
+  temp.width = w;
+  temp.height = h;
+  const tempCtx = temp.getContext("2d");
+  tempCtx.drawImage(sourceCanvas, x, y, w, h, 0, 0, w, h);
+  return temp;
+}
+
+async function saveCanvasToFile(canvas, dirHandle, filename) {
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+  const fileHandle = await dirHandle.getFileHandle(filename, { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(blob);
+  await writable.close();
+}
+
+
   </script>
 </body>
 </html>
