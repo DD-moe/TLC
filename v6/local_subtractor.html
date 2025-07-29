@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Sumuj kanał czerwony</title>
+</head>
+<body>
+  <h2>Sumowanie czerwonego kanału obrazów</h2>
+  <button onclick="startProcessing()">Wybierz folder ze zdjęciami</button>
+  <pre id="log"></pre>
+
+  <script>
+    async function startProcessing() {
+      const log = document.getElementById('log');
+      log.textContent = "Wybieranie folderu...\n";
+
+      try {
+        const dirHandle = await window.showDirectoryPicker();
+        const results = [];
+
+        for await (const entry of dirHandle.values()) {
+          if (entry.kind === 'file') {
+            const ext = entry.name.toLowerCase();
+            if (ext.endsWith('.png') || ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.bmp') || ext.endsWith('.webp')) {
+              const file = await entry.getFile();
+              const sum = await sumRedChannel(file);
+              results.push(`${entry.name}: ${sum}`);
+              log.textContent += `${entry.name}: ${sum}\n`;
+            }
+          }
+        }
+
+        if (results.length === 0) {
+          log.textContent += "\nBrak obsługiwanych plików graficznych w folderze.";
+          return;
+        }
+
+        const resultFileHandle = await dirHandle.getFileHandle("results.txt", { create: true });
+        const writable = await resultFileHandle.createWritable();
+        await writable.write(results.join("\n"));
+        await writable.close();
+
+        log.textContent += "\nPlik results.txt został zapisany.";
+      } catch (err) {
+        console.error(err);
+        log.textContent += "\nBłąd: " + err.message;
+      }
+    }
+
+    function sumRedChannel(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+          let sum = 0;
+          for (let i = 0; i < imageData.length; i += 4) {
+            sum += imageData[i]; // R channel
+          }
+
+          URL.revokeObjectURL(url);
+          resolve(sum);
+        };
+
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("Nie można wczytać obrazu: " + file.name));
+        };
+
+        img.src = url;
+      });
+    }
+  </script>
+</body>
+</html>
