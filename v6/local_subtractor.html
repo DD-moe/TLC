@@ -6,7 +6,8 @@
 </head>
 <body>
   <h2>Sumowanie czerwonego kanału obrazów</h2>
-  <h3>Wybierz operację:</h3>
+  <h3>Wybierz próg szumu</h3>
+  <input type="number" id="treshold">
   <button onclick="startProcessing()">Wybierz folder ze zdjęciami</button>
   <pre id="log"></pre>
 
@@ -63,10 +64,11 @@
 
           let sum = 0;
           let area = 0;
+          nr = parseInt(document.getElementById('treshold').value);
           for (let i = 0; i < imageData.length; i += 4) {
-            sum += imageData[i]; // R channel
-            if (imageData[i] > 0) {
+            if (imageData[i] > nr) {
               area += 1;
+              sum += imageData[i]; // R channel
             }
           }
           const intensity = sum / area;
