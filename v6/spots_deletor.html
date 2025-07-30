@@ -93,7 +93,7 @@
 
       for (let i = 0; i < data.length; i += 4) {
         const maskValue = maskData[i];
-        data[i + 3] = (maskValue >= threshold) ? 0 : 255;
+        data[i + 3] = (maskValue >= threshold) ? 128 : 255;
       }
 
       resultCtx.putImageData(imageData, 0, 0);
