@@ -10,11 +10,18 @@
       margin-bottom: 10px;
       font-family: monospace;
     }
-    pre {
-      background: #eee;
-      padding: 10px;
-      white-space: pre-wrap;
-      font-family: monospace;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #eee;
     }
   </style>
 </head>
@@ -28,7 +35,7 @@
   <button onclick="processData()">Przetwórz dane</button>
 
   <h2>Wynik:</h2>
-  <pre id="output"></pre>
+  <div id="outputTable"></div>
 
   <script>
     function processData() {
@@ -47,18 +54,21 @@
         }
       }
 
-      // Tworzymy wynik w zadanej kolejności
-      let result = '';
+      // Tworzymy tabelę HTML
+      let html = '<table>';
+      html += '<tr><th>Numer</th><th>Sum</th><th>Area</th><th>Intensity</th></tr>';
+
       for (const num of dataNumbers) {
         const d = dataMap[num];
         if (d) {
-          result += `${num}   ${d.sum}   ${d.area}   ${d.intensity}\n`;
+          html += `<tr><td>${num}</td><td>${d.sum}</td><td>${d.area}</td><td>${d.intensity}</td></tr>`;
         } else {
-          result += `${num}   brak danych\n`;
+          html += `<tr><td>${num}</td><td colspan="3">brak danych</td></tr>`;
         }
       }
 
-      document.getElementById('output').textContent = result;
+      html += '</table>';
+      document.getElementById('outputTable').innerHTML = html;
     }
   </script>
 </body>
