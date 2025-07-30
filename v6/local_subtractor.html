@@ -6,6 +6,7 @@
 </head>
 <body>
   <h2>Sumowanie czerwonego kanału obrazów</h2>
+  <h3>Wybierz operację:</h3>
   <button onclick="startProcessing()">Wybierz folder ze zdjęciami</button>
   <pre id="log"></pre>
 
@@ -23,9 +24,9 @@
             const ext = entry.name.toLowerCase();
             if (ext.endsWith('.png') || ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.bmp') || ext.endsWith('.webp')) {
               const file = await entry.getFile();
-              const sum = await sumRedChannel(file);
-              results.push(`${entry.name}: ${sum}`);
-              log.textContent += `${entry.name}: ${sum}\n`;
+              const {sum, area, intensity} = await sumRedChannel(file);
+              results.push(`${entry.name}: sum - ${sum}   area - ${area}   intensity - ${intensity}`);
+              log.textContent += `${entry.name}: sum - ${sum}   area - ${area}   intensity - ${intensity}\n`;
             }
           }
         }
@@ -61,12 +62,16 @@
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
           let sum = 0;
+          let area = 0;
           for (let i = 0; i < imageData.length; i += 4) {
             sum += imageData[i]; // R channel
+            if (imageData[i] > 0) {
+              area += 1;
+            }
           }
-
+          const intensity = sum / area;
           URL.revokeObjectURL(url);
-          resolve(sum);
+          resolve({sum, area, intensity});
         };
 
         img.onerror = () => {
