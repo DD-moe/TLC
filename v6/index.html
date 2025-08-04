@@ -1,0 +1,136 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Web Applications for TLC Plate Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        h2 {
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: #e9ecef;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>A Collection of Web Applications for TLC Plate Analysis</h1>
+    <p>Below you will find a description of simple web applications designed for the analysis of TLC (Thin-Layer Chromatography) plates. Each application has a specific function, from background subtraction to the detailed analysis of individual spots.</p>
+
+    <hr>
+
+    <h2>1. TLC Image Background Subtractor</h2>
+    <p><strong>Link:</strong> <a href="https://git.1ioe.top/TLC/v6/light_subtractor.html" target="_blank">light_subtractor.html</a></p>
+    <p>This application is used to predict the background of a TLC plate. Depending on the chosen option, it then subtracts the background from the image or performs a full normalization to isolate only the TLC spots.</p>
+    <h3>Usage instructions:</h3>
+    <ul>
+        <li>Upload an image of a TLC plate.</li>
+        <li>The application will automatically predict the background.</li>
+        <li>Choose to either subtract the background or perform a full normalization to highlight the spots.</li>
+    </ul>
+
+    <hr>
+
+    <h2>2. Batch Background Subtractor</h2>
+    <p><strong>Link:</strong> <a href="https://git.1ioe.top/TLC/v6/M_light_subtractor.html" target="_blank">M_light_subtractor.html</a></p>
+    <p>This is an optimized version of the previous application, designed to work with multiple files at once. It automatically processes a list of files and saves the results in a chosen folder.</p>
+    <h3>Usage instructions:</h3>
+    <ul>
+        <li>Select a folder containing the files you want to process.</li>
+        <li>The application will automatically perform background subtraction for all files.</li>
+        <li>The results will be saved in the same folder.</li>
+    </ul>
+
+    <hr>
+
+    <h2>3. Local Spot Analysis</h2>
+    <p><strong>Link:</strong> <a href="https://git.1ioe.top/TLC/v6/local_subtractor.html" target="_blank">local_subtractor.html</a></p>
+    <p>This application calculates the sum of pixels, the area, and the average intensity for each spot. It allows you to select a threshold above which pixels are counted. The analysis data is saved as a text file (.txt) in a chosen folder for further analysis.</p>
+    <h3>Usage instructions:</h3>
+    <ul>
+        <li>Load an image after background subtraction.</li>
+        <li>Set the pixel threshold.</li>
+        <li>The application will calculate and display the parameters for each spot.</li>
+        <li>Save the data to a TXT file.</li>
+    </ul>
+
+    <hr>
+
+    <h2>4. Masking via Alpha and Bounding Boxes</h2>
+    <p><strong>Link:</strong> <a href="https://git.1ioe.top/TLC/v6/spots_deletor.html" target="_blank">spots_deletor.html</a></p>
+    <p>This tool allows you to detect spots based on a preliminary background-subtracted image and the original image. The cropped spots are then saved to a specified folder for analysis. It includes a range of advanced settings:</p>
+    <ul>
+        <li><strong>Mask Threshold:</strong> The difference on the preliminary background-subtracted image to reject pixels belonging to spots from the second process (local background removal) for determining polynomial regression.</li>
+        <li><strong>Bounding Box Threshold:</strong> The same as the mask threshold, but used to determine the bounding box area for a spot.</li>
+        <li><strong>Minimum Spot Size:</strong> Specifies the minimum size of a spot in pixels (x * y) to be considered.</li>
+        <li><strong>Bounding Box Scale:</strong> Allows you to add margins to the spot area.</li>
+        <li><strong>Preview Background:</strong> You can choose whether to display the background after marking spots to be ignored during secondary polynomial regression, or to show the original image.</li>
+        <li><strong>Save Image:</strong> The same options as above, but for the final saved file of the cropped spots.</li>
+    </ul>
+
+    <hr>
+
+    <h2>5. Transparency Reverser</h2>
+    <p><strong>Link:</strong> <a href="https://git.1ioe.top/TLC/v6/transparency_reverser.html" target="_blank">transparency_reverser.html</a></p>
+    <p>This simple application reverses the transparent (alpha) channel of an image to an opaque one. It is used to check whether the alpha channel is being saved correctly and if the file format is not reducing the data included in it.</p>
+    <h3>Usage instructions:</h3>
+    <ul>
+        <li>Load an image file.</li>
+        <li>The application will automatically reverse the alpha channel.</li>
+        <li>Check if the result matches your expectations.</li>
+    </ul>
+
+    <hr>
+
+    <h2>6. Data Formatter</h2>
+    <p><strong>Link:</strong> <a href="https://git.1ioe.top/TLC/v6/data_formater.html" target="_blank">data_formater.html</a></p>
+    <p>This tool allows you to rearrange the spots in a new order as desired. In the upper text field, you enter the spot numbers from the old order, separated by spaces. The application formats the data according to the new order into a table that is easy to paste into Excel.</p>
+    <h3>Usage instructions:</h3>
+    <ul>
+        <li>Enter the spot numbers separated by spaces (e.g., "1 3 2 4").</li>
+        <li>The application will generate a formatted table with the new order.</li>
+        <li>Copy and paste the data into Excel or another spreadsheet.</li>
+    </ul>
+
+</div>
+
+</body>
+</html>
+```
