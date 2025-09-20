@@ -661,7 +661,7 @@
                                 } catch (e) {
                                     wybrane = null;
                                 }
-                                console.log(wybrane);
+                                console.log(param.description, param.description in wybrane);
                                 if (!wybrane || param.description in wybrane ) { // jeśli wybrano takie parametry do wyliczenia
                                     tableHTML += `<tr><td>${param.description}</td><td>${param.value}</td></tr>`;
                                 }
