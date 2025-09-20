@@ -655,7 +655,15 @@
                                     !param.hasOwnProperty("value")) return;
 
                                 // dodaj wiersz do tabeli
-                                tableHTML += `<tr><td>${param.description}</td><td>${param.value}</td></tr>`;
+                                let wybrane;
+                                try {
+                                    wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3'));
+                                } catch (e) {
+                                    wybrane = null;
+                                }
+                                if (!wybrane || param.description in wybrane ) { // jeśli wybrano takie parametry do wyliczenia
+                                    tableHTML += `<tr><td>${param.description}</td><td>${param.value}</td></tr>`;
+                                }
                             });
 
                         tableHTML += '</table>';
