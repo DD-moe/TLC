@@ -91,7 +91,8 @@
         <button onclick="calculateLinearRegression()" title="Stwórz krzywą koncentracji">📈</button>
         <button onclick="PreparePositionalCurve()" title="Stwórz krzywą normalizacji">〰️</button> 
         <button onclick="getSpotReference()" title="Użyj jako odnosnika stężenia">🎯</button>
-        <button onclick="copyData()" title="skopiuj dane do raportu">📤</button>
+        <button onclick="copyImage()" title="skopiuj obraz do raportu">📤🖼️</button>
+        <button onclick="copyData()" title="skopiuj tabele do raportu">📤𝄜</button>
         <div id="LinearRegression"></div>
         <div id="surfaceRef"></div>
         <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>
@@ -597,8 +598,14 @@
             });
         }
 
-        // kopiowanie zawartości wyników do raportu
+        // kopiowanie zawartości wyników do raportu do schowka
         function copyData(){
+            //const paramsData = selectedTrack.target.dataset.params;
+            //selectedTrack = {target: e.target, moveable: e.moveable};
+        }
+
+        // kopiuj obraz do raportu do schowka
+        function copyImage(){
             // track_space to element <div> przeznaczony na canvases z wykresami itd.
             html2canvas(track_space).then(canvas => {
                 canvas.toBlob(blob => {
@@ -612,9 +619,7 @@
                     });
                 });
             });
-
         }
-
 
         function addDraggableElement() {
             const element = selectedTrack.target;
@@ -878,6 +883,7 @@
                     const tailingFactor = W05 / (2 * A05);
 
                     const params = JSON.stringify({
+                        track: { value: track.textContent, description: "name of track", color: 'LightGray'},
                         midpointIndex: { value: midpointIndex, description: "Index of midpoint", color: 'bisque'},
                         maxHeight: { value: maxHeight, description: "Maximal height on track", color: 'bisque' },
                         peakMaxHeight: { value: peakMaxHeight, description: "Maximal height of peak" },
@@ -1150,7 +1156,7 @@
                     label.textContent = param.description;
 
                     const input = document.createElement("input");
-                    if (param.description === "name of substance") { // dla nazwy - text
+                    if (param.description === "name of substance" || param.description === "name of track") { // dla nazwy - text
                         input.type = "text";
                         input.value = param.value;
                         input.dataset.paramKey = key;                     
@@ -1189,7 +1195,7 @@
                 inputs.forEach(input => {
                     const key = input.dataset.paramKey;
                     if (paramsObject[key]) { // is name = text
-                        if (paramsObject[key].description === "name of substance") {
+                        if (paramsObject[key].description === "name of substance" || paramsObject[key].description === "name of track") {
                             paramsObject[key].value = input.value;
                         }
                         else{ // not name = number float
