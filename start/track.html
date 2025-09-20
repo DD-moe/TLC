@@ -91,6 +91,7 @@
         <button onclick="calculateLinearRegression()" title="Stwórz krzywą koncentracji">📈</button>
         <button onclick="PreparePositionalCurve()" title="Stwórz krzywą normalizacji">〰️</button> 
         <button onclick="getSpotReference()" title="Użyj jako odnosnika stężenia">🎯</button>
+        <button onclick="copyData()" title="skopiuj dane do raportu">📤</button>
         <div id="LinearRegression"></div>
         <div id="surfaceRef"></div>
         <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>
@@ -514,6 +515,26 @@
                 mainCanvas.height = 250;
                 const ctx = mainCanvas.getContext('2d');
 
+                // Rysowanie poziomych linii siatki i podpisów
+                ctx.font = '12px Arial';
+                ctx.fillStyle = 'gray';
+                ctx.textAlign = 'right';
+                for (let i = 1; i <= 9; i++) {
+                const percent = 100 - i * 10; // 90%, 80%, ... 10%
+                const y = (i * mainCanvas.height) / 10; // pozycja w % wysokości
+
+                // linia
+                ctx.beginPath();
+                ctx.strokeStyle = 'lightgray';
+                ctx.lineWidth = 1;
+                ctx.moveTo(0, y);
+                ctx.lineTo(mainCanvas.width, y);
+                ctx.stroke();
+
+                // podpis (np. 90%, 80% ...)
+                ctx.fillText(`${percent}%`, mainCanvas.width - 5, y - 2);
+            }
+
                 // Rysowanie wykresu jako linia
                 ctx.beginPath();
                 ctx.strokeStyle = 'steelblue';
@@ -570,6 +591,12 @@
 
             });
         }
+
+        // kopiowanie zawartości wyników do raportu
+        function copyData(){
+
+        }
+
 
         function addDraggableElement() {
             const element = selectedTrack.target;
