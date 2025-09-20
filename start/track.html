@@ -598,17 +598,35 @@
             });
         }
 
+        // zaokrąglanie do d miejsc po przecinku
+        function reduceDecimals(value, decimals) {
+            if (typeof value === 'number' && !isNaN(value)) {
+                if (decimals === -1) {
+                    // nie zaokrąglamy, zwracamy oryginalną liczbę
+                    return value;
+                }
+                // jeśli decimals >= 0 → zaokrąglamy
+                if (typeof decimals === 'number' && decimals >= 0) {
+                    return Number(value.toFixed(decimals));
+                }
+            }
+            return value; // jeśli nie liczba, zwracamy oryginał
+        }
+
         // kopiowanie zawartości wyników do raportu do schowka
         function copyData() {
             // załąduj ustawienia z local storage
             let wybrane;
             let wybrane_length;
+            let decimals;
             try {
                 wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3'));
                 wybrane_length = Object.values(wybrane).length;
+                decimals = JSON.parse(localStorage.getItem('decimalsTLCv3'));
             } catch (e) {
                 wybrane = null;
                 wybrane_length = 0
+                decimals = -1;
             }
 
             // otwórz nowe okno
@@ -667,11 +685,11 @@
 
                                 // dodaj wiersz do tabeli
                                 if (!wybrane || param.description in wybrane || wybrane_length === 0 ) { // jeśli wybrano takie parametry do wyliczenia
-                                    tableHTML += `<tr><td>${param.description}</td><td>${param.value}</td></tr>`;
+                                    tableHTML += `<tr><td>${param.description}</td><td>${reduceDecimals(param.value, decimals)}</td></tr>`;
                                 }
                             });
 
-                        tableHTML += '</table>';
+                        tableHTML += '</table><br>';
 
                         popup.document.write(tableHTML);
 
