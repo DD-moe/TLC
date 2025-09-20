@@ -1114,11 +1114,20 @@
                 const list = document.createElement("ul");
 
                 // dodaje pole z nazwą dla peaku jeśli jej nie ma
-                if ( paramsObject.hasOwnProperty("name")) {
+                if (!paramsObject.hasOwnProperty("name")) {
                     paramsObject.name = {color:"gray", description: "name of substance", value: "unnamed substance"};
                 }
 
-                Object.entries(paramsObject).forEach(([key, param]) => {
+                Object.entries(paramsObject)
+                .sort(([keyA], [keyB]) => {
+                    // jeśli keyA to "name", ma być pierwszy
+                    if (keyA === 'name' && keyB !== 'name') return -1;
+                    // jeśli keyB to "name", ma być pierwszy
+                    if (keyB === 'name' && keyA !== 'name') return 1;
+                    // reszta normalnie alfabetycznie
+                    return keyA.localeCompare(keyB);
+                })                
+                .forEach(([key, param]) => {
                     if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
 
                     const listItem = document.createElement("li");
