@@ -24,6 +24,8 @@
     <h3>Wybierz parametry włączane do raportu</h3>
     <div id="paramList"></div>
     <button id="clearSelection">Odznacz parametry</button>
+    <hr>
+    <label for="decimalsInput" title="ile miejsc po przecinku uwzględniać w raporcie dla każdego parametru">Liczba miejsc po przecinku: </label><input type="number" id="decimalsInput">
     <script>
         // List of URLs to be cached
         const resourceLinks = [
@@ -152,6 +154,21 @@
             // odśwież stronę
             window.location.reload();
         });        
+
+    // liczba miejsc po przecinku
+        const decimalsInput = document.getElementById("decimalsInput");
+
+        let decimals = -1;
+        try {
+        decimals = JSON.parse(localStorage.getItem('decimalsTLCv3'));
+        } catch (e) 
+        { decimals = -1; }
+        decimalsInput.value = decimals;
+        
+        decimalsInput.addEventListener("change" = ()=>{
+            localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(decimals));
+        })
+
     </script>
 </body>
 </html>
