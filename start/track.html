@@ -602,11 +602,13 @@
         function copyData() {
             // załąduj ustawienia z local storage
             let wybrane;
+            let wybrane_length;
             try {
                 wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3'));
-                const wybrane_length = Object.values(wybrane).length;
+                wybrane_length = Object.values(wybrane).length;
             } catch (e) {
                 wybrane = null;
+                wybrane_length = 0
             }
 
             // otwórz nowe okno
