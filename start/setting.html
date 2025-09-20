@@ -23,6 +23,7 @@
     <hr>
     <h3>Wybierz parametry włączane do raportu</h3>
     <div id="paramList"></div>
+    <button id="clearSelection">Odznacz parametry</button>
     <script>
         // List of URLs to be cached
         const resourceLinks = [
@@ -138,6 +139,18 @@
             // zapis do localStorage jako JSON obiekt
             localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(wybrane));
         });
+        });       
+        
+        // odznacza parametry
+        const clearBtn = document.getElementById('clearSelection');
+
+        clearBtn.addEventListener('click', () => {
+            // wyczyść zmienną i localStorage
+            wybrane = {};
+            localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(wybrane));
+
+            // odśwież stronę
+            window.location.reload();
         });        
     </script>
 </body>
