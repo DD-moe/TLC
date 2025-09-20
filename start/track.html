@@ -604,7 +604,7 @@
             let wybrane;
             try {
                 wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3'));
-                const wybrane_length = wybrane.values(obj).length;
+                const wybrane_length = Object.values(wybrane).length;
             } catch (e) {
                 wybrane = null;
             }
