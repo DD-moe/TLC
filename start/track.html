@@ -79,6 +79,7 @@
         <input type="number" id="treshold" min="0" max="255" step="1" value="240">
         <label for="kernelSize" title="Kernel dla blurr - do wykrywania granic peaku">🌫️</label>
         <input type="number" id="kernelSize" min="1" max="20" step="1" value="5">
+        <input type="checkbox" id="showBlurr">
         <button onclick="autostart()" title="Ponowne przetwarzanie danych po korekcie">🔄</button>
         <button onclick="unselectElement()" title="Odznacz wybrany element">❌</button>
         <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
@@ -507,6 +508,7 @@
                 const min = Math.min(...RedSums);
                 const max = Math.max(...RedSums);
                 const normalizedRedSums = RedSums.map(value => (value - min) / (max - min) * 250);
+                const normalizedblurredRedSums = blurredRedSums.map(value => (value - min) / (max - min) * 250);
                 
                 // Dodanie atrybutu data-red-sums do div'a z 1D tablicą RedSums
                 newDiv.dataset.RedSums = JSON.stringify(RedSums);  // Użycie data-* atrybutu
@@ -539,11 +541,19 @@
             }
 
                 // Rysowanie wykresu jako linia
+                const showBlurr = document.getElementById("showBlurr");
+                let chartData;
+                if (showBlurr.checked) { // use blurred data to visualize
+                    chartData = normalizedblurredRedSums;
+                } else { // use unblurred (raw data)
+                    chartData = normalizedRedSums;
+                }
+
                 ctx.beginPath();
                 ctx.strokeStyle = 'steelblue';
                 ctx.lineWidth = 2;
-                normalizedRedSums.forEach((value, index) => {
-                    const x = (index / (normalizedRedSums.length - 1)) * mainCanvas.width;
+                chartData.forEach((value, index) => {
+                    const x = (index / (chartData.length - 1)) * mainCanvas.width;
                     const y = 250 - value;
                     if (index === 0) {
                         ctx.moveTo(x, y);
