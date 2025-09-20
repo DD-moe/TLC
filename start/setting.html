@@ -101,11 +101,11 @@
 
         const paramListDiv = document.getElementById('paramList');
 
-        // wczytaj wcześniej zapisane zaznaczenia jako obiekt
-        let wybrane = {};
+        // wczytaj wcześniej zapisane zaznaczenia
+        let wybrane = [];
         try {
-        wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3')) || {};
-        } catch (e) { wybrane = {}; }
+        wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3')) || [];
+        } catch (e) { wybrane = []; }
 
         // generowanie listy checkboxów
         paramDescriptions.forEach(desc => {
@@ -115,7 +115,7 @@
         checkbox.type = 'checkbox';
         checkbox.id = id;
         checkbox.value = desc;
-        checkbox.checked = !!wybrane[desc]; // true jeśli wcześniej zaznaczone
+        checkbox.checked = wybrane.includes(desc);
 
         const label = document.createElement('label');
         label.htmlFor = id;
@@ -127,15 +127,11 @@
 
         // event po zmianie checkboxa
         checkbox.addEventListener('change', () => {
-            // odczyt wszystkich checkboxów
-            wybrane = {};
-            Array.from(paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
-            .forEach(cb => wybrane[cb.value] = true);
-
-            // zapis do localStorage jako JSON obiekt
-            localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(wybrane));
+            const zaznaczone = Array.from(paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
+            .map(cb => cb.value);
+            localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(zaznaczone));
         });
-        });    
+        });        
     </script>
 </body>
 </html>
