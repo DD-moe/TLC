@@ -1114,8 +1114,8 @@
                 const list = document.createElement("ul");
 
                 // dodaje pole z nazwą dla peaku
-                console.log(paramsObject);
                 paramsObject.name = {color:"gray", description: "name of substance", value: "unnamed substance"};
+                console.log(paramsObject);
 
                 Object.entries(paramsObject).forEach(([key, param]) => {
                     if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
@@ -1131,7 +1131,8 @@
                     if (param.description === "name of substance") { // dla nazwy - text
                         input.type = "text";
                         input.value = param.value;
-                        input.dataset.paramKey = key;                        
+                        input.dataset.paramKey = key; 
+                        console.log("wykryto", param);                       
                     }
                     else{ // dla pozostałych numer
                         input.type = "number";
