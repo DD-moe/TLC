@@ -600,6 +600,15 @@
 
         // kopiowanie zawartości wyników do raportu do schowka
         function copyData() {
+            // załąduj ustawienia z local storage
+            let wybrane;
+            try {
+                wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3'));
+                const wybrane_length = wybrane.values(obj).length;
+            } catch (e) {
+                wybrane = null;
+            }
+
             // otwórz nowe okno
             const popup = window.open('', '', 'width=800,height=600,scrollbars=yes,resizable=yes');
             popup.document.write('<html><head><title>Raport</title></head><body>');
@@ -655,14 +664,7 @@
                                     !param.hasOwnProperty("value")) return;
 
                                 // dodaj wiersz do tabeli
-                                let wybrane;
-                                try {
-                                    wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3'));
-                                } catch (e) {
-                                    wybrane = null;
-                                }
-                                console.log(param.description, param.description in wybrane);
-                                if (!wybrane || param.description in wybrane ) { // jeśli wybrano takie parametry do wyliczenia
+                                if (!wybrane || param.description in wybrane || wybrane_length === 0 ) { // jeśli wybrano takie parametry do wyliczenia
                                     tableHTML += `<tr><td>${param.description}</td><td>${param.value}</td></tr>`;
                                 }
                             });
