@@ -115,6 +115,8 @@
     </div> 
     <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->
     <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
+    <!-- screenshot script --><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
 
     <script>
         // Zmienne globalne
@@ -597,6 +599,19 @@
 
         // kopiowanie zawartości wyników do raportu
         function copyData(){
+            // track_space to element <div> przeznaczony na canvases z wykresami itd.
+            html2canvas(track_space).then(canvas => {
+                canvas.toBlob(blob => {
+                    // Skopiuj do schowka jako obraz
+                    navigator.clipboard.write([
+                        new ClipboardItem({ 'image/png': blob })
+                    ]).then(() => {
+                        console.log('Zrzut skopiowany do schowka!');
+                    }).catch(err => {
+                        console.error('Nie udało się skopiować do schowka', err);
+                    });
+                });
+            });
 
         }
 
