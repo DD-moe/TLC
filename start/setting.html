@@ -20,6 +20,9 @@
     <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>    
     <a href="track.html" title="panel analizy ścieżek">4️⃣📊</a>
     <a href="../index.html" title="strona startowa">🏠</a>
+    <hr>
+    <h3>Wybierz parametry włączane do raportu</h3>
+    <div id="paramList"></div>
     <script>
         // List of URLs to be cached
         const resourceLinks = [
@@ -55,6 +58,81 @@
 
         // Attach the caching function to the button
         document.getElementById('refresh-cache').addEventListener('click', cacheResources);
+
+    //########## - parametry
+
+        // tablica z parametrami
+        const paramDescriptions = [
+        "name of substance",
+        "unnamed substance",
+        "name of track",
+        "Start to midpoint distance at 5% of height",
+        "Start to midpoint distance at 10% of height",
+        "Asymmetry factor",
+        "Midpoint to end distance at 5% of height",
+        "Midpoint to end distance at 10% of height",
+        "Substance concentration",
+        "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia",
+        "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia",
+        "Retention factor (k)",
+        "Maximal height on track",
+        "Greatest peak surface for track",
+        "Index of midpoint",
+        "Number of theoretical plates per meter (N/m) - European Pharmacopeia",
+        "Number of theoretical plates per meter (N/m) - United States Pharmacopeia",
+        "Number of theoretical plates (N) - European Pharmacopeia",
+        "Number of theoretical plates (N) - United States Pharmacopeia",
+        "Maximal height of peak",
+        "Maximal height of peak / Maximal height on track * 100%",
+        "% of greatest peak surface",
+        "Plate width in cm",
+        "Retention factor (RF)",
+        "logarithmic retention factor (RM)",
+        "Surface of spot",
+        "Tailing factor",
+        "Track width in cm",
+        "Width of peak at 5% of height",
+        "Width of peak at 10% of height",
+        "Width of peak at 50% of height",
+        "Width of peak at 0% of height",
+        "X position 0-1 range of spot centrum",
+        "Y position 0-1 range of spot centrum"
+        ];
+
+
+        const paramListDiv = document.getElementById('paramList');
+
+        // wczytaj wcześniej zapisane zaznaczenia
+        let wybrane = [];
+        try {
+        wybrane = JSON.parse(localStorage.getItem('wybraneParametryTLCv3')) || [];
+        } catch (e) { wybrane = []; }
+
+        // generowanie listy checkboxów
+        paramDescriptions.forEach(desc => {
+        const id = 'param_' + desc.replace(/\s+/g, '_'); // unikalne ID
+        const wrapper = document.createElement('div');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = id;
+        checkbox.value = desc;
+        checkbox.checked = wybrane.includes(desc);
+
+        const label = document.createElement('label');
+        label.htmlFor = id;
+        label.textContent = desc;
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(label);
+        paramListDiv.appendChild(wrapper);
+
+        // event po zmianie checkboxa
+        checkbox.addEventListener('change', () => {
+            const zaznaczone = Array.from(paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
+            .map(cb => cb.value);
+            localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(zaznaczone));
+        });
+        });        
     </script>
 </body>
 </html>
