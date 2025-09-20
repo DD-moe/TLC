@@ -156,19 +156,34 @@
         });        
 
     // liczba miejsc po przecinku
-        const decimalsInput = document.getElementById("decimalsInput");
+    const decimalsInput = document.getElementById("decimalsInput");
 
-        let decimals = -1;
-        try {
-        decimals = JSON.parse(localStorage.getItem('decimalsTLCv3'));
-        } catch (e) 
-        { decimals = -1; }
-        decimalsInput.value = decimals;
-        
-        decimalsInput.addEventListener("change" , ()=>{
-            localStorage.setItem('decimalsTLCv3', JSON.stringify(decimals));
-        })
+    let decimals = -1;
+    try {
+        const stored = JSON.parse(localStorage.getItem('decimalsTLCv3'));
+        if (typeof stored === 'number') {
+            decimals = stored;
+        } else {
+            decimals = -1; // jeśli w localStorage coś jest, ale nie liczba
+        }
+    } catch (e) {
+        decimals = -1; // jeśli JSON niepoprawny
+    }
 
+    // ustaw wartość inputa
+    decimalsInput.value = decimals;
+
+    // event przy zmianie inputa
+    decimalsInput.addEventListener("change", () => {
+        // odczytaj nową wartość z inputa i zapisz
+        const value = Number(decimalsInput.value);
+        if (Number.isNaN(value)) {
+            decimals = -1; // jeśli coś nie jest liczbą
+        } else {
+            decimals = value;
+        }
+        localStorage.setItem('decimalsTLCv3', JSON.stringify(decimals));
+    });
     </script>
 </body>
 </html>
