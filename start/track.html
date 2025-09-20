@@ -599,10 +599,79 @@
         }
 
         // kopiowanie zawartości wyników do raportu do schowka
-        function copyData(){
-            //const paramsData = selectedTrack.target.dataset.params;
-            //selectedTrack = {target: e.target, moveable: e.moveable};
+        function copyData() {
+            // otwórz nowe okno
+            const popup = window.open('', '', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            popup.document.write('<html><head><title>Raport</title></head><body>');
+            
+            document.querySelectorAll('.track').forEach(track => {
+                // HR + nagłówek z tekstem tracka
+                popup.document.write('<hr><h2>' + track.textContent + '</h2>');
+
+                // pobierz draggables
+                const draggables = Array.from(track.querySelectorAll('.draggable'));
+
+                // zmapuj Xcentral
+                const withX = draggables.map(el => {
+                    let x = Infinity;
+                    try {
+                        const params = JSON.parse(el.dataset.params || '{}');
+                        const n = Number(params.Xcentral);
+                        x = Number.isFinite(n) ? n : Infinity;
+                    } catch (e) {}
+                    return { el, x };
+                });
+
+                // sortuj po Xcentral
+                withX.sort((a, b) => a.x - b.x);
+
+                // priority do sortowania parametrów
+                const priority = {
+                    name: 1,
+                    track: 2
+                };
+
+                // dla każdego draggable
+                withX.forEach(({ el }) => {
+                    try {
+                        const paramsObject = JSON.parse(el.dataset.params || '{}');
+                        if (typeof paramsObject !== "object" || paramsObject === null) return;
+
+                        // zbuduj tabelę dla tego draggable
+                        let tableHTML = '<table border="1" style="display:inline-block; margin:5px; border-collapse:collapse;">';
+                        tableHTML += '<tr><th>Description</th><th>Value</th></tr>';
+
+                        Object.entries(paramsObject)
+                            .sort(([keyA], [keyB]) => {
+                                const rankA = priority[keyA] ?? Infinity;
+                                const rankB = priority[keyB] ?? Infinity;
+                                if (rankA !== rankB) return rankA - rankB;
+                                return keyA.localeCompare(keyB);
+                            })
+                            .forEach(([key, param]) => {
+                                // param musi mieć description i value
+                                if (typeof param !== "object" || 
+                                    !param.hasOwnProperty("description") || 
+                                    !param.hasOwnProperty("value")) return;
+
+                                // dodaj wiersz do tabeli
+                                tableHTML += `<tr><td>${param.description}</td><td>${param.value}</td></tr>`;
+                            });
+
+                        tableHTML += '</table>';
+
+                        popup.document.write(tableHTML);
+
+                    } catch (err) {
+                        console.log(err);
+                    }
+                });
+            });
+
+            popup.document.write('</body></html>');
+            popup.document.close();
         }
+
 
         // kopiuj obraz do raportu do schowka
         function copyImage(){
@@ -882,8 +951,10 @@
                     const asymmetryFactor = B10 / A10;
                     const tailingFactor = W05 / (2 * A05);
 
+                    const trackName = track.textContent.replace(/^Track:\s*/, '');
+
                     const params = JSON.stringify({
-                        track: { value: track.textContent, description: "name of track", color: 'LightGray'},
+                        track: { value: trackName, description: "name of track", color: 'LightGray'},
                         midpointIndex: { value: midpointIndex, description: "Index of midpoint", color: 'bisque'},
                         maxHeight: { value: maxHeight, description: "Maximal height on track", color: 'bisque' },
                         peakMaxHeight: { value: peakMaxHeight, description: "Maximal height of peak" },
