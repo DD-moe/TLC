@@ -880,6 +880,8 @@
                         tailingFactor: { value: tailingFactor, description: "Tailing factor" },
                         Ycentral: {value: Ypos, description: "Y position 0-1 range of spot centrum"},
                         Xcentral: {value: Xpos, description: "X position 0-1 range of spot centrum"},
+                        name: {value: "unnamed substance", description: "substance name", color: 'LightGray'}
+                        
                     });
 
                     draggable.dataset.params = params;
@@ -1112,11 +1114,6 @@
                 if (typeof paramsObject !== "object" || paramsObject === null) return;
 
                 const list = document.createElement("ul");
-
-                // dodaje pole z nazwą dla peaku jeśli jej nie ma
-                if (!paramsObject.hasOwnProperty("name")) {
-                    paramsObject.name = {color:"gray", description: "name of substance", value: "unnamed substance"};
-                }
 
                 Object.entries(paramsObject)
                 .sort(([keyA], [keyB]) => {
