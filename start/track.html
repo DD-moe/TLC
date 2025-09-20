@@ -1136,15 +1136,23 @@
 
                 const list = document.createElement("ul");
 
+                const priority = {
+                    name: 1,
+                    track: 2
+                };
+
                 Object.entries(paramsObject)
                 .sort(([keyA], [keyB]) => {
-                    // jeśli keyA to "name", ma być pierwszy
-                    if (keyA === 'name' && keyB !== 'name') return -1;
-                    // jeśli keyB to "name", ma być pierwszy
-                    if (keyB === 'name' && keyA !== 'name') return 1;
-                    // reszta normalnie alfabetycznie
+                    // nadaj rangę, jeśli brak w priority → Infinity
+                    const rankA = priority[keyA] ?? Infinity;
+                    const rankB = priority[keyB] ?? Infinity;
+
+                    // najpierw porównaj ranki
+                    if (rankA !== rankB) return rankA - rankB;
+
+                    // jeśli ten sam rank → sortuj alfabetycznie
                     return keyA.localeCompare(keyB);
-                })                
+                })               
                 .forEach(([key, param]) => {
                     if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
 
