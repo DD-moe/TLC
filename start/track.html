@@ -1097,7 +1097,7 @@
             });
         }
 
-
+        // po kliknięciu w wykryty peak pokazuje pole z parametrami
         function updateParameterBox() {
             const parameterBox = document.getElementById('parameterBox');
             parameterBox.innerHTML = "";
@@ -1113,6 +1113,9 @@
 
                 const list = document.createElement("ul");
 
+                // dodaje pole z nazwą dla peaku
+                paramsObject.name = {color:"gray", description: "name of substance", value: "unnamed substance"};
+
                 Object.entries(paramsObject).forEach(([key, param]) => {
                     if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
 
@@ -1124,9 +1127,16 @@
                     label.textContent = param.description;
 
                     const input = document.createElement("input");
-                    input.type = "number";
-                    input.value = param.value;
-                    input.dataset.paramKey = key;
+                    if (param.description === "name of substance") { // dla nazwy - text
+                        input.type = "text";
+                        input.value = param.value;
+                        input.dataset.paramKey = key;                        
+                    }
+                    else{ // dla pozostałych numer
+                        input.type = "number";
+                        input.value = param.value;
+                        input.dataset.paramKey = key;
+                    }
                     
                     input.addEventListener("input", () => {
                         saveParameterValues();
@@ -1143,6 +1153,7 @@
             }
         }
 
+        // zapisuje parametry z inputs
         function saveParameterValues() {
             if (!selectedTrack || !selectedTrack.target) return;
 
@@ -1154,8 +1165,13 @@
                 
                 inputs.forEach(input => {
                     const key = input.dataset.paramKey;
-                    if (paramsObject[key]) {
-                        paramsObject[key].value = parseFloat(input.value);
+                    if (paramsObject[key]) { // is name = text
+                        if (paramsObject[key].description === "name of substance") {
+                            paramsObject[key].value = input.value;
+                        }
+                        else{ // not name = number float
+                            paramsObject[key].value = parseFloat(input.value);
+                        }
                     }
                 });
                 
