@@ -507,8 +507,10 @@
                 // Normalizacja RedSums (zakładając, że minimalna wartość to 0, a maksymalna to 250)
                 const min = Math.min(...RedSums);
                 const max = Math.max(...RedSums);
+                const Bmin = Math.min(...blurredRedSums);
+                const Bmax = Math.max(...blurredRedSums);
                 const normalizedRedSums = RedSums.map(value => (value - min) / (max - min) * 250);
-                const normalizedblurredRedSums = blurredRedSums.map(value => (value - min) / (max - min) * 250);
+                const normalizedblurredRedSums = blurredRedSums.map(value => (value - Bmin) / (Bmax - Bmin) * 250);
                 
                 // Dodanie atrybutu data-red-sums do div'a z 1D tablicą RedSums
                 newDiv.dataset.RedSums = JSON.stringify(RedSums);  // Użycie data-* atrybutu
