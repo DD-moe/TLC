@@ -940,6 +940,7 @@
     
         // Funkcja: znajdź najbliższego sąsiada po położeniu na osi x (zwraca nazwę substancji lub null)
         function findNearestSubstance(xValue, substances, substanceTreshold) {
+            console.log(xValue, substances, substanceTreshold);
             if (!Array.isArray(substances) || substances.length === 0) return null;
 
             let nearest = substances[0];
@@ -1094,7 +1095,6 @@
                     };
 
                     // #*#*#*
-                    console.log(substances, substanceTreshold);
                     const predictedSubstance = findNearestSubstance(params.RF, substances, substanceTreshold);                    
                     params.name = {
                         value: (predictedSubstance !== null ? predictedSubstance : "unknown substance"),
