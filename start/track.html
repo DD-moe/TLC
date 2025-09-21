@@ -942,23 +942,34 @@
         function findNearestSubstance(xValue, substances, substanceTreshold) {
             if (!Array.isArray(substances) || substances.length === 0) return null;
 
-            let nearest = substances[0];
-            let minDiff = Math.abs(xValue - nearest.x);
+            // jeśli tylko jeden element
+            if (substances.length === 1) {
+                const s = substances[0];
+                if (typeof s.x === "number" && Math.abs(xValue - s.x) <= substanceTreshold) {
+                    return s.name;
+                } else {
+                    return null;
+                }
+            }
 
-            for (let i = 1; i < substances.length; i++) {
-                const diff = Math.abs(xValue - substances[i].x);
+            // dla wielu elementów
+            let nearest = null;
+            let minDiff = Infinity;
+
+            for (let i = 0; i < substances.length; i++) {
+                const s = substances[i];
+                if (typeof s.x !== "number") continue; // ignoruj niepoprawne wpisy
+
+                const diff = Math.abs(xValue - s.x);
                 if (diff < minDiff) {
-                    nearest = substances[i];
+                    nearest = s;
                     minDiff = diff;
                 }
             }
-            console.log(nearest, minDiff, minDiff <= substanceTreshold);
-            // sprawdź czy różnica jest mniejsza niż próg
-            if (minDiff <= substanceTreshold) {
-                return nearest.name;
-            } else {
-                return null; // jeśli poza progiem
-            }
+
+            if (!nearest) return null; // brak poprawnych punktów
+
+            return minDiff <= substanceTreshold ? nearest.name : null;
         }
 
         function countParams() {
