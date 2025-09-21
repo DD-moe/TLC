@@ -962,23 +962,6 @@
         }
 
         function countParams() {
-            // załaduj ustawienia z localStorage
-            let substances;
-            let substanceTreshold;
-            try {
-                substances = JSON.parse(localStorage.getItem('substancesTLCv3'));
-                if (!Array.isArray(substances)) {
-                    substances = []; // jeśli nie tablica, to pusta
-                }
-                substanceTreshold = JSON.parse(localStorage.getItem('tresholdTLCv3'));
-                if (typeof substanceTreshold === "number" && substanceTreshold < 0 || substanceTreshold > 1) {
-                    substanceTreshold = 0.05; // domyslna wartość
-                }
-            } catch (e) {
-                substances = [];
-                substanceTreshold = 0.05; // domyslna wartość
-            }
-
             document.querySelectorAll(".track").forEach(track => {
                 let redSums = JSON.parse(track.dataset.RedSums);
                 const maxHeight = Math.max(...redSums); // Maksymalna wartość w redSums
@@ -1036,8 +1019,6 @@
 
                     const trackName = track.textContent.replace(/^Track:\s*/, '');
 
-                    const predictedSubstance = findNearestSubstance(Xpos, substances, substanceTreshold);
-
                     const params = JSON.stringify({
                         track: { value: trackName, description: "name of track", color: 'LightGray'},
                         midpointIndex: { value: midpointIndex, description: "Index of midpoint", color: 'bisque'},
@@ -1057,8 +1038,6 @@
                         tailingFactor: { value: tailingFactor, description: "Tailing factor" },
                         Ycentral: {value: Ypos, description: "Y position 0-1 range of spot centrum"},
                         Xcentral: {value: Xpos, description: "X position 0-1 range of spot centrum"},
-                        name: {value: (predictedSubstance !== null ? predictedSubstance : "unknown substance") , description: "name of substance", color: 'LightGray'}
-                        
                     });
 
                     draggable.dataset.params = params;
@@ -1069,6 +1048,23 @@
         }
 
         function countSecondaryParams() {
+            // załaduj ustawienia z localStorage
+            let substances;
+            let substanceTreshold;
+            try {
+                substances = JSON.parse(localStorage.getItem('substancesTLCv3'));
+                if (!Array.isArray(substances)) {
+                    substances = []; // jeśli nie tablica, to pusta
+                }
+                substanceTreshold = JSON.parse(localStorage.getItem('tresholdTLCv3'));
+                if (typeof substanceTreshold === "number" && substanceTreshold < 0 || substanceTreshold > 1) {
+                    substanceTreshold = 0.05; // domyslna wartość
+                }
+            } catch (e) {
+                substances = [];
+                substanceTreshold = 0.05; // domyslna wartość
+            }
+
             document.querySelectorAll(".track").forEach(track => {
                 let redSums = JSON.parse(track.dataset.RedSums);
 
@@ -1080,7 +1076,7 @@
                         description: "Plate width in cm", 
                         color: 'bisque'
                     };
-                    
+
                     const spotsElement = document.getElementById('spots');
                     if (spotsElement) {
                         params.track_width = { 
@@ -1095,6 +1091,14 @@
                     params.RF = { 
                         value: params.midpointIndex.value / redSums.length, 
                         description: "Retention factor (RF)"
+                    };
+
+                    // #*#*#*
+                    const predictedSubstance = findNearestSubstance(params.RF, substances, substanceTreshold);                    
+                    params.name = {
+                        value: (predictedSubstance !== null ? predictedSubstance : "unknown substance"),
+                        description: "name of substance",
+                        color: 'LightGray'
                     };
 
                     params.k = { 
