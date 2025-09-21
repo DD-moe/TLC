@@ -938,8 +938,8 @@
             });        
         }
     
-        // Funkcja: znajdź najbliższego sąsiada po położeniu na osi x (zwraca nazwę substancji)
-        function findNearestSubstance(xValue, substances) {
+        // Funkcja: znajdź najbliższego sąsiada po położeniu na osi x (zwraca nazwę substancji lub null)
+        function findNearestSubstance(xValue, substances, substanceTreshold) {
             if (!Array.isArray(substances) || substances.length === 0) return null;
 
             let nearest = substances[0];
@@ -953,19 +953,30 @@
                 }
             }
 
-            return nearest.name;
+            // sprawdź czy różnica jest mniejsza niż próg
+            if (minDiff <= substanceTreshold) {
+                return nearest.name;
+            } else {
+                return null; // jeśli poza progiem
+            }
         }
 
         function countParams() {
             // załaduj ustawienia z localStorage
             let substances;
+            let substanceTreshold;
             try {
                 substances = JSON.parse(localStorage.getItem('substancesTLCv3'));
                 if (!Array.isArray(substances)) {
                     substances = []; // jeśli nie tablica, to pusta
                 }
+                substanceTreshold = JSON.parse(localStorage.getItem('tresholdTLCv3'));
+                if (typeof substanceTreshold === "number" && substanceTreshold < 0 || substanceTreshold > 1) {
+                    substanceTreshold = 0.05; // domyslna wartość
+                }
             } catch (e) {
                 substances = [];
+                substanceTreshold = 0.05; // domyslna wartość
             }
 
             document.querySelectorAll(".track").forEach(track => {
@@ -1025,7 +1036,7 @@
 
                     const trackName = track.textContent.replace(/^Track:\s*/, '');
 
-                    const predictedSubstance = findNearestSubstance(Xpos, substances);
+                    const predictedSubstance = findNearestSubstance(Xpos, substances, substanceTreshold);
 
                     const params = JSON.stringify({
                         track: { value: trackName, description: "name of track", color: 'LightGray'},
