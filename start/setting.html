@@ -26,6 +26,22 @@
     <button id="clearSelection">Odznacz parametry</button>
     <hr>
     <label for="decimalsInput" title="ile miejsc po przecinku uwzględniać w raporcie dla każdego parametru">Liczba miejsc po przecinku: </label><input type="number" id="decimalsInput">
+    <hr>
+    <!-- Próg do wykrycia substancji -->
+    <label for="tresholdInput" title="Jak daleko od nearest neighbour jest, by uznać że to ta substancja">
+    Próg rozpoznania substancji (0–1):
+    </label>
+    <input type="number" id="tresholdInput" min="0" max="1" step="0.01" value="0.05">
+    <br><br>
+
+    <!-- Lista substancji -->
+    <label for="substancesInput">Lista substancji (JSON):</label><br>
+    <textarea id="substancesInput" rows="6" cols="60" placeholder='[
+    { "x": 0.12, "name": "Substance A" },
+    { "x": 0.35, "name": "Substance B" },
+    { "x": 0.78, "name": "Substance C" }
+    ]'></textarea>
+
     <script>
         // List of URLs to be cached
         const resourceLinks = [
@@ -155,6 +171,7 @@
             window.location.reload();
         });        
 
+
     // liczba miejsc po przecinku
     const decimalsInput = document.getElementById("decimalsInput");
 
@@ -225,6 +242,38 @@
 
         // opcjonalnie, odśwież input na poprawny JSON
         substancesInput.value = JSON.stringify(substances);
+    });
+
+
+    // próg do wykrycia substancji
+    const tresholdInput = document.getElementById("tresholdInput");
+
+    let treshold = 0.05; // wartość domyślna
+    try {
+        const stored = JSON.parse(localStorage.getItem('tresholdTLCv3'));
+        if (Number.isFinite(stored) && stored >= 0 && stored <= 1) {
+            treshold = stored; // OK, mamy liczbę w zakresie
+        } else {
+            treshold = 0.05; // niepoprawne dane
+        }
+    } catch (e) {
+        treshold = 0.05; // jeśli JSON niepoprawny
+    }
+
+    // ustaw wartość inputa
+    tresholdInput.value = treshold;
+
+    // event przy zmianie inputa
+    tresholdInput.addEventListener("change", () => {
+        // parse float z inputa
+        const value = parseFloat(tresholdInput.value);
+        if (Number.isNaN(value) || value < 0 || value > 1) {
+            treshold = 0.05; // jeśli coś nie jest liczbą lub poza zakresem
+        } else {
+            treshold = value;
+        }
+        localStorage.setItem('tresholdTLCv3', JSON.stringify(treshold));
+        tresholdInput.value = treshold; // zaktualizuj input po ewentualnej korekcie
     });
     </script>
 </body>
