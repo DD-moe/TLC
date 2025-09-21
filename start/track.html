@@ -1106,7 +1106,7 @@
                     };
 
                     // #*#*#*
-                    const predictedSubstance = findNearestSubstance(params.RF, substances, substanceTreshold);                    
+                    const predictedSubstance = findNearestSubstance(params.RF.value, substances, substanceTreshold);                    
                     params.name = {
                         value: (predictedSubstance !== null ? predictedSubstance : "unknown substance"),
                         description: "name of substance",
