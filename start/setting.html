@@ -219,7 +219,7 @@
     }
 
     // ustaw wartość inputa jako JSON string
-    substancesInput.value = JSON.stringify(substances);
+    substancesInput.value = JSON.stringify(substances, null, 2);
 
     // event przy zmianie inputa
     substancesInput.addEventListener("change", () => {
@@ -238,10 +238,10 @@
         }
 
         // zapisz do localStorage
-        localStorage.setItem('substancesTLCv3', JSON.stringify(substances));
+        localStorage.setItem('substancesTLCv3', JSON.stringify(substances, null, 2));
 
         // opcjonalnie, odśwież input na poprawny JSON
-        substancesInput.value = JSON.stringify(substances);
+        substancesInput.value = JSON.stringify(substances, null, 2);
     });
 
 
