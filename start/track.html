@@ -945,7 +945,7 @@
             // jeśli tylko jeden element
             if (substances.length === 1) {
                 const s = substances[0];
-                console.log(s.name, Math.abs(xValue - s.x), Math.abs(xValue - s.x) <= substanceTreshold);
+                console.log(s.name, s.x, Math.abs(xValue - s.x), Math.abs(xValue - s.x) <= substanceTreshold);
                 if (typeof s.x === "number" && Math.abs(xValue - s.x) <= substanceTreshold) {
                     return s.name;
                 } else {
