@@ -184,6 +184,48 @@
         }
         localStorage.setItem('decimalsTLCv3', JSON.stringify(decimals));
     });
+
+
+    // lista potencjalnych substancji do automatycznego wykrycia
+    const substancesInput = document.getElementById("substancesInput");
+
+    let substances = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem('substancesTLCv3'));
+        if (Array.isArray(stored)) {
+            substances = stored;
+        } else {
+            substances = []; // jeśli w localStorage coś jest, ale nie tablica
+        }
+    } catch (e) {
+        substances = []; // jeśli JSON niepoprawny
+    }
+
+    // ustaw wartość inputa jako JSON string
+    substancesInput.value = JSON.stringify(substances);
+
+    // event przy zmianie inputa
+    substancesInput.addEventListener("change", () => {
+        try {
+            // parsuj nową wartość z inputa
+            const value = JSON.parse(substancesInput.value);
+
+            // jeśli to tablica — zapisz, jeśli nie, wyczyść
+            if (Array.isArray(value)) {
+                substances = value;
+            } else {
+                substances = [];
+            }
+        } catch (e) {
+            substances = []; // jeśli wpisano coś niepoprawnego
+        }
+
+        // zapisz do localStorage
+        localStorage.setItem('substancesTLCv3', JSON.stringify(substances));
+
+        // opcjonalnie, odśwież input na poprawny JSON
+        substancesInput.value = JSON.stringify(substances);
+    });
     </script>
 </body>
 </html>

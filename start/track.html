@@ -938,7 +938,36 @@
             });        
         }
     
+        // Funkcja: znajdź najbliższego sąsiada po położeniu na osi x (zwraca nazwę substancji)
+        function findNearestSubstance(xValue, substances) {
+            if (!Array.isArray(substances) || substances.length === 0) return null;
+
+            let nearest = substances[0];
+            let minDiff = Math.abs(xValue - nearest.x);
+
+            for (let i = 1; i < substances.length; i++) {
+                const diff = Math.abs(xValue - substances[i].x);
+                if (diff < minDiff) {
+                    nearest = substances[i];
+                    minDiff = diff;
+                }
+            }
+
+            return nearest.name;
+        }
+
         function countParams() {
+            // załaduj ustawienia z localStorage
+            let substances;
+            try {
+                substances = JSON.parse(localStorage.getItem('substancesTLCv3'));
+                if (!Array.isArray(substances)) {
+                    substances = []; // jeśli nie tablica, to pusta
+                }
+            } catch (e) {
+                substances = [];
+            }
+
             document.querySelectorAll(".track").forEach(track => {
                 let redSums = JSON.parse(track.dataset.RedSums);
                 const maxHeight = Math.max(...redSums); // Maksymalna wartość w redSums
@@ -996,6 +1025,8 @@
 
                     const trackName = track.textContent.replace(/^Track:\s*/, '');
 
+                    const predictedSubstance = findNearestSubstance(Xpos, substances);
+
                     const params = JSON.stringify({
                         track: { value: trackName, description: "name of track", color: 'LightGray'},
                         midpointIndex: { value: midpointIndex, description: "Index of midpoint", color: 'bisque'},
@@ -1015,7 +1046,7 @@
                         tailingFactor: { value: tailingFactor, description: "Tailing factor" },
                         Ycentral: {value: Ypos, description: "Y position 0-1 range of spot centrum"},
                         Xcentral: {value: Xpos, description: "X position 0-1 range of spot centrum"},
-                        name: {value: "unnamed substance", description: "name of substance", color: 'LightGray'}
+                        name: {value: (predictedSubstance !== null ? predictedSubstance : "unknown substance") , description: "name of substance", color: 'LightGray'}
                         
                     });
 
