@@ -1124,13 +1124,13 @@
                     };
 
                     params.HobsBAS = { 
-                        value: (params.Wbas.value ** 2) / (5.54 * params.RF.value), 
+                        value: (params.Wbas.value ** 2) / (16 * params.RF.value), 
                         description: "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia",
                         color: 'thistle'
                     };
 
                     params.Hobs05 = { 
-                        value: (params.W50.value ** 2) / (16 * params.RF.value), 
+                        value: (params.W50.value ** 2) / (5.54 * params.RF.value), 
                         description: "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia",
                         color: 'lavender'   
                     };
