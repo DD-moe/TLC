@@ -70,7 +70,10 @@
         window.onresize = setBodyClassBasedOnScreenSize;
         setBodyClassBasedOnScreenSize();
     </script>
-
+    <div class="container" data-croffle-ref="element$0" id="cfc">
+        <canvas id="canvas"></canvas>
+    </div> 
+    
     <div class="controls">
         <h3 id="konsola">🔳: </h3>
         <button onclick="rotateRight()" title="obróć w prawo o 90 stopni">↻</button>
@@ -121,10 +124,7 @@
         <a href="setting.html" title="ustawienia">⚙️</a>
         <a href="../index.html" title="strona startowa">🏠</a>
     </div>
-
-    <div class="container" data-croffle-ref="element$0" id="cfc">
-        <canvas id="canvas"></canvas>
-    </div>    
+   
         <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
         <!-- internalize script --><script src="internalize.js"></script><!-- internalize script -->        
     <script>
