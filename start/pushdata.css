@@ -4,10 +4,10 @@
     box-sizing: border-box;
 }
 body {
-    display: box;
-    height: 100vh;
+    display: block; /* lub flex jeśli potrzebujesz layoutu */
+    min-height: 100vh; /* pozwala rosnąć w pionie w zależności od canvas */
     background-color: #f0f0f0;
-}        
+}    
 .controls {
     position: -webkit-sticky; /* dla starszego Safari */
     position: sticky;
