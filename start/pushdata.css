@@ -12,7 +12,7 @@ body {
     position: -webkit-sticky; /* dla starszego Safari */
     position: sticky;
     top: 0;           /* konieczne */
-    z-index: 10;
+    z-index: 10000;
     background-color: azure;
     width: 100%;
     border: solid black 1px;
