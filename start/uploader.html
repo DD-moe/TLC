@@ -17,8 +17,10 @@
             height: auto;
             display: block;
         }
-        .controls{
-            position: sticky;
+        .controls {
+            position: sticky; /* lub -webkit-sticky dla starszego Safari */
+            top: 0;           /* konieczne! */
+            z-index: 10;
         }
     </style>
 </head>
