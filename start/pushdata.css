@@ -11,17 +11,18 @@ body {
 .controls {
     position: -webkit-sticky; /* dla starszego Safari */
     position: sticky;
-    top: 0;
+    top: 0;           /* konieczne */
     z-index: 10;
-    background-color: azure; /* już masz */
+    background-color: azure;
+    width: 100%;
     border: solid black 1px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 2px 0;
     display: flex;
     justify-content: center;
     gap: 20px;
     flex-wrap: wrap;
 }
+
 
 
 /* Mały ekran (np. telefony) */
