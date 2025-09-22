@@ -9,17 +9,20 @@ body {
     background-color: #f0f0f0;
 }        
 .controls {
+    position: -webkit-sticky; /* dla starszego Safari */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: azure; /* już masz */
+    border: solid black 1px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     display: flex;
     justify-content: center;
     gap: 20px;
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
-    max-width: 100%; /* Ensure it doesn't overflow */
-    box-sizing: border-box; /* Ensure padding/margin are included in the width calculation */
-    border: solid black 1px;
-    background-color: azure;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    flex-wrap: wrap;
 }
+
 
 /* Mały ekran (np. telefony) */
 body.small-screen button, 
