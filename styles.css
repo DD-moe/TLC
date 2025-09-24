@@ -57,6 +57,9 @@ button:hover {
 }
 
 footer {
+    bottom: 0;
+    position: fixed;
+    width: 100%;
     text-align: center; /* Wyrównanie tekstu do środka */
     padding: 20px; /* Dodanie wewnętrznego odstępu */
     background-color: #f0f0f0; /* Jasnoszary kolor tła */
@@ -64,9 +67,6 @@ footer {
     border-top: 1px solid #ccc; /* Delikatna linia na górze */
     font-size: 0.9em; /* Nieco mniejsza czcionka */
     line-height: 1.6; /* Zwiększenie odstępu między wierszami dla lepszej czytelności */
-    bottom: 0;
-    position: fixed;
-    width: 100%;
 }
 
 footer p {
