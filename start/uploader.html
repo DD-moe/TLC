@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Średnia Obrazów</title>
+    <meta name="author" content="Damian Bezara, Karol Wróblewski">
+    <meta name="creator" content="Damian Bezara">
+    <meta name="keywords" content="TLC, chromatography, analysis, Damian Bezara, Karol Wróblewski, chemical analysis, quantitative analysis, open-source">
+    <title>Images averaging</title>
     <link rel="stylesheet" href="pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
@@ -44,26 +47,26 @@
     </script>
 
     <div class="controls">
-        <label for="dirPicker" title="załaduj wszystkie obrazy z folderu">📂</label>
+        <label for="dirPicker" title="load all images from directory">📂</label>
         <input type="file" id="dirPicker" webkitdirectory directory multiple>
-        <label for="filePicker" title="załaduj obrazy manualnie">🗂️</label>
+        <label for="filePicker" title="load images manually">🗂️</label>
         <input type="file" id="filePicker" multiple>
-        <button id="deleteFiles" title="Usuń pliki z wybranego folderu">🗑</button>
+        <button id="deleteFiles" title="Delete files from the selected directory">🗑</button>
         <h3 id="konsola">🔳: </h3>
         <!-- datapush elementy -->
-        <select id="fileType" title="Wybierz format zapisu obrazu">
+        <select id="fileType" title="Select the image saving format">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
         </select>
-        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
-        <button id="DirdownloadBtn" title="zapisz obraz jako plik na dysku">📂💾</button>
-        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
-        <button id="shareBtn" title="Udostępnij obraz">📋</button>
-        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+        <button id="downloadBtn" title="Download the image as a file">💾</button>
+        <button id="DirdownloadBtn" title="save the image as a file on disk">📂💾</button>
+        <button id="copyBtn" title="Copy image to clipboard">📤</button>
+        <button id="shareBtn" title="Share image">📋</button>
+        <button id="pasteBtn" title="Paste image from clipboard">📥</button>
         <!-- datapush elementy -->
-        <a href="unwarp.html" title="panel przycinania zdjęcia płytki">2️⃣📐</a>
-        <a href="setting.html" title="ustawienia">⚙️</a>
-        <a href="../index.html" title="strona startowa">🏠</a>
+        <a href="unwarp.html" title="photo croping/unwarping panel">2️⃣📐</a>
+        <a href="setting.html" title="settings">⚙️</a>
+        <a href="../index.html" title="home">🏠</a>
     </div>
     <canvas id="canvas"></canvas>
     <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
@@ -86,12 +89,12 @@
         let filesToDelete = [];
 
         async function processFiles(files) {
-            do_konsoli('ładowanie obrazów');
+            do_konsoli('images loading...');
             for (const file of files) {
                 if (!file.type.startsWith('image/')) continue;
                 const img = await loadImage(file);
                 if (prevWidth && (img.width !== prevWidth || img.height !== prevHeight)) {
-                    alert('Rozmiar obrazów się różni!');
+                    alert('Image sizes vary!');
                     return;
                 }
                 prevWidth = img.width;
@@ -114,7 +117,7 @@
             const avgImageData = new ImageData(avgData, prevWidth, prevHeight);
             ctx.putImageData(avgImageData, 0, 0);
             saveToIndexedDB(canvas.toDataURL(), 'average');
-            do_konsoli('GOTOWE');
+            do_konsoli('READY');
         }
 
         function loadImage(file) {
@@ -132,7 +135,7 @@
                     const fileHandle = await handle.getFileHandle(file.name);
                     await fileHandle.remove();
                 } catch (err) {
-                    console.error('Nie można usunąć pliku:', err);
+                    console.error('Cannot delete file:', err);
                 }
             }
         }
