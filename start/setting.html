@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ustawienia</title>
+    <meta name="author" content="Damian Bezara, Karol Wróblewski">
+    <meta name="creator" content="Damian Bezara">
+    <meta name="keywords" content="TLC, chromatography, analysis, Damian Bezara, Karol Wróblewski, chemical analysis, quantitative analysis, open-source">
+    <title>Settings</title>
     <link rel="stylesheet" href="pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
@@ -13,29 +16,29 @@
     <h1>Ustawienia</h1>
 
     <!-- Button to refresh all resources in the cache -->
-    <button id="refresh-cache">Odśwież Cache Wszystkich Zasobów</button>
+    <button id="refresh-cache">refresh cache</button>
     <br>
-    <a href="uploader.html" title="panel ładowania zdjęć">1️⃣🖼️</a>    
-    <a href="unwarp.html" title="panel przycinania zdjęcia płytki">2️⃣📐</a>
-    <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>    
-    <a href="track.html" title="panel analizy ścieżek">4️⃣📊</a>
-    <a href="../index.html" title="strona startowa">🏠</a>
+    <a href="uploader.html" title="photos averaging panel">1️⃣🖼️</a>    
+    <a href="unwarp.html" title="TLC photos cropping / unwarping panel">2️⃣📐</a>
+    <a href="normaliser.html" title="light equalisation panel">3️⃣🔧</a>    
+    <a href="track.html" title="track analysis panel">4️⃣📊</a>
+    <a href="../index.html" title="home">🏠</a>
     <hr>
-    <h3>Wybierz parametry włączane do raportu</h3>
+    <h3>Select the parameters to include in the report</h3>
     <div id="paramList"></div>
-    <button id="clearSelection">Odznacz parametry</button>
+    <button id="clearSelection">Deselect all parameters</button>
     <hr>
-    <label for="decimalsInput" title="ile miejsc po przecinku uwzględniać w raporcie dla każdego parametru">Liczba miejsc po przecinku: </label><input type="number" id="decimalsInput">
+    <label for="decimalsInput" title="how many decimal places to include in the report for each parameter">Number of decimal places:</label><input type="number" id="decimalsInput">
     <hr>
     <!-- Próg do wykrycia substancji -->
-    <label for="tresholdInput" title="Jak daleko od nearest neighbour jest, by uznać że to ta substancja">
-    Próg rozpoznania substancji (0–1):
+    <label for="tresholdInput" title="How far is it from the nearest model substance to consider it to be this substance? (basing on retardation factor)">
+    Substance recognition threshold (0–1): 
     </label>
     <input type="number" id="tresholdInput" min="0" max="1" step="0.01" value="0.05">
     <br><br>
 
     <!-- Lista substancji -->
-    <label for="substancesInput">Lista substancji (JSON):</label><br>
+    <label for="substancesInput">List of substances (JSON):</label><br>
     <textarea id="substancesInput" rows="6" cols="60" placeholder='[
     { "x": 0.12, "name": "Substance A" },
     { "x": 0.35, "name": "Substance B" },
@@ -59,19 +62,19 @@
                 return fetch(url, { cache: 'force-cache' })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(`Nie udało się załadować zasobu: ${url}`);
+                            throw new Error(`Fail to load resource: ${url}`);
                         }
-                        console.log(`Zasób załadowany: ${url}`);
+                        console.log(`Resource loaded: ${url}`);
                     })
                     .catch(error => {
-                        console.error('Błąd:', error);
+                        console.error('Error:', error);
                     });
             });
 
             // Wait for all resources to be cached
             Promise.all(promises)
                 .then(() => {
-                    alert('Wszystkie zasoby zostały zcache’owane.');
+                    alert('All "v3" resources cached.');
                 });
         }
 
