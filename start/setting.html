@@ -10,10 +10,74 @@
     <link rel="stylesheet" href="pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
+    <style>
+        /* Twoje oryginalne style */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Nowe style dodane dla lepszej estetyki i responsywności */
+        h1 {
+            color: #312e81; /* Indigo-800 */
+            font-size: 2.5rem; /* 40px */
+            font-weight: 800;
+        }
+
+        a {
+            border-width: 1px;
+            border-color: #4f46e5; /* Indigo-600 */
+            background-color: #eef2ff; /* Indigo-50 */
+            color: #4338ca; /* Indigo-700 */
+            font-weight: 600;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        a:hover {
+            background-color: #e0e7ff; /* Indigo-100 */
+        }
+
+        button {
+            background-color: #4f46e5; /* Indigo-600 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #4338ca; /* Indigo-700 */
+        }
+        
+        input[type="number"], textarea {
+            border: 1px solid #d1d5db; /* Gray-300 */
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        input[type="number"]:focus, textarea:focus {
+            outline: none;
+            border-color: #4f46e5; /* Indigo-600 */
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Ustawienie wyglądu dla "paramList" */
+        #paramList {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+    </style>    
 </head>
 
 <body>
-    <h1>Ustawienia</h1>
+    <h1>Settings</h1>
 
     <!-- Button to refresh all resources in the cache -->
     <button id="refresh-cache">refresh cache</button>
