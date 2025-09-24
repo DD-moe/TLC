@@ -7,17 +7,10 @@
     <meta name="creator" content="Damian Bezara">
     <meta name="keywords" content="TLC, chromatography, analysis, Damian Bezara, Karol Wróblewski, chemical analysis, quantitative analysis, open-source">
     <title>Settings</title>
-    <link rel="stylesheet" href="pushdata.css">
+    <link rel="stylesheet" href="./pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/TLC/favicon-64x64.png" sizes="64x64" type="image/png">
     <style>
-        /* Twoje oryginalne style */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         /* Nowe style dodane dla lepszej estetyki i responsywności */
         h1 {
             color: #312e81; /* Indigo-800 */
@@ -41,8 +34,8 @@
         }
 
         button {
-            background-color: #4f46e5; /* Indigo-600 */
-            color: white;
+            background-color: #eef2ff; /* Indigo-600 */
+            color: #4f46e5;
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
             font-weight: 700;
@@ -78,9 +71,6 @@
 
 <body>
     <h1>Settings</h1>
-
-    <!-- Button to refresh all resources in the cache -->
-    <button id="refresh-cache">refresh cache</button>
     <br>
     <a href="uploader.html" title="photos averaging panel">1️⃣🖼️</a>    
     <a href="unwarp.html" title="TLC photos cropping / unwarping panel">2️⃣📐</a>
@@ -88,8 +78,12 @@
     <a href="track.html" title="track analysis panel">4️⃣📊</a>
     <a href="../index.html" title="home">🏠</a>
     <hr>
+    <br>
     <h3>Select the parameters to include in the report</h3>
     <div id="paramList"></div>
+    <br>
+    <br>
+    <button id="refresh-cache">refresh cache</button>
     <button id="clearSelection">Deselect all parameters</button>
     <hr>
     <label for="decimalsInput" title="how many decimal places to include in the report for each parameter">Number of decimal places:</label><input type="number" id="decimalsInput">
