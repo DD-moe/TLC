@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndexedDB Image</title>
+    <meta name="author" content="Damian Bezara, Karol Wróblewski">
+    <meta name="creator" content="Damian Bezara">
+    <meta name="keywords" content="TLC, chromatography, analysis, Damian Bezara, Karol Wróblewski, chemical analysis, quantitative analysis, open-source">
+    <title>Track matching and background reconstruction</title>
     <script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
     <link rel="stylesheet" href="pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
@@ -76,53 +79,53 @@
     
     <div class="controls">
         <h3 id="konsola">🔳: </h3>
-        <button onclick="rotateRight()" title="obróć w prawo o 90 stopni">↻</button>
-        <button onclick="rotateLeft()" title="obróć w lewo o 90 stopni">↺</button>
-        <button onclick="flipVertical()" title="przerzuć w pionie">⇅</button>
-        <button onclick="flipHorizontal()" title="przerzuć w poziomie">⇄</button>
-        <button onclick="drawWhiteBlocks()" title="ujednolić oświetlenie">≋</button>
-        <button onclick="makeGray()" title="przerzuć do skali szarości">░█</button>
-        <button onclick="saveDraggableDataToIndexedDB()" title="zapisz dane do pamięci wewnętrznej aplikacji">💾📦</button>
+        <button onclick="rotateRight()" title="rotate right 90 degrees">↻</button>
+        <button onclick="rotateLeft()" title="rotate left 90 degrees">↺</button>
+        <button onclick="flipVertical()" title="flip vertically">⇅</button>
+        <button onclick="flipHorizontal()" title="horizontally">⇄</button>
+        <button onclick="drawWhiteBlocks()" title="equalize lightning">≋</button>
+        <button onclick="makeGray()" title="switch to grayscale">░█</button>
+        <button onclick="saveDraggableDataToIndexedDB()" title="save data to the application's internal memory">💾📦</button>
 
-        <label for="degree">🔼</label>
+        <label for="degree" title="degree of polynomial reggression to reconstruct backgroung (3-4 is optimal)">🔼</label>
         <input type="number" value="3" id="degree" step="1" max="6" min="1">
 
-        <label for="coef_r" title="Współczynnik dla kanału czerwonego">🔴</label>
+        <label for="coef_r" title="red channel weight">🔴</label>
         <input type="number" id="coef_r" value="0.299" step="0.001" min="0" max="1">
-        <label for="coef_g" title="Współczynnik dla kanału zielonego">🟢</label>
+        <label for="coef_g" title="green channel weight">🟢</label>
         <input type="number" id="coef_g" value="0.587" step="0.001" min="0" max="1">
-        <label for="coef_b" title="Współczynnik dla kanału niebieskiego">🔵</label>
+        <label for="coef_b" title="blue channel weight">🔵</label>
         <input type="number" id="coef_b" value="0.114" step="0.001" min="0" max="1">
-        <button onclick="unselectElement()" title="Odznacz wybrany element">❌</button>
-        <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
-        <button onclick="createDraggableElement(45, 10)" title="Utwórz nową ścieżkę">➕</button>
+        <button onclick="unselectElement()" title="Deselect the selected item">❌</button>
+        <button onclick="removeSelectedElement()" title="Delete selected item">🗑️</button>
+        <button onclick="createDraggableElement(45, 10)" title="Create a new track">➕</button>
 
         <!-- datapush elementy -->
-        <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
-        <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
-        <select id="fileType" title="Wybierz format zapisu obrazu">
+        <label for="imageInput" title="Load image from disk">📂</label>
+        <input type="file" id="imageInput" accept="image/*" title="Select an image file to upload">
+        <select id="fileType" title="Select the image saving format">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
         </select>
 
-        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
-        <button id="DirdownloadBtn" title="zapisz obraz jako plik na dysku">📂💾</button>
-        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
-        <button id="shareBtn" title="Udostępnij obraz">📋</button>
-        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+        <button id="downloadBtn" title="Download the image as a file">💾</button>
+        <button id="DirdownloadBtn" title="save the image as a file on disk">📂💾</button>
+        <button id="copyBtn" title="Copy image to clipboard">📤</button>
+        <button id="shareBtn" title="Share image">📋</button>
+        <button id="pasteBtn" title="Paste image from clipboard">📥</button>
         <!-- datapush elementy -->
 
-        <label title="Nazwa ścieżki">🔖</label>
+        <label title="track name">🔖</label>
         <input type="text" maxlength="10" oninput="updateTrackName(this.value)" onfocus="loadTrackName(this)">
-        <label for="cm_width" title="Długość płytki w osi ścieżek w cm">📏</label>
+        <label for="cm_width" title="Length of the plate in the tracks axis in cm">📏</label>
         <input type="number" id="cm_width" min="1" max="20" step="0.1" value="10">
 
-        <label for="sharpness" title="Ostrość podglądu płytki - ułatwia wybranie ścieżek">🔺</label>
+        <label for="sharpness" title="Plate preview sharpness - makes it easier to select tracks">🔺</label>
         <input type="range" id="sharpness" min="25" max="400" value="100">
-        <a href="unwarp.html" title="panel przycinania zdjęcia płytki">2️⃣📐</a>
-        <a href="track.html" title="panel analizy ścieżek">4️⃣📊</a>
-        <a href="setting.html" title="ustawienia">⚙️</a>
-        <a href="../index.html" title="strona startowa">🏠</a>
+        <a href="unwarp.html" title="TLC plate clipping / unwarping panel">2️⃣📐</a>
+        <a href="track.html" title="Track analysis panel">4️⃣📊</a>
+        <a href="setting.html" title="settings">⚙️</a>
+        <a href="../index.html" title="home">🏠</a>
     </div>
    
         <!-- datapush script --><script src="datapush.js"></script><!-- datapush script -->
@@ -188,7 +191,7 @@
                 if (imageUrl) {
                     drawImage(imageUrl);
                 } else {
-                    console.error("Brak obrazu w bazie danych.");
+                    console.error("No image in the database.");
                 }
             } catch (error) {
                 console.error(error);
