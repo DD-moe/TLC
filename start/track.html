@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas z IndexedDB</title>
+    <meta name="author" content="Damian Bezara, Karol Wróblewski">
+    <meta name="creator" content="Damian Bezara">
+    <meta name="keywords" content="TLC, chromatography, analysis, Damian Bezara, Karol Wróblewski, chemical analysis, quantitative analysis, open-source">
+    <title>Track analysis</title>
     <script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
     <link rel="stylesheet" href="pushdata.css">
     <link rel="icon" href="/TLC/favicon-32x32.png" sizes="32x32" type="image/png">
@@ -75,30 +78,30 @@
 
     <div class="controls">
         <h3 id="konsola">🔳: </h3>
-        <label for="treshold" title="Ustaw próg powyżej którego piksele będą zaliczone do tła i wybielone">📊</label>
+        <label for="treshold" title="Set the threshold above which pixels will be considered as background and whitened">📊</label>
         <input type="number" id="treshold" min="0" max="255" step="1" value="240">
-        <label for="kernelSize" title="Kernel dla blurr - do wykrywania granic peaku">🌫️</label>
+        <label for="kernelSize" title="Kernel for blurr - for detecting peak boundaries">🌫️</label>
         <input type="number" id="kernelSize" min="1" max="20" step="1" value="5">
-        <input type="checkbox" id="showBlurr" title="!!! Blurr służy tylko do wykrywania granic; do pozostałych obliczeń stosowane są surowe dane">
-        <button onclick="autostart()" title="Ponowne przetwarzanie danych po korekcie">🔄</button>
-        <button onclick="unselectElement()" title="Odznacz wybrany element">❌</button>
-        <button onclick="removeSelectedElement()" title="Usuń wybrany element">🗑️</button>
-        <button onclick="addDraggableElement()" title="Utwórz nową ścieżkę">➕</button>
-        <button id="toggleBtn" title="Pokaż/Ukryj obszar rysowania" onclick="toggle_CanvasSpace()">⇄</button>
-        <button id="calculate" title="Uruchamia obliczenia" onclick="countParams()">🔢</button>
-        <button onclick="addConcentration()" title="Dodaj pomiar stężenia">➕🧪</button>
-        <button onclick="clearConcentration()" title="Wyczyść wszystkie stężenia">🗑️🧪</button>
-        <button onclick="saveParameterValues()" title="Zapisz zmiany w peaku">💾🧪</button>
-        <button onclick="calculateLinearRegression()" title="Stwórz krzywą koncentracji">📈</button>
-        <button onclick="PreparePositionalCurve()" title="Stwórz krzywą normalizacji">〰️</button> 
-        <button onclick="getSpotReference()" title="Użyj jako odnosnika stężenia">🎯</button>
-        <button onclick="copyImage()" title="skopiuj obraz do raportu">📤🖼️</button>
-        <button onclick="copyData()" title="skopiuj tabele do raportu">📤𝄜</button>
+        <input type="checkbox" id="showBlurr" title="!!! Blurr is only used for boundary detection; the raw data is used for the rest of the calculations">
+        <button onclick="autostart()" title="Reprocessing data after correction">🔄</button>
+        <button onclick="unselectElement()" title="Deselect the selected item">❌</button>
+        <button onclick="removeSelectedElement()" title="Delete selected item">🗑️</button>
+        <button onclick="addDraggableElement()" title="Create a new peak">➕</button>
+        <button id="toggleBtn" title="Show/Hide Drawing Area" onclick="toggle_CanvasSpace()">⇄</button>
+        <button id="calculate" title="Recalculate" onclick="countParams()">🔢</button>
+        <button onclick="addConcentration()" title="Add a concentration measurement">➕🧪</button>
+        <button onclick="clearConcentration()" title="Clear all concentrations data">🗑️🧪</button>
+        <button onclick="saveParameterValues()" title="Save changes to peak">💾🧪</button>
+        <button onclick="calculateLinearRegression()" title="Create a concentration curve">📈</button>
+        <button onclick="PreparePositionalCurve()" title="Create a normalization curve">〰️</button> 
+        <button onclick="getSpotReference()" title="Use as a concentration reference">🎯</button>
+        <button onclick="copyImage()" title="copy the image of the charts to the report">📤🖼️</button>
+        <button onclick="copyData()" title="report preview">📤𝄜</button>
         <div id="LinearRegression"></div>
         <div id="surfaceRef"></div>
-        <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>
-        <a href="setting.html" title="ustawienia">⚙️</a>
-        <a href="../index.html" title="strona startowa">🏠</a>
+        <a href="normaliser.html" title="light equalization panel">3️⃣🔧</a>
+        <a href="setting.html" title="settings">⚙️</a>
+        <a href="../index.html" title="home">🏠</a>
     </div>
     <div id="canvas_space">
         <h2>Spots image</h2>
@@ -226,10 +229,10 @@
                         // Zwróć Promise po udanym załadowaniu
                         resolve();
                     } catch (error) {
-                        reject(`Błąd podczas parsowania danych JSON: ${error}`);
+                        reject(`Error parsing JSON data: ${error}`);
                     }
                 }).catch((error) => {
-                    console.error('Błąd podczas ładowania danych z IndexedDB:', error);
+                    console.error('Error loading data from IndexedDB:', error);
                     reject(error);
                 });
             });
@@ -258,10 +261,10 @@
                         };
                         img.src = imageUrl;  // Ustaw źródło obrazu
                     } else {
-                        reject('Błąd przy ładowaniu obrazu.');
+                        reject('Error loading image.');
                     }
                 }).catch((error) => {
-                    console.error('Błąd podczas ładowania obrazu:', error);
+                    console.error('Error loading image:', error);
                     reject(error);
                 });
             });
@@ -295,7 +298,7 @@
                 // Po załadowaniu obu obrazów uruchom funkcję
                 onAllDataLoaded();
             }).catch((error) => {
-                console.error("Wystąpił błąd podczas ładowania obrazów:", error);
+                console.error("An error occurred while loading images:", error);
             });            
         }
 
@@ -311,7 +314,7 @@
 
             // Sprawdź, czy oba canvas mają takie same wymiary
             if (spotsCanvas.width !== backgroundCanvas.width || spotsCanvas.height !== backgroundCanvas.height) {
-                alert("Canvas mają różne wymiary! Upewnij się, że oba canvas mają te same wymiary.");
+                alert("Canvases have different dimensions! Make sure both canvases have the same dimensions.");
                 return;
             }
 
@@ -725,9 +728,9 @@
                     navigator.clipboard.write([
                         new ClipboardItem({ 'image/png': blob })
                     ]).then(() => {
-                        console.log('Zrzut skopiowany do schowka!');
+                        console.log('Screenshot copied to clipboard!');
                     }).catch(err => {
-                        console.error('Nie udało się skopiować do schowka', err);
+                        console.error('Could not copy to clipboard', err);
                     });
                 });
             });
@@ -1555,11 +1558,11 @@
             if (concentrationData.length < 2) return;
 
             normalizationParams = createBicubicSpline3D(concentrationData);
-            console.log("Splajn 3D stworzony!");
+            console.log("3d spline ready!");
 
             // Przykładowe przewidywanie wartości w (0.5, 0.5, 0.5)
-            console.log("Krzywa normalizacji: ", normalizationParams);
-            console.log("Krzywa normalizacji: ", evaluateSpline3D(normalizationParams, 0.5, 0.5, 2623319));
+            console.log("normalization curve: ", normalizationParams);
+            console.log("normalization curve: ", evaluateSpline3D(normalizationParams, 0.5, 0.5, 2623319));
             saveToIndexedDB(JSON.stringify(normalizationParams), 'normalizationParams');
         }
 
