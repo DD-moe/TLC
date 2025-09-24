@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moveable Example</title>
+    <meta name="author" content="Damian Bezara, Karol Wróblewski">
+    <meta name="creator" content="Damian Bezara">
+    <meta name="keywords" content="TLC, chromatography, analysis, Damian Bezara, Karol Wróblewski, chemical analysis, quantitative analysis, open-source">
+    <title>Images cropping / unwarping</title>
     <script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
     <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>
     <!-- warning: loading OpenCV can take some time. Load asynchronously -->
@@ -101,26 +104,26 @@
 
     <div class="controls">
         <h3 id="konsola">🔳: </h3>
-        <button id="unwarpBtn" title="wyprostuj i przytnij obraz">✂⤢</button>
-        <button id="reunwarpBtn" title="przerzuć obraz do płutna przed prostowaniem">↩⤣</button>
-        <button id="internalizeBtn" title="zapisz przycięty obraz do pamięci wewnętrznej aplikacji">💾📦</button>
+        <button id="unwarpBtn" title="clip and unwarp image">✂⤢</button>
+        <button id="reunwarpBtn" title="put back to canvas cropped image">↩⤣</button>
+        <button id="internalizeBtn" title="save the cropped image to the application's internal memory">💾📦</button>
         <!-- datapush elementy -->
-        <label for="imageInput" title="Załaduj obraz z dysku">📂</label>
-        <input type="file" id="imageInput" accept="image/*" title="Wybierz plik obrazu do załadowania">
-        <select id="fileType" title="Wybierz format zapisu obrazu">
+        <label for="imageInput" title="Load image from disk">📂</label>
+        <input type="file" id="imageInput" accept="image/*" title="Select an image file to upload">
+        <select id="fileType" title="Select the image saving format">
             <option value="png">PNG</option>
             <option value="jpeg">JPG</option>
         </select>
-        <button id="downloadBtn" title="Pobierz obraz jako plik">💾</button>
-        <button id="DirdownloadBtn" title="zapisz obraz jako plik na dysku">📂💾</button>
-        <button id="copyBtn" title="Skopiuj obraz do schowka">📤</button>
-        <button id="shareBtn" title="Udostępnij obraz">📋</button>
-        <button id="pasteBtn" title="Wklej obraz ze schowka">📥</button>
+        <button id="downloadBtn" title="Download the image as a file">💾</button>
+        <button id="DirdownloadBtn" title="save the image as a file on disk">📂💾</button>
+        <button id="copyBtn" title="Copy image to clipboard">📤</button>
+        <button id="shareBtn" title="Share image">📋</button>
+        <button id="pasteBtn" title="Paste image from clipboard">📥</button>
         <!-- datapush elementy -->        
-        <a href="uploader.html" title="panel ładowania zdjęć">1️⃣🖼️</a>
-        <a href="normaliser.html" title="panel ujednolicania oświetlenia">3️⃣🔧</a>
-        <a href="setting.html" title="ustawienia">⚙️</a>
-        <a href="../index.html" title="strona startowa">🏠</a>
+        <a href="uploader.html" title="photo averaging panel">1️⃣🖼️</a>
+        <a href="normaliser.html" title="lighting eualisation panel">3️⃣🔧</a>
+        <a href="setting.html" title="settings">⚙️</a>
+        <a href="../index.html" title="home">🏠</a>
     </div>
     
     <div class="canvas-container" id="cfc">
@@ -324,7 +327,7 @@
                 saveToIndexedDB(dataURL, 'warped');                
             }
             else{
-                alert('najpierw przytnij obraz');
+                alert('cropp the image first');
             }
         });
 
