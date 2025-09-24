@@ -61,7 +61,6 @@ footer {
     position: fixed;
     width: 100%;
     text-align: center; /* Wyrównanie tekstu do środka */
-    padding: 20px; /* Dodanie wewnętrznego odstępu */
     background-color: #f0f0f0; /* Jasnoszary kolor tła */
     color: #333; /* Ciemniejszy kolor tekstu */
     border-top: 1px solid #ccc; /* Delikatna linia na górze */
