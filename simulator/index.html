@@ -62,9 +62,9 @@
             <div>
                 <label for="spotData" class="block text-sm font-medium text-gray-700 mb-2">TLC Spot Data (JSON Array)</label>
                 <textarea id="spotData" rows="5" class="w-full p-2 border border-gray-300 rounded-lg font-mono text-xs focus:ring-indigo-500 focus:border-indigo-500" placeholder='[
-    { "x": 0.5, "y": 0.7, "width": 0.1, "height": 0.05, "color": "#FF0000", "intensity": 0.8 },
-    { "x": 0.3, "y": 0.5, "width": 0.08, "height": 0.08, "color": "#00FF00", "intensity": 0.6 }
-]'></textarea>
+                    { "x": 0.5, "y": 0.7, "width": 0.1, "height": 0.05, "color": "#FF0000", "intensity": 0.8 },
+                    { "x": 0.3, "y": 0.5, "width": 0.08, "height": 0.08, "color": "#00FF00", "intensity": 0.6 }
+                ]'></textarea>
                 <p class="text-xs text-gray-500 mt-1">Coordinates and sizes are normalized (0-1). Intensity is a blending factor (0-1).</p>
             </div>
             
@@ -72,6 +72,13 @@
                 Apply TLC Spots to Reconstruction
             </button>
         </div>
+
+        <p class="text-center text-sm text-gray-600">
+            Press button below to copy prompt to clipboard and further paste it to AI model which will generate you data of spots to simulate.
+        </p>
+        <button id="ClipboardPrompt" class="w-full px-6 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-150">
+            Copy prompt to clipboard
+        </button>        
 
         <div id="results" class="space-y-6">
             <div class="text-center">
@@ -112,6 +119,7 @@
         const coefficientsDiv = document.getElementById('coefficients');
         const originalInfo = document.getElementById('originalInfo');
         const regressionInfo = document.getElementById('regressionInfo');
+        const ClipboardPrompt = document.getElementById('ClipboardPrompt');
 
         // Utworzenie off-screen canvas dla rysowania plam
         const spotCanvas = document.createElement('canvas');
@@ -126,6 +134,36 @@
         const LS_WIDTH_KEY = 'tlcOutputWidth';
         const LS_HEIGHT_KEY = 'tlcOutputHeight';
         const LS_SPOTDATA_KEY = 'tlcSpotData';
+
+        // --- GENEROWANIE PROMPTU ---
+        ClipboardPrompt.addEventListener('click', () => {
+            // Pamiętaj, aby pobrać faktyczne wartości z elementów:
+            const spotDataValue = spotDataTextarea.value; // Załóżmy, że jest zdefiniowane
+            const outputWidthValue = outputWidthInput.value; // Załóżmy, że jest zdefiniowane
+            const outputHeightValue = outputHeightInput.value; // Załóżmy, że jest zdefiniowane
+
+            const prompt = `${spotDataValue}\n\nheight of image in px:${outputWidthValue}\nwidth of image in px:${outputHeightValue}\n\n 
+            Above is an example of the data format, and the image height and width.
+            Generate the data in JSON format using the instructions below:\n\n\n`;
+
+            // 1. Kopiowanie tekstu do schowka
+            navigator.clipboard.writeText(prompt)
+                .then(() => {
+                    // 2. Tymczasowa zmiana tekstu przycisku po udanym skopiowaniu
+                    const originalText = ClipboardPrompt.textContent;
+                    ClipboardPrompt.textContent = "copied prompt to clipboard";
+
+                    // 3. Ustawienie timera na powrót do oryginalnego tekstu po 0.5s (500ms)
+                    setTimeout(() => {
+                        ClipboardPrompt.textContent = originalText;
+                    }, 500);
+                })
+                .catch(err => {
+                    // Obsługa błędów, jeśli kopiowanie się nie powiodło (np. brak uprawnień)
+                    console.error('Błąd podczas kopiowania tekstu: ', err);
+                    // Można tu dodać np. alert(), aby poinformować użytkownika o błędzie.
+                });
+        });
 
         // --- FUNKCJE DLA LOCAL STORAGE ---
 
