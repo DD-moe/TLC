@@ -1,94 +1,92 @@
-/* Nowy, ulepszony CSS */
-
 body {
-    /* Użycie czystej bieli dla tła to klasyczny, profesjonalny wybór */
-    font-family: 'Helvetica Neue', Arial, sans-serif; /* Nowocześniejsza czcionka */
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #ffffff; /* Czysta biel */
+    background-color: #f8f9fa;
     color: #333;
 }
 
 header {
-    /* Ciemniejszy, głębszy granat (navy blue) dla profesjonalnego wyglądu */
-    background-color: #004d99; /* Głęboki granat */
+    background-color: #003c7b;
     color: white;
-    padding: 1.5rem 1rem; /* Większy padding */
+    padding: 1rem;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Delikatny cień dla oddzielenia */
 }
 
-header h1 {
-    font-size: 2.2rem;
-    margin-bottom: 0.3rem; /* Zmniejszenie odstępu do podtytułu */
-}
-
-header p {
-    font-size: 1.1rem;
-    font-style: italic;
-    opacity: 0.9; /* Delikatne stonowanie podtytułu */
-}
-
-/* Sekcja nawigacyjna (zakładki) */
 nav {
     display: flex;
     justify-content: center;
-    /* Kontrastowy, ale stonowany kolor dla sekcji z linkami/zakładkami */
-    background-color: #f0f4f7; /* Bardzo jasny szaroniebieski */
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ccc;
-    font-size: 1.1rem; /* Większa czcionka dla zakładek */
+    background-color: #0056b3;
+    padding: 0.5rem;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+nav li {
+    margin: 0 1rem;
 }
 
 nav a {
-    /* Zamiast białego tekstu na niebieskim tle, używamy ciemnego tekstu na jasnym tle */
-    color: #004d99; /* Ten sam granat co nagłówek, dla spójności */
+    color: white;
     text-decoration: none;
     font-weight: bold;
-    padding: 0 1.5rem; /* Większe odstępy */
-    transition: color 0.3s ease;
 }
 
-nav a:hover {
-    color: #007bff; /* Podświetlenie na klasyczny niebieski przy najechaniu */
-}
-
-/* Główne treści i układ powitalny */
 main {
-    padding: 3rem 10%; /* Zwiększenie paddingu bocznego dla lepszej czytelności dłuższego tekstu */
-    text-align: left; /* Wyrównanie tekstu do lewej dla lepszej czytelności */
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-main h2 {
+    padding: 2rem;
     text-align: center;
-    color: #004d99;
-    margin-bottom: 2rem;
 }
 
-/* Wyróżnienie sekcji w tekście powitalnym */
-main section h3 {
-    color: #0056b3; /* Klasyczny niebieski dla podtytułów sekcji */
-    border-bottom: 2px solid #e0e0e0; /* Delikatna linia oddzielająca */
-    padding-bottom: 0.3rem;
-    margin-top: 2.5rem;
+/* Stylizacja elementów w sekcjach (listy i akapity) */
+main section p, 
+main section ul, 
+main section li {
+    text-align: left; /* Wyrównanie elementów wewnętrznych do lewej */
+    list-style-position: inside; /* Ustawienie numeratora wewnątrz bloku */
 }
 
-/* Zmiany w stopce dla lepszej estetyki i czytelności */
+main section ul {
+    list-style-type: disc; /* Użycie zwykłych kropek dla podlist */
+    padding-left: 20px; /* Dodatkowy padding, by kropki były widoczne */
+    margin-bottom: 1.5rem;
+}
+
+
+button {
+    background-color: #28a745;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
 footer {
-    position: relative; /* Zmiana z fixed na relative, aby stopka była na dole contentu */
+    bottom: 0;
+    position: fixed;
     width: 100%;
-    text-align: center;
-    background-color: #f0f0f0; 
-    color: #555; /* Bardziej miękki odcień tekstu */
-    border-top: 1px solid #ccc; 
-    font-size: 0.85em; /* Mniejsza czcionka, ale czytelna */
-    line-height: 1.5; 
-    padding: 1rem 0; /* Dodanie paddingu wertykalnego */
-    margin-top: 4rem; /* Większy odstęp od sekcji main */
+    text-align: center; /* Wyrównanie tekstu do środka */
+    background-color: #f0f0f0; /* Jasnoszary kolor tła */
+    color: #333; /* Ciemniejszy kolor tekstu */
+    border-top: 1px solid #ccc; /* Delikatna linia na górze */
+    font-size: 0.9em; /* Nieco mniejsza czcionka */
+    line-height: 1.6; /* Zwiększenie odstępu między wierszami dla lepszej czytelności */
+}
+
+footer p {
+    margin: 0; /* Usunięcie domyślnego marginesu paragrafu */
 }
 
 footer strong {
-    color: #333; /* Ciemniejszy kolor dla nazwisk i tytułów */
+    color: #000; /* Pogrubienie imion czarnym kolorem */
 }
