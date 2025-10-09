@@ -71,9 +71,9 @@ button:hover {
     background-color: #218838;
 }
 
-footer {
+.footer {
     bottom: 0;
-    position: fixed;
+    position: static;
     width: 100%;
     text-align: center; /* Wyrównanie tekstu do środka */
     background-color: #f0f0f0; /* Jasnoszary kolor tła */
@@ -83,10 +83,10 @@ footer {
     line-height: 1.6; /* Zwiększenie odstępu między wierszami dla lepszej czytelności */
 }
 
-footer p {
+.footer p {
     margin: 0; /* Usunięcie domyślnego marginesu paragrafu */
 }
 
-footer strong {
+.footer strong {
     color: #000; /* Pogrubienie imion czarnym kolorem */
 }
