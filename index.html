@@ -14,37 +14,77 @@
 </head>
 <body>
     <header>
-        <h1>TLC Analysis v3</h1>
+        <h1>Quantitive TLC Analysis</h1>
         <p>Analyze your Thin Layer Chromatography (TLC) plates with precision on any device type.</p>
     </header>
     <nav>
         <ul>
-            <li><a href="/TLC/start/uploader.html">"v3"</a></li>
+            <li><a href="/TLC/start/uploader.html">"V3"</a></li>
             <li><a href="/TLC/wiki/">Instruction</a></li>
             <li><a href="/TLC/other/">Examples</a></li>
         </ul>
     </nav>
     <nav>
         <ul>
-            <li><a href="/TLC/v5/">"v5"</a></li>
-            <li><a href="/TLC/v6/">"v6"</a></li>
-            <li><a href="/TLC/simulator/">"sim"</a></li>
+            <li><a href="/TLC/v5/">"V5"</a></li>
+            <li><a href="/TLC/v6/">"V6"</a></li>
+            <li><a href="/TLC/simulator/">"Sim"</a></li>
         </ul>
     </nav>
+
     <main>
-        <h2>Welcome to the "TLC Analysis" Application</h2>
-        <p>To easily upload and analyze images of your TLC plates read the instruction.</p>
-        <p>Remember to see example images - they may help you doing your first steps with my app.</p>
-        <p>See also my other projects: "v5" & "v6".</p>
-    </main> 
+        <h2>Welcome to TLC Analysis App – Please Read Before Starting</h2>
+        
+        <p>We highly recommend reviewing the documentation below before initiating your first analysis. This ensures you understand the methodology, parameters, and limitations of the application.</p>
+        
+        <section id="module-instruction">
+            <h3>1. The "Instruction" Tab: Methodology and Usage Guide</h3>
+            <p>This section is crucial for a full understanding of the application's capabilities. Here you will find:</p>
+            <ul>
+                <li>Comprehensive details on **all quantitative, qualitative, and optimization parameters** used in the chromatographic calculations.</li>
+                <li>**Formulas and definitions** for calculating key parameters, along with diagrams illustrating how the application processes data.</li>
+                <li>A detailed **step-by-step user guide** to all application functionalities.</li>
+            </ul>
+        </section>
+
+        <section id="module-examples">
+            <h3>2. The "Examples" Tab: Testing Data</h3>
+            <p>The "Examples" tab contains TLC plate images utilized for testing the application throughout all stages of its development, from initial algorithms to its current state.</p>
+        </section>
+
+        <section id="module-versions">
+            <h3>3. Other Projects: "V5" and "V6"</h3>
+            <p>While **"V3"** is the primary version, we encourage you to explore our advanced projects:</p>
+            <ul>
+                <li>**V6 Algorithms:** A collection of independent algorithms that served to optimize the background reconstruction method. This advancement eliminates the need for image downscaling during background estimation.</li>
+                <li>**V5 - Fully Automated Processing:** This version is designed for fully automatic data processing, from image upload to report generation (currently available in Polish only). Its architecture supports automatic modification by an AI in certain aspects, suchg as adjusting the number of images analyzed simultaneously for different light wavelengths, or modifying the visual layout. This may potentially simplify the workflow for non-technical users.</li>
+            </ul>
+        </section>
+
+        <section id="module-disclaimer">
+            <h3>4. Important Disclaimers</h3>
+            <p><strong>PLEASE NOTE:</strong> This application was designed strictly for **educational purposes** and has **not been validated for quantitative analysis** of substances in a regulatory context. Only version **V3** has been tested in a real-world setting during classes with students at the University of Rzeszów.</p>
+        </section>
+    </main>
+
 </body>
-    <footer>
-        <p>
-            This application was developed by:
-            <br>
-            <strong>Damian Bezara</strong> - I programmed this application, by conducting for a year a thorough search of scientific publications, and implementing proprietary algorithms for TLC plate analysis.
-            <br>
-            <strong>Karol Wróblewski</strong> - My mentor who provided scientific support.
-        </p>
-    </footer>   
+
+<footer>
+    <p>
+        <strong>This application was developed and programmed by:</strong>
+        <br>
+        <strong>Damian Bezara</strong> – Primary developer, responsible for programming the application, conducting a year-long literature review, and implementing proprietary algorithms for precise TLC plate analysis.
+        <br>
+        <strong>Scientific and Advisory Support:</strong>
+        <br>
+        <strong>Karol Wróblewski</strong> – Mentor providing essential scientific and content advisory.
+    </p>
+
+    <p>
+        This software is distributed under the terms of the <strong>BSD-3-Clause License</strong>. 
+        <a href="LICENSE" target="_blank">View License Details</a>
+    </p>
+
+    </footer>
+    
 </html>
