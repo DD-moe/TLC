@@ -43,9 +43,9 @@ main {
 }
 
 /* Stylizacja elementów w sekcjach (listy i akapity) */
-main section p, 
-main section ul, 
-main section li {
+main > section p,
+main > section ul,
+main > section li {
     text-align: left; /* Wyrównanie elementów wewnętrznych do lewej */
     list-style-position: inside; /* Ustawienie numeratora wewnątrz bloku */
 }
