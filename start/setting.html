@@ -58,7 +58,7 @@
         }
 
         /* Ustawienie wyglądu dla "paramList" */
-        #Chrom_paramListDiv, #Int_paramListDiv {
+        #Chrom_paramListDiv, #Int_paramListDiv, #Qname_paramListDiv, #Pha_paramListDiv {
             display: grid;
             gap: 0.75rem;
             grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -66,8 +66,18 @@
         }
 
         #Int_paramListDiv{
-            color: #312e81;
+            background-color: bisque;
         }
+        #Chrom_paramListDiv{
+            background-color: thistle;
+        }
+        #Qname_paramListDiv{
+            background-color: white;
+        }
+        #Pha_paramListDiv{
+            background-color: lavender;
+        }                
+        
     </style>    
 </head>
 
@@ -83,10 +93,14 @@
     <hr>
     <br>
     <h3>Select the parameters to include in the report</h3>
-    <br>
-    <div id="Chrom_paramListDiv"><p>Chromatographic parameters:</p><br></div>
-    <br>
-    <div id="Int_paramListDiv"><p>Intermediate parameters:</p><br></div>
+        <br>
+        <div id="Qname_paramListDiv"><p>Quantity and naming parameters:</p><br></div>            
+        <br>
+        <div id="Chrom_paramListDiv"><p>Chromatographic parameters:</p><br></div>
+        <br>
+        <div id="Pha_paramListDiv"><p>Chromatographic (Pharmaopeia dependent) parameters:</p><br></div>        
+        <br>
+        <div id="Int_paramListDiv"><p>Intermediate parameters:</p><br></div>
     <br>
     <hr>
     <br>
@@ -154,31 +168,31 @@
 
         // tablica z parametrami
         const paramDescriptions = [
-        {name: "Peak Name (PN)", type:"int"},
-        {name: "Track Name (TN)", type:"int"},
+        {name: "Peak Name (PN)", type:"qname"},
+        {name: "Track Name (TN)", type:"qname"},
         {name: "Startpoint to Midpoint Distance at 5% of Height (SM5)", type:"int"},
         {name: "Startpoint to Midpoint Distance at 10% of Height (SM10)", type:"int"},
         {name: "Asymmetry Factor​​ (AS)", type:"chrom"},
         {name: "Midpoint to Endpoint Distance at 5% of Height (ME5)", type:"int"},
         {name: "Midpoint to Endpoint Distance at 10% of Height (ME10)", type:"int"},
-        {name: "Substance Concentration (C)", type:"chrom"},
-        {name: "Height Equivalent to a Theoretical Plate - European Pharmacopeia (HETPEP)", type:"chrom"},
-        {name: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)", type:"chrom"},
+        {name: "Substance Concentration (C)", type:"qname"},
+        {name: "Height Equivalent to a Theoretical Plate - European Pharmacopeia (HETPEP)", type:"pha"},
+        {name: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)", type:"pha"},
         {name: "Capacity Factor (k)", type:"chrom"},
         {name: "Maximal Height on Track (HTrack)", type:"chrom"},
         {name: "Greatest Peak Surface for Track (STrack)", type:"chrom"},
         {name: "Midpoint Index (MI)​", type:"int"},
-        {name: "Number of Theoretical Plates per meter - European Pharmacopeia​ (NEP/m)", type:"chrom"},
-        {name: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)", type:"chrom"},
-        {name: "Number of Theoretical Plates - European Pharmacopeia​ (NEP)", type:"chrom"},
-        {name: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)", type:"chrom"},
+        {name: "Number of Theoretical Plates per meter - European Pharmacopeia​ (NEP/m)", type:"pha"},
+        {name: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)", type:"pha"},
+        {name: "Number of Theoretical Plates - European Pharmacopeia​ (NEP)", type:"pha"},
+        {name: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)", type:"pha"},
         {name: "Maximal Peak Height (HMax)", type:"chrom"},
         {name: "Peak Height to Track Height Ratio (H%)", type:"chrom"},
         {name: "Peak Surface to Track Surface Ratio (S%)", type:"chrom"},
         {name: "Plate Width in cm (PlW)", type:"int"},
         {name: "Retardation Factor (RF)", type:"chrom"},
         {name: "Logarithmic Retardation Factor (RMLog10)", type:"chrom"},
-        {name: "Spot Area (S)", type:"chrom"},
+        {name: "Spot Area (S)", type:"qname"},
         {name: "Tailing Factor (TF)", type:"chrom"},
         {name: "Track Length in cm (Tl)", type:"int"},
         {name: "Peak Width at 5% Height (PW5)", type:"int"},
@@ -188,13 +202,13 @@
         {name: "X Position of Spot Center (XPOS)", type:"int"},
         {name: "Y Position of Spot Center (YPOS)", type:"int"},
         {name: "Separation Factor (α)", type:"chrom"},
-        {name: "Efficiency - European Pharmacopeia (EEP)", type:"chrom"},
-        {name: "Efficiency - United States Pharmacopeia (EUSP)", type:"chrom"},
-        {name: "Normalized Surface (NS)", type:"int"},
+        {name: "Efficiency - European Pharmacopeia (EEP)", type:"pha"},
+        {name: "Efficiency - United States Pharmacopeia (EUSP)", type:"pha"},
+        {name: "Normalized Surface (NS)", type:"qname"},
         {name: "Retention (Ret)", type:"chrom"},
         {name: "Average Retention Factor (RˉF)", type:"chrom"},
-        {name: "Resolution - European Pharmacopeia (REP)", type:"chrom"},
-        {name: "Resolution - United States Pharmacopeia (RUSP)", type:"chrom"},
+        {name: "Resolution - European Pharmacopeia (REP)", type:"pha"},
+        {name: "Resolution - United States Pharmacopeia (RUSP)", type:"pha"},
         {name: "Resolution - Universal Formula (RS)", type:"chrom"},
         {name: "Selectivity (Sel)", type:"chrom"},
         ];
@@ -202,6 +216,8 @@
 
         const Int_paramListDiv = document.getElementById('Int_paramListDiv');
         const Chrom_paramListDiv = document.getElementById('Chrom_paramListDiv');
+        const Qname_paramListDiv = document.getElementById('Qname_paramListDiv');
+        const Pha_paramListDiv = document.getElementById('Pha_paramListDiv');        
 
         // wczytaj wcześniej zapisane zaznaczenia jako obiekt
         let wybrane = {};
@@ -228,12 +244,18 @@
 
         wrapper.appendChild(checkbox);
         wrapper.appendChild(label);
-        if (desc.type === "int"){
+        if (desc.type === "int"){ // bisque
             Int_paramListDiv.appendChild(wrapper);
         }
-        else if(desc.type === "chrom"){
+        else if(desc.type === "chrom"){ // Thistle
             Chrom_paramListDiv.appendChild(wrapper);
         }
+        else if(desc.type === "qname"){ // white
+            Qname_paramListDiv.appendChild(wrapper);
+        }
+        else if(desc.type === "pha"){ // lavender
+            Pha_paramListDiv.appendChild(wrapper);
+        }                
 
         // event po zmianie checkboxa
         checkbox.addEventListener('change', () => {
@@ -243,7 +265,13 @@
             .forEach(cb => wybrane[cb.value] = true);
 
             Array.from(Chrom_paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
-            .forEach(cb => wybrane[cb.value] = true);            
+            .forEach(cb => wybrane[cb.value] = true);     
+            
+            Array.from(Qname_paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
+            .forEach(cb => wybrane[cb.value] = true);
+
+            Array.from(Pha_paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
+            .forEach(cb => wybrane[cb.value] = true);             
 
             // zapis do localStorage jako JSON obiekt
             localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(wybrane));
