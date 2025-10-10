@@ -688,11 +688,20 @@
                             const colorOrder = ['bisque', 'lavender', 'thistle', 'white', 'LightGray'];
 
                             Object.entries(paramsObject)
-                            .sort(([, a], [, b]) => {
-                                const rankA = colorOrder.indexOf(a.color) === -1 ? Infinity : colorOrder.indexOf(a.color);
-                                const rankB = colorOrder.indexOf(b.color) === -1 ? Infinity : colorOrder.indexOf(b.color);
+                            .sort(([keyA, a], [keyB, b]) => {
+                                const rankA = priority[keyA] ?? Infinity;
+                                const rankB = priority[keyB] ?? Infinity;
                                 if (rankA !== rankB) return rankA - rankB;
-                                return a.description.localeCompare(b.description); // lub keyA.localeCompare(keyB)
+
+                                const colorA = a.color ?? "";
+                                const colorB = b.color ?? "";
+                                const colorRankA = colorOrder.indexOf(colorA);
+                                const colorRankB = colorOrder.indexOf(colorB);
+                                if (colorRankA !== colorRankB) return colorRankA - colorRankB;
+
+                                const descA = a.description ?? "";
+                                const descB = b.description ?? "";
+                                return descA.localeCompare(descB);
                             })
                             .forEach(([key, param]) => {
                                 // param musi mieć description i value
