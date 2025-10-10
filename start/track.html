@@ -685,6 +685,7 @@
                         let tableHTML = '<table border="1" style="display:inline-block; margin:5px; border-collapse:collapse;">';
                         tableHTML += '<tr><th>Description</th><th>Value</th></tr>';
 
+                        console.log(paramsObject);
                         Object.entries(paramsObject)
                             .sort(([keyA], [keyB]) => {
                                 const rankA = priority[keyA] ?? Infinity;
@@ -1322,10 +1323,10 @@
                     const rankA = priority[keyA] ?? Infinity;
                     const rankB = priority[keyB] ?? Infinity;
 
-                    // najpierw porównaj ranki
+                    // najpierw porównaj rangi
                     if (rankA !== rankB) return rankA - rankB;
 
-                    // jeśli ten sam rank → sortuj alfabetycznie
+                    // jeśli ta sama ranga → sortuj alfabetycznie
                     return keyA.localeCompare(keyB);
                 })               
                 .forEach(([key, param]) => {
