@@ -669,12 +669,6 @@
                 // sortuj po Xcentral
                 withX.sort((a, b) => a.x - b.x);
 
-                // priority do sortowania parametrów
-                const priority = {
-                    name: 1,
-                    track: 2
-                };
-
                 // dla każdego draggable
                 withX.forEach(({ el }) => {
                     try {
@@ -685,14 +679,10 @@
                         let tableHTML = '<table border="1" style="display:inline-block; margin:5px; border-collapse:collapse;">';
                         tableHTML += '<tr><th>Description</th><th>Value</th></tr>';
 
-                            const colorOrder = ['bisque', 'lavender', 'Thistle', 'white', 'LightGray'];
+                            const colorOrder = ['LightGray', 'white', 'Thistle', 'lavender', 'bisque'];
 
                             Object.entries(paramsObject)
                             .sort(([keyA, a], [keyB, b]) => {
-                                const rankA = priority[keyA] ?? Infinity;
-                                const rankB = priority[keyB] ?? Infinity;
-                                if (rankA !== rankB) return rankA - rankB;
-
                                 const colorA = a.color ?? "";
                                 const colorB = b.color ?? "";
                                 const colorRankA = colorOrder.indexOf(colorA);
@@ -1252,7 +1242,8 @@
                         if (params.RF && nextParams.RF && params.Wbas && nextParams.Wbas) {
                             params.RSz = {  
                                 value: (nextParams.RF.value - params.RF.value) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
-                                description: "Resolution - Universal Formula (RS)"  
+                                description: "Resolution - Universal Formula (RS)",
+                                color: 'Thistle'   
                             };
                         }
 
@@ -1330,19 +1321,10 @@
 
                 const list = document.createElement("ul");
 
-                const priority = {
-                    name: 1,
-                    track: 2
-                };
-
-                const colorOrder = ['bisque', 'lavender', 'Thistle', 'white', 'LightGray'];
+                const colorOrder = ['LightGray', 'white', 'Thistle', 'lavender', 'bisque'];
 
                 Object.entries(paramsObject)
                 .sort(([keyA, a], [keyB, b]) => {
-                    const rankA = priority[keyA] ?? Infinity;
-                    const rankB = priority[keyB] ?? Infinity;
-                    if (rankA !== rankB) return rankA - rankB;
-
                     const colorA = a.color ?? "";
                     const colorB = b.color ?? "";
                     const colorRankA = colorOrder.indexOf(colorA);
