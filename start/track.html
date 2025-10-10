@@ -685,13 +685,14 @@
                         let tableHTML = '<table border="1" style="display:inline-block; margin:5px; border-collapse:collapse;">';
                         tableHTML += '<tr><th>Description</th><th>Value</th></tr>';
 
-                        console.log(paramsObject);
-                        Object.entries(paramsObject)
-                            .sort(([keyA], [keyB]) => {
-                                const rankA = priority[keyA] ?? Infinity;
-                                const rankB = priority[keyB] ?? Infinity;
+                            const colorOrder = ['bisque', 'lavender', 'thistle', 'white', 'LightGray'];
+
+                            Object.entries(paramsObject)
+                            .sort(([, a], [, b]) => {
+                                const rankA = colorOrder.indexOf(a.color) === -1 ? Infinity : colorOrder.indexOf(a.color);
+                                const rankB = colorOrder.indexOf(b.color) === -1 ? Infinity : colorOrder.indexOf(b.color);
                                 if (rankA !== rankB) return rankA - rankB;
-                                return keyA.localeCompare(keyB);
+                                return a.description.localeCompare(b.description); // lub keyA.localeCompare(keyB)
                             })
                             .forEach(([key, param]) => {
                                 // param musi mieć description i value
