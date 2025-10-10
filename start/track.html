@@ -1035,24 +1035,24 @@
                     const trackName = track.textContent.replace(/^Track:\s*/, '');
 
                     const params = JSON.stringify({
-                        track: { value: trackName, description: "name of track", color: 'LightGray'},
-                        midpointIndex: { value: midpointIndex, description: "Index of midpoint", color: 'bisque'},
-                        maxHeight: { value: maxHeight, description: "Maximal height on track", color: 'bisque' },
-                        peakMaxHeight: { value: peakMaxHeight, description: "Maximal height of peak" },
-                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Maximal height of peak / Maximal height on track * 100%" },
-                        Wbas: { value: Wbas, description: "Width of peak at 0% of height", color: 'bisque' },
-                        W50: { value: W50, description: "Width of peak at 50% of height", color: 'bisque' },
-                        W10: { value: W10, description: "Width of peak at 10% of height", color: 'bisque' },
+                        track: { value: trackName, description: "Track Name (TN)", color: 'LightGray'},
+                        midpointIndex: { value: midpointIndex, description: "Midpoint Index (MI)", color: 'bisque'},
+                        maxHeight: { value: maxHeight, description: "Maximal Height on Track (HTrack)", color: 'bisque' },
+                        peakMaxHeight: { value: peakMaxHeight, description: "Maximal Peak Height (HMax)" },
+                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Peak Height to Track Height Ratio (H%)" },
+                        Wbas: { value: Wbas, description: "Peak Width at 0% Height (PW0)", color: 'bisque' },
+                        W50: { value: W50, description: "Peak Width at 50% Height (PW50)", color: 'bisque' },
+                        W10: { value: W10, description: "Peak Width at 10% Height (PW10)", color: 'bisque' },
                         W05: { value: W05, description: "Width of peak at 5% of height", color: 'bisque' },
-                        surface: { value: surface, description: "Surface of spot", color: 'white' },
-                        A05: { value: A05, description: "Start to midpoint distance at 5% of height", color: 'bisque' },
-                        A10: { value: A10, description: "Start to midpoint distance at 10% of height", color: 'bisque' },
-                        B05: { value: B05, description: "Midpoint to end distance at 5% of height", color: 'bisque' },
-                        B10: { value: B10, description: "Midpoint to end distance at 10% of height", color: 'bisque' },
-                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry factor" },
-                        tailingFactor: { value: tailingFactor, description: "Tailing factor" },
-                        Ycentral: {value: Ypos, description: "Y position 0-1 range of spot centrum"},
-                        Xcentral: {value: Xpos, description: "X position 0-1 range of spot centrum"},
+                        surface: { value: surface, description: "Spot Area (S)", color: 'white' },
+                        A05: { value: A05, description: "Startpoint to Midpoint Distance at 5% of Height (SM5)", color: 'bisque' },
+                        A10: { value: A10, description: "Startpoint to Midpoint Distance at 10% of Height (SM10)", color: 'bisque' },
+                        B05: { value: B05, description: "Midpoint to Endpoint Distance at 5% of Height (ME5)", color: 'bisque' },
+                        B10: { value: B10, description: "Midpoint to Endpoint Distance at 10% of Height (ME10)", color: 'bisque' },
+                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry Factor​​ (AS)" },
+                        tailingFactor: { value: tailingFactor, description: "Tailing Factor (TF)" },
+                        Ycentral: {value: Ypos, description: "Y Position of Spot Center (YPOS)"},
+                        Xcentral: {value: Xpos, description: "X Position of Spot Center (XPOS)"},
                     });
 
                     draggable.dataset.params = params;
@@ -1088,7 +1088,7 @@
                     let params = JSON.parse(draggable.dataset.params);
                     params.plate_width = { 
                         value: baselines.plate_width, // globalna zmienna
-                        description: "Plate width in cm", 
+                        description: "Plate Width in cm (PlW)", 
                         color: 'bisque'
                     };
 
@@ -1096,7 +1096,7 @@
                     if (spotsElement) {
                         params.track_width = { 
                             value: (redSums.length / spotsElement.width) * params.plate_width.value, 
-                            description: "Track width in cm",
+                            description: "Track Length in cm (Tl)",
                             color: 'bisque'
                         };
                     } else {
@@ -1105,60 +1105,60 @@
 
                     params.RF = { 
                         value: params.midpointIndex.value / redSums.length, 
-                        description: "Retention factor (RF)"
+                        description: "Retardation Factor (RF)"
                     };
 
                     // #*#*#*
                     const predictedSubstance = findNearestSubstance(params.RF.value, substances, substanceTreshold);                    
                     params.name = {
                         value: (predictedSubstance !== null ? predictedSubstance : "unknown substance"),
-                        description: "name of substance",
+                        description: "Peak Name (PN)",
                         color: 'LightGray'
                     };
 
                     params.k = { 
                         value: (1 - params.RF.value) / params.RF.value, 
-                        description: "Retention factor (k)" 
+                        description: "Capacity Factor (k)" 
                     };
 
                     params.RM = { 
                         value: Math.log10(params.k.value), 
-                        description: "logarithmic retention factor (RM)"
+                        description: "Logarithmic Retardation Factor (RMLog10)"
                     };
 
                     params.HobsBAS = { 
                         value: (params.Wbas.value ** 2) / (16 * params.RF.value), 
-                        description: "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia",
+                        description: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)",
                         color: 'thistle'
                     };
 
                     params.Hobs05 = { 
                         value: (params.W50.value ** 2) / (5.54 * params.RF.value), 
-                        description: "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia",
+                        description: "Height Equivalent to a Theoretical Plate - European Pharmacopeia (HETPEP)",
                         color: 'lavender'   
                     };
 
                     params.NobsBAS = { 
                         value: (16 * params.RF.value) / params.Wbas.value, 
-                        description: "Number of theoretical plates (N) - United States Pharmacopeia",
+                        description: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)",
                         color: 'thistle'
                     };
 
                     params.Nobs05 = { 
                         value: (params.RF.value / params.W50.value) ** 2 * 5.54, 
-                        description: "Number of theoretical plates (N) - European Pharmacopeia",
+                        description: "Number of Theoretical Plates - European Pharmacopeia​ (NEP)",
                         color: 'lavender'   
                     };
 
                     params.N_mBAS = { 
                         value: params.NobsBAS.value / params.track_width.value, 
-                        description: "Number of theoretical plates per meter  (N/m) - United States Pharmacopeia",
+                        description: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)",
                         color: 'thistle'
                     };
 
                     params.N_m05 = { 
                         value: params.Nobs05.value / params.track_width.value, 
-                        description: "Number of theoretical plates per meter (N/m) - European Pharmacopeia",
+                        description: "Number of Theoretical Plates per meter - European Pharmacopeia​ (NEP/m)",
                         color: 'lavender'   
                     };
 
@@ -1198,28 +1198,28 @@
                 draggableData.forEach(({ draggable, params }, index) => {
                     params.maxSurface = {  
                         value: maxSurface,  
-                        description: "Greatest peak surface for track", 
+                        description: "Greatest Peak Surface for Track (STrack)", 
                         color: 'bisque' 
                     };
 
                     if ('grid' in normalizationParams) {
                         params.NormalizedSurface = {  
                             value: evaluateSpline3D(normalizationParams, params.Xcentral.value, params.Ycentral.value, params.surface.value), 
-                            description: "Normalized surface",
+                            description: "Normalized Surface (NS)",
                             color: 'white'
                         };                         
                     }
                     
                     params.concentration = {  
                         value: predictConcentration(params.surface.value / referenceSurface),  
-                        description: "Substance concentration",
+                        description: "Substance Concentration (C)",
                         color: 'white'
                     };                     
                     
                     if (maxSurface > 0) {
                         params.percentSurface = {  
                             value: (params.surface.value / maxSurface) * 100,  
-                            description: "% of greatest peak surface"  
+                            description: "Peak Surface to Track Surface Ratio (S%)"  
                         };
                     }
                     
@@ -1229,39 +1229,39 @@
                         if (params.k && nextParams.k) {
                             params.alpha = {  
                                 value: Math.max(params.k.value, nextParams.k.value) / Math.min(params.k.value, nextParams.k.value),  
-                                description: "Separation factor (α)"  
+                                description: "Separation Factor (α)"  
                             };
                         }
 
                         if (params.RF && nextParams.RF && params.Wbas && nextParams.Wbas) {
                             params.RSz = {  
                                 value: (nextParams.RF.value - params.RF.value) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
-                                description: "Resolution (RS)"  
+                                description: "Resolution - Universal Formula (RS)"  
                             };
                         }
 
                         if (params.k && nextParams.k) {
                             params.selectivity = {  
                                 value: 0.25 * (nextParams.k.value / params.k.value - 1),  
-                                description: "selectivity"  
+                                description: "Selectivity (Sel)"  
                             };
                         }
 
                         if (params.RF && nextParams.RF) {
                             params.RFavg = {  
                                 value: (params.RF.value + nextParams.RF.value) / 2,  
-                                description: "Average Retention Factor"  
+                                description: "Average Retention Factor (RˉF)"  
                             };
                             params.retention = {  
                                 value: 1 - params.RFavg.value,  
-                                description: "retention"  
+                                description: "Retention (Ret)"  
                             };
                         }
 
                         if (params.NobsBAS && nextParams.NobsBAS && params.RFavg) {
                             params.efficacyBAS = {  
                                 value: Math.sqrt(params.RFavg.value * (params.NobsBAS.value + nextParams.NobsBAS.value) / 2),  
-                                description: "efficacy- United States Pharmacopeia",
+                                description: "Efficiency - United States Pharmacopeia (EUSP)",
                                 color: 'thistle'
                             };
                         }
@@ -1269,7 +1269,7 @@
                         if (params.Nobs05 && nextParams.Nobs05 && params.RFavg) {
                             params.efficacy50 = {  
                                 value: Math.sqrt(params.RFavg.value * (params.Nobs05.value + nextParams.Nobs05.value) / 2),  
-                                description: "efficacy - European Pharmacopeia",
+                                description: "Efficiency - European Pharmacopeia (EEP)",
                                 color: 'lavender'    
                             };
                         }
@@ -1277,7 +1277,7 @@
                         if (params.selectivity && params.retention && params.efficacyBAS) {
                             params.RSssrBAS = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacyBAS.value,  
-                                description: "Resolution (RS) - United States Pharmacopeia",
+                                description: "Resolution - United States Pharmacopeia (RUSP)",
                                 color: 'thistle'
                             };
                         }
@@ -1285,7 +1285,7 @@
                         if (params.selectivity && params.retention && params.efficacy50) {
                             params.RSssr50 = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacy50.value,  
-                                description: "Resolution (RS) - European Pharmacopeia",
+                                description: "Resolution - European Pharmacopeia (REP)",
                                 color: 'lavender'  
                             };
                         }
@@ -1339,7 +1339,7 @@
                     label.textContent = param.description;
 
                     const input = document.createElement("input");
-                    if (param.description === "name of substance" || param.description === "name of track") { // dla nazwy - text
+                    if (param.description === "Peak Name (PN)" || param.description === "Track Name (TN)") { // dla nazwy - text
                         input.type = "text";
                         input.value = param.value;
                         input.dataset.paramKey = key;                     
@@ -1378,7 +1378,7 @@
                 inputs.forEach(input => {
                     const key = input.dataset.paramKey;
                     if (paramsObject[key]) { // is name = text
-                        if (paramsObject[key].description === "name of substance" || paramsObject[key].description === "name of track") {
+                        if (paramsObject[key].description === "Peak Name (PN)" || paramsObject[key].description === "Track Name (TN)") {
                             paramsObject[key].value = input.value;
                         }
                         else{ // not name = number float
