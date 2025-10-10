@@ -58,10 +58,14 @@
         }
 
         /* Ustawienie wyglądu dla "paramList" */
-        #paramList {
+        #Int_paramListDiv, #Int_paramListDiv {
             display: grid;
             gap: 0.75rem;
             grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        #Int_paramListDiv{
+            font-style: oblique 25deg;
         }
     </style>    
 </head>
@@ -79,7 +83,8 @@
     <br>
     <h3>Select the parameters to include in the report</h3>
     <br>
-    <div id="paramList"></div>
+    <div id="Chrom_paramListDiv"></div>
+    <div id="Int_paramListDiv"></div>
     <br>
     <hr>
     <br>
@@ -147,53 +152,54 @@
 
         // tablica z parametrami
         const paramDescriptions = [
-        "name of substance",
-        "name of track",
-        "Start to midpoint distance at 5% of height",
-        "Start to midpoint distance at 10% of height",
-        "Asymmetry factor",
-        "Midpoint to end distance at 5% of height",
-        "Midpoint to end distance at 10% of height",
-        "Substance concentration",
-        "Height equivalent to a theoretical plate (HETP) - European Pharmacopeia",
-        "Height equivalent to a theoretical plate (HETP) - United States Pharmacopeia",
-        "Retention factor (k)",
-        "Maximal height on track",
-        "Greatest peak surface for track",
-        "Index of midpoint",
-        "Number of theoretical plates per meter (N/m) - European Pharmacopeia",
-        "Number of theoretical plates per meter  (N/m) - United States Pharmacopeia",
-        "Number of theoretical plates (N) - European Pharmacopeia",
-        "Number of theoretical plates (N) - United States Pharmacopeia",
-        "Maximal height of peak",
-        "Maximal height of peak / Maximal height on track * 100%",
-        "% of greatest peak surface",
-        "Plate width in cm",
-        "Retention factor (RF)",
-        "logarithmic retention factor (RM)",
-        "Surface of spot",
-        "Tailing factor",
-        "Track width in cm",
-        "Width of peak at 5% of height",
-        "Width of peak at 10% of height",
-        "Width of peak at 50% of height",
-        "Width of peak at 0% of height",
-        "X position 0-1 range of spot centrum",
-        "Y position 0-1 range of spot centrum",
-        "Separation factor (α)",
-        "efficacy - European Pharmacopeia",
-        "efficacy- United States Pharmacopeia",
-        "Normalized surface",
-        "retention",
-        "Average Retention Factor",
-        "Resolution (RS) - European Pharmacopeia",
-        "Resolution (RS) - United States Pharmacopeia",
-        "Resolution (RS)",
-        "selectivity",
+        {name: "Peak Name (PN)", type:"int"},
+        {name: "Track Name (TN)", type:"int"},
+        {name: "Startpoint to Midpoint Distance at 5% of Height (SM5)", type:"int"},
+        {name: "Startpoint to Midpoint Distance at 10% of Height (SM10)", type:"int"},
+        {name: "Asymmetry Factor​​ (AS)", type:"chrom"},
+        {name: "Midpoint to Endpoint Distance at 5% of Height (ME5)", type:"int"},
+        {name: "Midpoint to Endpoint Distance at 10% of Height (ME10)", type:"int"},
+        {name: "Substance Concentration (C)", type:"chrom"},
+        {name: "Height Equivalent to a Theoretical Plate - European Pharmacopeia (HETPEP)", type:"chrom"},
+        {name: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)", type:"chrom"},
+        {name: "Capacity Factor (k)", type:"chrom"},
+        {name: "Maximal Height on Track (HTrack)", type:"chrom"},
+        {name: "Greatest Peak Surface for Track (STrack)", type:"chrom"},
+        {name: "Midpoint Index (MI)​", type:"int"},
+        {name: "Number of Theoretical Plates per meter - European Pharmacopeia​ (NEP/m)", type:"chrom"},
+        {name: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)", type:"chrom"},
+        {name: "Number of Theoretical Plates - European Pharmacopeia​ (NEP)", type:"chrom"},
+        {name: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)", type:"chrom"},
+        {name: "Maximal Peak Height (HMax)", type:"chrom"},
+        {name: "Peak Height to Track Height Ratio (H%)", type:"chrom"},
+        {name: "Peak Surface to Track Surface Ratio (S%)", type:"chrom"},
+        {name: "Plate Width in cm (PlW)", type:"int"},
+        {name: "Retardation Factor (RF)", type:"chrom"},
+        {name: "Logarithmic Retardation Factor (RMLog10)", type:"chrom"},
+        {name: "Spot Area (S)", type:"chrom"},
+        {name: "Tailing Factor (TF)", type:"chrom"},
+        {name: "Track Length in cm (Tl)", type:"int"},
+        {name: "Peak Width at 5% Height (PW5)", type:"int"},
+        {name: "Peak Width at 10% Height (PW10)", type:"int"},
+        {name: "Peak Width at 50% Height (PW50)", type:"int"},
+        {name: "Peak Width at 0% Height (PW0)", type:"int"},
+        {name: "X Position of Spot Center (XPOS)", type:"int"},
+        {name: "Y Position of Spot Center (YPOS)", type:"int"},
+        {name: "Separation Factor (α)", type:"chrom"},
+        {name: "Efficiency - European Pharmacopeia (EEP)", type:"chrom"},
+        {name: "Efficiency - United States Pharmacopeia (EUSP)", type:"chrom"},
+        {name: "Normalized Surface (NS)", type:"int"},
+        {name: "Retention (Ret)", type:"chrom"},
+        {name: "Average Retention Factor (RˉF)", type:"chrom"},
+        {name: "Resolution - European Pharmacopeia (REP)", type:"chrom"},
+        {name: "Resolution - United States Pharmacopeia (RUSP)", type:"chrom"},
+        {name: "Resolution - Universal Formula (RS)", type:"chrom"},
+        {name: "Selectivity (Sel)", type:"chrom"},
         ];
 
 
-        const paramListDiv = document.getElementById('paramList');
+        const Int_paramListDiv = document.getElementById('Int_paramListDiv');
+        const Chrom_paramListDiv = document.getElementById('Chrom_paramListDiv');
 
         // wczytaj wcześniej zapisane zaznaczenia jako obiekt
         let wybrane = {};
@@ -206,28 +212,36 @@
 
         // generowanie listy checkboxów
         paramDescriptions.forEach(desc => {
-        const id = 'param_' + desc.replace(/\s+/g, '_'); // unikalne ID
+        const id = 'param_' + desc.name.replace(/\s+/g, '_'); // unikalne ID
         const wrapper = document.createElement('div');
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = id;
-        checkbox.value = desc;
-        checkbox.checked = !!wybrane[desc]; // true jeśli wcześniej zaznaczone
+        checkbox.value = desc.name;
+        checkbox.checked = !!wybrane[desc.name]; // true jeśli wcześniej zaznaczone
 
         const label = document.createElement('label');
         label.htmlFor = id;
-        label.textContent = desc;
+        label.textContent = desc.name;
 
         wrapper.appendChild(checkbox);
         wrapper.appendChild(label);
-        paramListDiv.appendChild(wrapper);
+        if (dexc.type === "int"){
+            Int_paramListDiv.appendChild(wrapper);
+        }
+        else if(dexc.type === "chrom"){
+            Chrom_paramListDiv.appendChild(wrapper);
+        }
 
         // event po zmianie checkboxa
         checkbox.addEventListener('change', () => {
             // odczyt wszystkich checkboxów
             wybrane = {};
-            Array.from(paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
+            Array.from(Int_paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
             .forEach(cb => wybrane[cb.value] = true);
+
+            Array.from(Chrom_paramListDiv.querySelectorAll('input[type=checkbox]:checked'))
+            .forEach(cb => wybrane[cb.value] = true);            
 
             // zapis do localStorage jako JSON obiekt
             localStorage.setItem('wybraneParametryTLCv3', JSON.stringify(wybrane));
