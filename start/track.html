@@ -685,7 +685,7 @@
                         let tableHTML = '<table border="1" style="display:inline-block; margin:5px; border-collapse:collapse;">';
                         tableHTML += '<tr><th>Description</th><th>Value</th></tr>';
 
-                            const colorOrder = ['bisque', 'lavender', 'thistle', 'white', 'LightGray'];
+                            const colorOrder = ['bisque', 'lavender', 'Thistle', 'white', 'LightGray'];
 
                             Object.entries(paramsObject)
                             .sort(([keyA, a], [keyB, b]) => {
@@ -1050,7 +1050,7 @@
                         midpointIndex: { value: midpointIndex, description: "Midpoint Index (MI)", color: 'bisque'},
                         maxHeight: { value: maxHeight, description: "Maximal Height on Track (HTrack)", color: 'bisque' },
                         peakMaxHeight: { value: peakMaxHeight, description: "Maximal Peak Height (HMax)", color: 'bisque' },
-                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Peak Height to Track Height Ratio (H%)", color: 'thistle' },
+                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Peak Height to Track Height Ratio (H%)", color: 'Thistle' },
                         Wbas: { value: Wbas, description: "Peak Width at 0% Height (PW0)", color: 'bisque' },
                         W50: { value: W50, description: "Peak Width at 50% Height (PW50)", color: 'bisque' },
                         W10: { value: W10, description: "Peak Width at 10% Height (PW10)", color: 'bisque' },
@@ -1060,8 +1060,8 @@
                         A10: { value: A10, description: "Startpoint to Midpoint Distance at 10% of Height (SM10)", color: 'bisque' },
                         B05: { value: B05, description: "Midpoint to Endpoint Distance at 5% of Height (ME5)", color: 'bisque' },
                         B10: { value: B10, description: "Midpoint to Endpoint Distance at 10% of Height (ME10)", color: 'bisque' },
-                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry Factor​​ (AS)", color: 'thistle' },
-                        tailingFactor: { value: tailingFactor, description: "Tailing Factor (TF)", color: 'thistle' },
+                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry Factor​​ (AS)", color: 'Thistle' },
+                        tailingFactor: { value: tailingFactor, description: "Tailing Factor (TF)", color: 'Thistle' },
                         Ycentral: {value: Ypos, description: "Y Position of Spot Center (YPOS)", color: 'bisque'},
                         Xcentral: {value: Xpos, description: "X Position of Spot Center (XPOS)", color: 'bisque'},
                     });
@@ -1117,7 +1117,7 @@
                     params.RF = { 
                         value: params.midpointIndex.value / redSums.length, 
                         description: "Retardation Factor (RF)",
-                        color: 'thistle'
+                        color: 'Thistle'
                     };
 
                     // #*#*#*
@@ -1131,13 +1131,13 @@
                     params.k = { 
                         value: (1 - params.RF.value) / params.RF.value, 
                         description: "Capacity Factor (k)",
-                        color: 'thistle' 
+                        color: 'Thistle' 
                     };
 
                     params.RM = { 
                         value: Math.log10(params.k.value), 
                         description: "Logarithmic Retardation Factor (RMLog10)",
-                        color: 'thistle'
+                        color: 'Thistle'
                     };
 
                     params.HobsBAS = { 
@@ -1234,7 +1234,7 @@
                         params.percentSurface = {  
                             value: (params.surface.value / maxSurface) * 100,  
                             description: "Peak Surface to Track Surface Ratio (S%)",
-                            color: 'thistle'  
+                            color: 'Thistle'  
                         };
                     }
                     
@@ -1245,7 +1245,7 @@
                             params.alpha = {  
                                 value: Math.max(params.k.value, nextParams.k.value) / Math.min(params.k.value, nextParams.k.value),  
                                 description: "Separation Factor (α)",
-                                color: 'thistle'  
+                                color: 'Thistle'  
                             };
                         }
 
@@ -1260,7 +1260,7 @@
                             params.selectivity = {  
                                 value: 0.25 * (nextParams.k.value / params.k.value - 1),  
                                 description: "Selectivity (Sel)",
-                                color: 'thistle'  
+                                color: 'Thistle'  
                             };
                         }
 
@@ -1268,12 +1268,12 @@
                             params.RFavg = {  
                                 value: (params.RF.value + nextParams.RF.value) / 2,  
                                 description: "Average Retention Factor (RˉF)",
-                                color: 'thistle'  
+                                color: 'Thistle'  
                             };
                             params.retention = {  
                                 value: 1 - params.RFavg.value,  
                                 description: "Retention (Ret)",
-                                color: 'thistle'  
+                                color: 'Thistle'  
                             };
                         }
 
@@ -1335,7 +1335,7 @@
                     track: 2
                 };
 
-                const colorOrder = ['bisque', 'lavender', 'thistle', 'white', 'LightGray'];
+                const colorOrder = ['bisque', 'lavender', 'Thistle', 'white', 'LightGray'];
 
                 Object.entries(paramsObject)
                 .sort(([keyA, a], [keyB, b]) => {
