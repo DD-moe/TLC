@@ -1327,18 +1327,24 @@
                     track: 2
                 };
 
+                const colorOrder = ['bisque', 'lavender', 'thistle', 'white', 'LightGray'];
+
                 Object.entries(paramsObject)
-                .sort(([keyA], [keyB]) => {
-                    // nadaj rangę, jeśli brak w priority → Infinity
+                .sort(([keyA, a], [keyB, b]) => {
                     const rankA = priority[keyA] ?? Infinity;
                     const rankB = priority[keyB] ?? Infinity;
-
-                    // najpierw porównaj rangi
                     if (rankA !== rankB) return rankA - rankB;
 
-                    // jeśli ta sama ranga → sortuj alfabetycznie
-                    return keyA.localeCompare(keyB);
-                })               
+                    const colorA = a.color ?? "";
+                    const colorB = b.color ?? "";
+                    const colorRankA = colorOrder.indexOf(colorA);
+                    const colorRankB = colorOrder.indexOf(colorB);
+                    if (colorRankA !== colorRankB) return colorRankA - colorRankB;
+
+                    const descA = a.description ?? "";
+                    const descB = b.description ?? "";
+                    return descA.localeCompare(descB);
+                })           
                 .forEach(([key, param]) => {
                     if (typeof param !== "object" || !param.hasOwnProperty("description") || !param.hasOwnProperty("value")) return;
 
