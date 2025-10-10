@@ -1049,8 +1049,8 @@
                         track: { value: trackName, description: "Track Name (TN)", color: 'LightGray'},
                         midpointIndex: { value: midpointIndex, description: "Midpoint Index (MI)", color: 'bisque'},
                         maxHeight: { value: maxHeight, description: "Maximal Height on Track (HTrack)", color: 'bisque' },
-                        peakMaxHeight: { value: peakMaxHeight, description: "Maximal Peak Height (HMax)" },
-                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Peak Height to Track Height Ratio (H%)" },
+                        peakMaxHeight: { value: peakMaxHeight, description: "Maximal Peak Height (HMax)", color: 'bisque' },
+                        peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Peak Height to Track Height Ratio (H%)", color: 'thistle' },
                         Wbas: { value: Wbas, description: "Peak Width at 0% Height (PW0)", color: 'bisque' },
                         W50: { value: W50, description: "Peak Width at 50% Height (PW50)", color: 'bisque' },
                         W10: { value: W10, description: "Peak Width at 10% Height (PW10)", color: 'bisque' },
@@ -1060,10 +1060,10 @@
                         A10: { value: A10, description: "Startpoint to Midpoint Distance at 10% of Height (SM10)", color: 'bisque' },
                         B05: { value: B05, description: "Midpoint to Endpoint Distance at 5% of Height (ME5)", color: 'bisque' },
                         B10: { value: B10, description: "Midpoint to Endpoint Distance at 10% of Height (ME10)", color: 'bisque' },
-                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry Factor​​ (AS)" },
-                        tailingFactor: { value: tailingFactor, description: "Tailing Factor (TF)" },
-                        Ycentral: {value: Ypos, description: "Y Position of Spot Center (YPOS)"},
-                        Xcentral: {value: Xpos, description: "X Position of Spot Center (XPOS)"},
+                        asymmetryFactor: { value: asymmetryFactor, description: "Asymmetry Factor​​ (AS)", color: 'thistle' },
+                        tailingFactor: { value: tailingFactor, description: "Tailing Factor (TF)", color: 'thistle' },
+                        Ycentral: {value: Ypos, description: "Y Position of Spot Center (YPOS)", color: 'bisque'},
+                        Xcentral: {value: Xpos, description: "X Position of Spot Center (XPOS)", color: 'bisque'},
                     });
 
                     draggable.dataset.params = params;
@@ -1116,7 +1116,8 @@
 
                     params.RF = { 
                         value: params.midpointIndex.value / redSums.length, 
-                        description: "Retardation Factor (RF)"
+                        description: "Retardation Factor (RF)",
+                        color: 'thistle'
                     };
 
                     // #*#*#*
@@ -1129,18 +1130,20 @@
 
                     params.k = { 
                         value: (1 - params.RF.value) / params.RF.value, 
-                        description: "Capacity Factor (k)" 
+                        description: "Capacity Factor (k)",
+                        color: 'thistle' 
                     };
 
                     params.RM = { 
                         value: Math.log10(params.k.value), 
-                        description: "Logarithmic Retardation Factor (RMLog10)"
+                        description: "Logarithmic Retardation Factor (RMLog10)",
+                        color: 'thistle'
                     };
 
                     params.HobsBAS = { 
                         value: (params.Wbas.value ** 2) / (16 * params.RF.value), 
                         description: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)",
-                        color: 'thistle'
+                        color: 'lavender'
                     };
 
                     params.Hobs05 = { 
@@ -1152,7 +1155,7 @@
                     params.NobsBAS = { 
                         value: (16 * params.RF.value) / params.Wbas.value, 
                         description: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)",
-                        color: 'thistle'
+                        color: 'lavender'
                     };
 
                     params.Nobs05 = { 
@@ -1164,7 +1167,7 @@
                     params.N_mBAS = { 
                         value: params.NobsBAS.value / params.track_width.value, 
                         description: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)",
-                        color: 'thistle'
+                        color: 'lavender'
                     };
 
                     params.N_m05 = { 
@@ -1230,7 +1233,8 @@
                     if (maxSurface > 0) {
                         params.percentSurface = {  
                             value: (params.surface.value / maxSurface) * 100,  
-                            description: "Peak Surface to Track Surface Ratio (S%)"  
+                            description: "Peak Surface to Track Surface Ratio (S%)",
+                            color: 'thistle'  
                         };
                     }
                     
@@ -1240,7 +1244,8 @@
                         if (params.k && nextParams.k) {
                             params.alpha = {  
                                 value: Math.max(params.k.value, nextParams.k.value) / Math.min(params.k.value, nextParams.k.value),  
-                                description: "Separation Factor (α)"  
+                                description: "Separation Factor (α)",
+                                color: 'thistle'  
                             };
                         }
 
@@ -1254,18 +1259,21 @@
                         if (params.k && nextParams.k) {
                             params.selectivity = {  
                                 value: 0.25 * (nextParams.k.value / params.k.value - 1),  
-                                description: "Selectivity (Sel)"  
+                                description: "Selectivity (Sel)",
+                                color: 'thistle'  
                             };
                         }
 
                         if (params.RF && nextParams.RF) {
                             params.RFavg = {  
                                 value: (params.RF.value + nextParams.RF.value) / 2,  
-                                description: "Average Retention Factor (RˉF)"  
+                                description: "Average Retention Factor (RˉF)",
+                                color: 'thistle'  
                             };
                             params.retention = {  
                                 value: 1 - params.RFavg.value,  
-                                description: "Retention (Ret)"  
+                                description: "Retention (Ret)",
+                                color: 'thistle'  
                             };
                         }
 
@@ -1273,7 +1281,7 @@
                             params.efficacyBAS = {  
                                 value: Math.sqrt(params.RFavg.value * (params.NobsBAS.value + nextParams.NobsBAS.value) / 2),  
                                 description: "Efficiency - United States Pharmacopeia (EUSP)",
-                                color: 'thistle'
+                                color: 'lavender'
                             };
                         }
                         
@@ -1289,7 +1297,7 @@
                             params.RSssrBAS = {  
                                 value: params.selectivity.value * params.retention.value * params.efficacyBAS.value,  
                                 description: "Resolution - United States Pharmacopeia (RUSP)",
-                                color: 'thistle'
+                                color: 'lavender'
                             };
                         }
                         
