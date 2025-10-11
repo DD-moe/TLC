@@ -1429,19 +1429,70 @@
             displayConcentrationData();
         }
 
-        // Funkcja wyświetlająca dane o stężeniach
+        // Funkcja wyświetlająca dane o stężeniach w formie tabeli
         function displayConcentrationData() {
             const container = document.getElementById("concentration_dataset");
             if (!container) return;
-            
+
             container.innerHTML = "";
-            container.style.border = 'solid 1px black';
-            concentrationData.forEach(entry => {
-                const item = document.createElement("div");
-                item.innerHTML = `<p>Surface: ${entry.surface}</p><strong>Concentration: ${entry.concentration}</strong><p>Y: ${entry.YPos}</p><p>X: ${entry.XPos}</p>`;
-                container.appendChild(item);
+            container.style.border = '1px solid black';
+            container.style.padding = '5px';
+
+            const table = document.createElement("table");
+            table.style.borderCollapse = "collapse";
+            table.style.width = "100%";
+
+            // Styl komórek
+            const addCellStyle = (cell, isHeader = false) => {
+                cell.style.border = "1px solid black";
+                cell.style.padding = "4px";
+                cell.style.verticalAlign = "middle";
+                if (isHeader) {
+                    cell.style.fontWeight = "bold";
+                    cell.style.textAlign = "center";
+                }
+            };
+
+            concentrationData.forEach((entry, index) => {
+                const sampleNumber = index + 1;
+
+                const labels = ["Surface:", "X:", "Y:", "Concentration:"];
+                const values = [entry.surface, entry.XPos, entry.YPos, entry.concentration];
+
+                labels.forEach((label, i) => {
+                    const row = document.createElement("tr");
+
+                    // Pierwsza kolumna — Sample 1 (scalona na 4 wiersze)
+                    if (i === 0) {
+                        const sampleCell = document.createElement("td");
+                        sampleCell.rowSpan = labels.length;
+                        sampleCell.textContent = `Sample ${sampleNumber}`;
+                        sampleCell.style.textAlign = "center";
+                        addCellStyle(sampleCell, true);
+                        row.appendChild(sampleCell);
+                    }
+
+                    // Druga kolumna — etykieta
+                    const labelCell = document.createElement("td");
+                    labelCell.textContent = label;
+                    if (label === "Concentration:") labelCell.style.fontWeight = "bold";
+                    addCellStyle(labelCell);
+                    row.appendChild(labelCell);
+
+                    // Trzecia kolumna — wartość
+                    const valueCell = document.createElement("td");
+                    valueCell.textContent = values[i];
+                    if (label === "Concentration:") valueCell.style.fontWeight = "bold";
+                    addCellStyle(valueCell);
+                    row.appendChild(valueCell);
+
+                    table.appendChild(row);
+                });
             });
+
+            container.appendChild(table);
         }
+
 
         function calculateLinearRegression() {
             if (concentrationData.length < 2) return;
