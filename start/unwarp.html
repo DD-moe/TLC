@@ -239,7 +239,7 @@
                 const proposedposition = readFromLocalStorage();
                 if(proposedposition !== null && proposedposition !== undefined){
                     console.log(proposedposition);
-                    moveable$0.target.style = proposedposition; // ustawiamy wczytany z local storage transform dla wiadomo czego
+                    moveable$0.target.style.transform = proposedposition; // ustawiamy wczytany z local storage transform dla wiadomo czego
                 } 
                 moveable$0.updateRect();               
             }
@@ -339,7 +339,7 @@
             };
 
             // zapisujemy do local storage macierz plate boundary
-            saveToLocalStorage(currentMoveable.target.style);
+            saveToLocalStorage(currentMoveable.target.style.transform);
 
             // Calculate width (average of top and bottom edge distances)
             const topEdgeDistance = calculateDistance(positions.topLeftCorner, positions.topRightCorner);
