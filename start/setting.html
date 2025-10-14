@@ -102,6 +102,18 @@
         <br>
         <div id="Int_paramListDiv"><p>Intermediate parameters:</p><br></div>
     <br>
+        <h3>Select Naming Convention:</h3><br>
+    
+    <select id="namingConventionSelect" onchange="saveNamingConvention()">
+        <option value="debug" selected>Debug Naming</option>
+        
+        <option value="descriptive">Descriptive</option>
+        
+        <option value="abbreviated">Abbreviated</option>
+        
+        <option value="desc_abbrev">Desc. & Abbrev.</option>
+    </select>
+    <br>
     <hr>
     <br>
     <button id="refresh-cache">refresh cache</button>
@@ -179,16 +191,16 @@
         {name: "Height Equivalent to a Theoretical Plate - European Pharmacopeia (HETPEP)", type:"pha"},
         {name: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)", type:"pha"},
         {name: "Capacity Factor (k)", type:"chrom"},
-        {name: "Maximal Height on Track (HTrack)", type:"chrom"},
-        {name: "Greatest Peak Surface for Track (STrack)", type:"chrom"},
+        {name: "Maximal Height on Track (HTrack)", type:"int"},
+        {name: "Greatest Peak Surface for Track (STrack)", type:"int"},
         {name: "Midpoint Index (MI)​", type:"int"},
         {name: "Number of Theoretical Plates per meter - European Pharmacopeia​ (NEP/m)", type:"pha"},
         {name: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)", type:"pha"},
         {name: "Number of Theoretical Plates - European Pharmacopeia​ (NEP)", type:"pha"},
         {name: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)", type:"pha"},
-        {name: "Maximal Peak Height (HMax)", type:"chrom"},
+        {name: "Peak Height (H)", type:"chrom"},
         {name: "Peak Height to Track Height Ratio (H%)", type:"chrom"},
-        {name: "Peak Surface to Track Surface Ratio (S%)", type:"chrom"},
+        {name: "Peak Surface to Track Surface Ratio (S%)", type:"qname"},
         {name: "Plate Width in cm (PlW)", type:"int"},
         {name: "Retardation Factor (RF)", type:"chrom"},
         {name: "Logarithmic Retardation Factor (RMLog10)", type:"chrom"},
@@ -202,17 +214,83 @@
         {name: "X Position of Spot Center (XPOS)", type:"int"},
         {name: "Y Position of Spot Center (YPOS)", type:"int"},
         {name: "Separation Factor (α)", type:"chrom"},
-        {name: "Efficiency - European Pharmacopeia (EEP)", type:"pha"},
-        {name: "Efficiency - United States Pharmacopeia (EUSP)", type:"pha"},
+        {name: "Efficiency - European Pharmacopeia (EEP)", type:"int"},
+        {name: "Efficiency - United States Pharmacopeia (EUSP)", type:"int"},
         {name: "Normalized Surface (NS)", type:"qname"},
-        {name: "Retention (Ret)", type:"chrom"},
-        {name: "Average Retention Factor (RˉF)", type:"chrom"},
+        {name: "Retention (Ret)", type:"int"},
+        {name: "Average Retention Factor (RˉF)", type:"int"},
         {name: "Resolution - European Pharmacopeia (REP)", type:"pha"},
         {name: "Resolution - United States Pharmacopeia (RUSP)", type:"pha"},
         {name: "Resolution - Universal Formula (RS)", type:"chrom"},
-        {name: "Selectivity (Sel)", type:"chrom"},
+        {name: "Selectivity (Sel)", type:"int"},
         ];
 
+        const namingConvention = {
+            "PN": "PN",
+            "TN": "TN",
+            "SM5": "SM<sub>5</sub>",
+            "SM10": "SM<sub>10</sub>",
+            "AS": "AS",
+            "ME5": "ME<sub>5</sub>",
+            "ME10": "ME<sub>10</sub>",
+            "C": "C",
+            "HETPEP": "HETP<sub>EP</sub>",
+            "HETPUSP": "HETP<sub>USP</sub>",
+            "k": "k",
+            "HTrack": "H<sub>Track</sub>",
+            "STrack": "S<sub>Track</sub>",
+            "MI": "MI",
+            "NEP/m": "N<sub>EP</sub>/m",
+            "NUSP/m": "N<sub>USP</sub>/m",
+            "NEP": "N<sub>EP</sub>",
+            "NUSP": "N<sub>USP</sub>",
+            "HMax": "H<sub>Max</sub>",
+            "H%": "H%",
+            "S%": "S%",
+            "PlW": "PlW",
+            "RF": "R<sub>F</sub>",
+            "RMLog10": "RM<sub>Log10</sub>",
+            "S": "S",
+            "TF": "TF",
+            "Tl": "Tl",
+            "PW5": "PW<sub>5</sub>",
+            "PW10": "PW<sub>10</sub>",
+            "PW50": "PW<sub>50</sub>",
+            "PW0": "PW<sub>0</sub>",
+            "XPOS": "XPOS",
+            "YPOS": "YPOS",
+            "α": "&alpha;",
+            "EEP": "E<sub>EP</sub>",
+            "EUSP": "E<sub>USP</sub>",
+            "NS": "NS",
+            "Ret": "Ret",
+            "RˉF": "R&#772;<sub>F</sub>", // Użyto kodu HTML dla znaku 'macron'
+            "REP": "R<sub>EP</sub>",
+            "RUSP": "R<sub>USP</sub>",
+            "RS": "R<sub>S</sub>",
+            "Sel": "Sel"
+        }
+
+        // Funkcja JavaScript do zapisywania wartości do Local Storage
+        function saveNamingConvention() {
+            // Pobranie elementu select po jego ID
+            const selectElement = document.getElementById('namingConventionSelect');
+            
+            // Pobranie wybranej wartości
+            const selectedValue = selectElement.value;
+            
+            // Klucz, pod którym wartość będzie zapisywana w Local Storage
+            const storageKey = 'naming_convention_V3';
+            
+            // Sprawdzenie, czy została wybrana poprawna wartość (nie placeholder)
+            if (selectedValue) {
+                // Zapisanie wartości do Local Storage
+                localStorage.setItem(storageKey, selectedValue);
+                
+                // Opcjonalny komunikat w konsoli
+                console.log(`Saved to Local Storage: ${storageKey} = ${selectedValue}`);
+            }
+        }        
 
         const Int_paramListDiv = document.getElementById('Int_paramListDiv');
         const Chrom_paramListDiv = document.getElementById('Chrom_paramListDiv');
@@ -235,12 +313,28 @@
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = id;
-        checkbox.value = desc.name;
+        checkbox.value = desc.name; // tu ustawiana nazwa chceboxa - nie zmieniać
         checkbox.checked = !!wybrane[desc.name]; // true jeśli wcześniej zaznaczone
 
         const label = document.createElement('label');
         label.htmlFor = id;
-        label.textContent = desc.name;
+
+        const storedValue = localStorage.getItem('naming_convention_V3'); // wczytujemy naming convention
+        if (!storedValue || storedValue === "debug") {
+            label.textContent = desc.name; // tu ustawiona nazwa label
+        }
+        else if (storedValue === "descriptive") {
+            label.textContent = desc.name.replace(/\s*\([^)]*\)/g, '').trim(); // wycina zawartość nawiasu
+        }
+        else if (storedValue === "abbreviated") {
+            const matchSingle = desc.name.match(/\(([^)]*)\)/); // podaje zawartość nawiasu
+            label.innerHTML = namingConvention[matchSingle]; // wstawia html dla znalezionej zawartości nawiasu do label
+        }        
+        else if (storedValue === "desc_abbrev") {
+            const matchSingle = desc.name.match(/\(([^)]*)\)/); // podaje zawartość nawiasu
+            const description = desc.name.replace(/\s*\([^)]*\)/g, '').trim();  // wycina zawartość nawiasu
+            label.innerHTML = `${description}   ${namingConvention[matchSingle]}`; 
+        }        
 
         wrapper.appendChild(checkbox);
         wrapper.appendChild(label);

@@ -1039,7 +1039,7 @@
                         track: { value: trackName, description: "Track Name (TN)", color: 'white'},
                         midpointIndex: { value: midpointIndex, description: "Midpoint Index (MI)", color: 'bisque'},
                         maxHeight: { value: maxHeight, description: "Maximal Height on Track (HTrack)", color: 'bisque' },
-                        peakMaxHeight: { value: peakMaxHeight, description: "Maximal Peak Height (HMax)", color: 'bisque' },
+                        peakMaxHeight: { value: peakMaxHeight, description: "Peak Height (H)", color: 'Thistle' },
                         peakMaxHeightPercent: { value: peakMaxHeightPercent, description: "Peak Height to Track Height Ratio (H%)", color: 'Thistle' },
                         Wbas: { value: Wbas, description: "Peak Width at 0% Height (PW0)", color: 'bisque' },
                         W50: { value: W50, description: "Peak Width at 50% Height (PW50)", color: 'bisque' },
@@ -1224,7 +1224,7 @@
                         params.percentSurface = {  
                             value: (params.surface.value / maxSurface) * 100,  
                             description: "Peak Surface to Track Surface Ratio (S%)",
-                            color: 'Thistle'  
+                            color: 'white'  
                         };
                     }
                     
@@ -1251,7 +1251,7 @@
                             params.selectivity = {  
                                 value: 0.25 * (nextParams.k.value / params.k.value - 1),  
                                 description: "Selectivity (Sel)",
-                                color: 'Thistle'  
+                                color: 'bisque'  
                             };
                         }
 
@@ -1259,12 +1259,12 @@
                             params.RFavg = {  
                                 value: (params.RF.value + nextParams.RF.value) / 2,  
                                 description: "Average Retention Factor (RˉF)",
-                                color: 'Thistle'  
+                                color: 'bisque'  
                             };
                             params.retention = {  
                                 value: 1 - params.RFavg.value,  
                                 description: "Retention (Ret)",
-                                color: 'Thistle'  
+                                color: 'bisque'  
                             };
                         }
 
@@ -1272,7 +1272,7 @@
                             params.efficacyBAS = {  
                                 value: Math.sqrt(params.RFavg.value * (params.NobsBAS.value + nextParams.NobsBAS.value) / 2),  
                                 description: "Efficiency - United States Pharmacopeia (EUSP)",
-                                color: 'lavender'
+                                color: 'bisque'
                             };
                         }
                         
@@ -1280,7 +1280,7 @@
                             params.efficacy50 = {  
                                 value: Math.sqrt(params.RFavg.value * (params.Nobs05.value + nextParams.Nobs05.value) / 2),  
                                 description: "Efficiency - European Pharmacopeia (EEP)",
-                                color: 'lavender'    
+                                color: 'bisque'    
                             };
                         }
 
