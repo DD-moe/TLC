@@ -848,15 +848,14 @@
                 // dla każdego draggable
                 let P_nr = 1;
                 withX.forEach(({ el }) => {
-                    P_nr++;
                     try {
                         const paramsObject = JSON.parse(el.dataset.params || '{}');
                         if (typeof paramsObject !== "object" || paramsObject === null) return;
-
                         // zbuduj tabelę dla tego draggable
                         let tableHTML = '<table border="1" style="display:inline-block; margin:5px; border-collapse:collapse;">';
                         tableHTML += `<tr><th><strong>Parameter</strong></th><th><strong>Peak ${P_nr}</strong></th></tr>`;
-
+                        P_nr++;
+                        
                             const colorOrder = ['white', 'Thistle', 'lavender', 'bisque'];
 
                             Object.entries(paramsObject)
