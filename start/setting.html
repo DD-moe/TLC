@@ -320,6 +320,9 @@
         label.htmlFor = id;
 
         const storedValue = localStorage.getItem('naming_convention_V3'); // wczytujemy naming convention
+        const selectElement_NC = document.getElementById('namingConventionSelect');
+        selectElement_NC.value = storedValue; // ustawia odpowiednią value na selected
+
         if (!storedValue || storedValue === "debug") {
             label.textContent = desc.name; // tu ustawiona nazwa label
         }
@@ -328,6 +331,7 @@
         }
         else if (storedValue === "abbreviated") {
             const matchSingle = desc.name.match(/\(([^)]*)\)/); // podaje zawartość nawiasu
+            console.log(matchSingle);
             label.innerHTML = namingConvention[matchSingle]; // wstawia html dla znalezionej zawartości nawiasu do label
         }        
         else if (storedValue === "desc_abbrev") {
