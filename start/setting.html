@@ -330,12 +330,12 @@
             label.textContent = desc.name.replace(/\s*\([^)]*\)/g, '').trim(); // wycina zawartość nawiasu
         }
         else if (storedValue === "abbreviated") {
-            const matchSingle = desc.name.match(/\(([^)]*)\)/); // podaje zawartość nawiasu
+            const matchSingle = desc.name.match(/\(([^)]*)\)/)[1]; // podaje zawartość nawiasu
             console.log(matchSingle);
             label.innerHTML = namingConvention[matchSingle]; // wstawia html dla znalezionej zawartości nawiasu do label
         }        
         else if (storedValue === "desc_abbrev") {
-            const matchSingle = desc.name.match(/\(([^)]*)\)/); // podaje zawartość nawiasu
+            const matchSingle = desc.name.match(/\(([^)]*)\)/)[1]; // podaje zawartość nawiasu
             const description = desc.name.replace(/\s*\([^)]*\)/g, '').trim();  // wycina zawartość nawiasu
             label.innerHTML = `${description}   ${namingConvention[matchSingle]}`; 
         }        
