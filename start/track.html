@@ -133,6 +133,182 @@
         let referenceSurface = 1;
         let normalizationParams = {};
 
+        // obiekt z alternatywnymi nazwami
+        const namingConvention = {
+            "PN": {
+                abbv: "P<sub>N</sub>",
+                desc: "Peak Name"
+            },
+            "TN": {
+                abbv: "T<sub>N</sub>",
+                desc: "Track Name"
+            },
+            "SM5": {
+                abbv: "SM<sub>5</sub>",
+                desc: "Startpoint to Midpoint Distance at 5% of Height"
+            },
+            "SM10": {
+                abbv: "SM<sub>10</sub>",
+                desc: "Startpoint to Midpoint Distance at 10% of Height"
+            },
+            "AS": {
+                abbv: "A<sub>S</sub>",
+                desc: "Asymmetry Factor"
+            },
+            "ME5": {
+                abbv: "ME<sub>5</sub>",
+                desc: "Midpoint to Endpoint Distance at 5% of Height"
+            },
+            "ME10": {
+                abbv: "ME<sub>10</sub>",
+                desc: "Midpoint to Endpoint Distance at 10% of Height"
+            },
+            "C": {
+                abbv: "C",
+                desc: "Substance Concentration"
+            },
+            "HETPEP": {
+                abbv: "HETP<sub>EP</sub>",
+                desc: "Height Equivalent to a Theoretical Plate - European Pharmacopeia"
+            },
+            "HETPUSP": {
+                abbv: "HETP<sub>USP</sub>",
+                desc: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia"
+            },
+            "k": {
+                abbv: "k",
+                desc: "Capacity Factor"
+            },
+            "HTrack": {
+                abbv: "H<sub>Track</sub>",
+                desc: "Maximal Height on Track"
+            },
+            "STrack": {
+                abbv: "S<sub>Track</sub>",
+                desc: "Greatest Peak Surface for Track"
+            },
+            "MI": {
+                abbv: "M<sub>I</sub>",
+                desc: "Midpoint Index"
+            },
+            "NEP/m": {
+                abbv: "N<sub>EP</sub>/m",
+                desc: "Number of Theoretical Plates per meter - European Pharmacopeia"
+            },
+            "NUSP/m": {
+                abbv: "N<sub>USP</sub>/m",
+                desc: "Number of Theoretical Plates per meter - United States Pharmacopeia"
+            },
+            "NEP": {
+                abbv: "N<sub>EP</sub>",
+                desc: "Number of Theoretical Plates - European Pharmacopeia"
+            },
+            "NUSP": {
+                abbv: "N<sub>USP</sub>",
+                desc: "Number of Theoretical Plates - United States Pharmacopeia"
+            },
+            "HMax": {
+                abbv: "H<sub>Max</sub>",
+                desc: "Peak Height"
+            },
+            "H%": {
+                abbv: "H<sub>%</sub>",
+                desc: "Peak Height to Track Height Ratio"
+            },
+            "S%": {
+                abbv: "S<sub>%</sub>",
+                desc: "Peak Surface to Track Surface Ratio"
+            },
+            "PlW": {
+                abbv: "Pl<sub>W</sub>",
+                desc: "Plate Width in cm"
+            },
+            "RF": {
+                abbv: "R<sub>F</sub>",
+                desc: "Retardation Factor"
+            },
+            "RMLog10": {
+                abbv: "R<sub>M</sub>",
+                desc: "Logarithmic Retardation Factor"
+            },
+            "S": {
+                abbv: "S",
+                desc: "Spot Area"
+            },
+            "TF": {
+                abbv: "T<sub>F</sub>",
+                desc: "Tailing Factor"
+            },
+            "Tl": {
+                abbv: "T<sub>L</sub>",
+                desc: "Track Length in cm"
+            },
+            "PW5": {
+                abbv: "PW<sub>5</sub>",
+                desc: "Peak Width at 5% Height"
+            },
+            "PW10": {
+                abbv: "PW<sub>10</sub>",
+                desc: "Peak Width at 10% Height"
+            },
+            "PW50": {
+                abbv: "PW<sub>50</sub>",
+                desc: "Peak Width at 50% Height"
+            },
+            "PW0": {
+                abbv: "PW<sub>0</sub>",
+                desc: "Peak Width at 0% Height"
+            },
+            "XPOS": {
+                abbv: "X<sub>POS</sub>",
+                desc: "X Position of Spot Center"
+            },
+            "YPOS": {
+                abbv: "Y<sub>POS</sub>",
+                desc: "Y Position of Spot Center"
+            },
+            "α": {
+                abbv: "α",
+                desc: "Separation Factor"
+            },
+            "EEP": {
+                abbv: "E<sub>EP</sub>",
+                desc: "Efficiency - European Pharmacopeia"
+            },
+            "EUSP": {
+                abbv: "E<sub>USP</sub>",
+                desc: "Efficiency - United States Pharmacopeia"
+            },
+            "NS": {
+                abbv: "N<sub>S</sub>",
+                desc: "Normalized Surface"
+            },
+            "Ret": {
+                abbv: "Ret",
+                desc: "Retention"
+            },
+            "RˉF": {
+                abbv: "R&#772;<sub>F</sub>",
+                desc: "Average Retention Factor"
+            },
+            "REP": {
+                abbv: "R<sub>EP</sub>",
+                desc: "Resolution - European Pharmacopeia"
+            },
+            "RUSP": {
+                abbv: "R<sub>USP</sub>",
+                desc: "Resolution - United States Pharmacopeia"
+            },
+            "RS": {
+                abbv: "R<sub>S</sub>",
+                desc: "Resolution - Universal Formula"
+            },
+            "Sel": {
+                abbv: "Sel",
+                desc: "Selectivity"
+            }
+        };        
+
         function toggle_CanvasSpace(){
             const canvasSpace = document.getElementById("canvas_space");
             canvasSpace.style.display = (canvasSpace.style.display === "none") ? "block" : "none";
@@ -1305,6 +1481,47 @@
             });
         }
 
+        // zmienia nazwę parametru w zależności od od wyboru użytkownika
+        function proposeAlternativeName(old_name){
+            // changing name to alterntive - START
+            const storedValue = localStorage.getItem('naming_convention_V3'); // wczytujemy naming convention
+
+            if (!storedValue || storedValue === "debug") {
+                return old_name; // tu ustawiona nazwa stara
+            } else {
+                // Spróbuj znaleźć skrót w nawiasie, np. "PN" z "Peak Name (PN)"
+                const match = old_name.match(/\(([^)]*)\)/);
+
+                // Zmienna na skrót (np. "PN")
+                const matchSingle = match ? match[1] : null; 
+
+                // Sprawdzenie: Czy znaleziono skrót ORAZ czy skrót istnieje jako klucz w namingConvention
+                const isValidKey = matchSingle && namingConvention.hasOwnProperty(matchSingle);
+
+                if (isValidKey) {
+                    // Jeśli klucz jest poprawny, przejdź do logiki z namingConvention
+                    const changedElement = namingConvention[matchSingle];
+
+                    if (storedValue === "descriptive") {
+                        return changedElement.desc; // wstawia opis
+                    } else if (storedValue === "abbreviated") {
+                        return changedElement.abbv; // wstawia skrót (HTML)
+                    } else if (storedValue === "desc_abbrev") {
+                        // Użyj changedElement, które jest już zdefiniowane
+                        return `${changedElement.desc} (${changedElement.abbv})`;
+                    } else {
+                        // W przypadku nieznanego storedValue, ustaw domyślnie
+                        return old_name;
+                    }
+
+                } else {
+                    // Zabezpieczenie: Jeśli matchSingle nieznalezione lub klucz nie istnieje
+                    return old_name;
+                }
+            }     
+            // changing name to alterntive - END            
+        }
+
         // po kliknięciu w wykryty peak pokazuje pole z parametrami
         function updateParameterBox() {
             const parameterBox = document.getElementById('parameterBox');
@@ -1343,7 +1560,7 @@
                         listItem.style.backgroundColor = param.color;
                     }
                     const label = document.createElement("label");
-                    label.textContent = param.description;
+                    label.innerHTML = proposeAlternativeName(param.description);
 
                     const input = document.createElement("input");
                     if (param.description === "Peak Name (PN)" || param.description === "Track Name (TN)") { // dla nazwy - text

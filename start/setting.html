@@ -448,6 +448,7 @@
         const label = document.createElement('label');
         label.htmlFor = id;
 
+        // changing name to alterntive - START
         const storedValue = localStorage.getItem('naming_convention_V3'); // wczytujemy naming convention
         const selectElement_NC = document.getElementById('namingConventionSelect');
         selectElement_NC.value = storedValue; // ustawia odpowiednią value na selected
@@ -474,7 +475,7 @@
                     label.innerHTML = changedElement.abbv; // wstawia skrót (HTML)
                 } else if (storedValue === "desc_abbrev") {
                     // Użyj changedElement, które jest już zdefiniowane
-                    label.innerHTML = `${changedElement.desc} ${changedElement.abbv}`;
+                    label.innerHTML = `${changedElement.desc} (${changedElement.abbv})`;
                 } else {
                     // W przypadku nieznanego storedValue, ustaw domyślnie
                     label.textContent = desc.name;
@@ -485,6 +486,7 @@
                 label.textContent = desc.name;
             }
         }     
+        // changing name to alterntive - END
 
         wrapper.appendChild(checkbox);
         wrapper.appendChild(label);
