@@ -161,6 +161,8 @@
 
         let targetRef = document.querySelector(".target");
         let element$0 = document.querySelector(".container");
+        let currentMoveable; // keeps current moveable reference in global variable
+        const STORAGE_KEY = 'plate_boundaries_V3';
 
         // Funkcja do załadowania obrazu na canvas
         function loadImageToCanvas(file) {
@@ -197,7 +199,8 @@
                 moveable$0.on("warp", e => {
                     e.target.style.transform = e.transform;
                 });
-                warper = true;                
+                warper = true;
+                currentMoveable = moveable$0;             
             }
         });
 
@@ -294,6 +297,8 @@
                 }
             };
 
+            // zapisujemy do local storage macierz plate boundary
+            console.log(currentMoveable.target);
 
             // Calculate width (average of top and bottom edge distances)
             const topEdgeDistance = calculateDistance(positions.topLeftCorner, positions.topRightCorner);
