@@ -164,6 +164,40 @@
         let currentMoveable; // keeps current moveable reference in global variable
         const STORAGE_KEY = 'plate_boundaries_V3';
 
+        function saveToLocalStorage(data) {
+            try {
+                // Konwertuj obiekt na ciąg JSON
+                const serializedData = JSON.stringify(data);
+                // Zapisz w Local Storage
+                localStorage.setItem(STORAGE_KEY, serializedData);
+                console.log(`Dane zapisane w Local Storage pod kluczem: ${STORAGE_KEY}`);
+            } catch (error) {
+                console.error("Błąd podczas zapisywania w Local Storage:", error);
+            }
+        }
+
+        function readFromLocalStorage() {
+            try {
+                // Odczytaj ciąg znaków z Local Storage
+                const serializedData = localStorage.getItem(STORAGE_KEY);
+
+                // Jeśli dane nie istnieją, zwróć null
+                if (serializedData === null) {
+                    console.log(`Brak danych w Local Storage pod kluczem: ${STORAGE_KEY}`);
+                    return null;
+                }
+
+                // Parsuj ciąg JSON z powrotem na obiekt JavaScript
+                const data = JSON.parse(serializedData);
+                console.log(`Dane odczytane z Local Storage pod kluczem: ${STORAGE_KEY}`);
+                return data;
+
+            } catch (error) {
+                console.error("Błąd podczas odczytywania lub parsowania danych z Local Storage:", error);
+                return null; // W przypadku błędu (np. niepoprawny JSON) zwróć null
+            }
+        }        
+
         // Funkcja do załadowania obrazu na canvas
         function loadImageToCanvas(file) {
             const reader = new FileReader();
@@ -200,7 +234,13 @@
                     e.target.style.transform = e.transform;
                 });
                 warper = true;
-                currentMoveable = moveable$0;             
+                currentMoveable = moveable$0;
+                
+                const proposedposition = readFromLocalStorage();
+                if(proposedposition !== null && proposedposition !== undefined){
+                    e.target.style.transform = proposedposition; // ustawiamy wczytany z local storage transform dla wiadomo czego
+                } 
+                moveable$0.updateRect();               
             }
         });
 
@@ -298,7 +338,7 @@
             };
 
             // zapisujemy do local storage macierz plate boundary
-            console.log(currentMoveable.target);
+            saveToLocalStorage(currentMoveable.target.style);
 
             // Calculate width (average of top and bottom edge distances)
             const topEdgeDistance = calculateDistance(positions.topLeftCorner, positions.topRightCorner);
