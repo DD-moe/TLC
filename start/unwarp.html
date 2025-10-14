@@ -238,7 +238,7 @@
                 
                 const proposedposition = readFromLocalStorage();
                 if(proposedposition !== null && proposedposition !== undefined){
-                    moveable$0.target.style.transform = proposedposition; // ustawiamy wczytany z local storage transform dla wiadomo czego
+                    moveable$0.target.style = proposedposition; // ustawiamy wczytany z local storage transform dla wiadomo czego
                 } 
                 moveable$0.updateRect();               
             }
