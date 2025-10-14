@@ -877,7 +877,7 @@
 
                                 // dodaj wiersz do tabeli
                                 if (!wybrane || param.description in wybrane || wybrane_length === 0 ) { // jeśli wybrano takie parametry do wyliczenia
-                                    tableHTML += `<tr><td>${param.description}</td><td>${reduceDecimals(param.value, decimals)}</td></tr>`;
+                                    tableHTML += `<tr><td>${proposeAlternativeName(param.description)}</td><td>${reduceDecimals(param.value, decimals)}</td></tr>`;
                                 }
                             });
 
