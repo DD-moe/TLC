@@ -166,8 +166,15 @@
             let loadedData = localStorage.getItem(tracks_STORAGE_KEY);
 
             if (loadedData) {
-                editor.value = loadedData;
-                statusMessage.textContent = 'Schema loaded succesfully';
+                try {
+                    const parsed = JSON.parse(loadedData);
+                    const initialContent = JSON.stringify(parsed, null, 4);
+                    editor.value = initialContent;
+                    statusMessage.textContent = 'Schema loaded succesfully';                    
+                } catch (error) {
+                    statusMessage.textContent = 'Error: ' + error + ' Loaded default schema';  
+                }
+
             } else {
                 statusMessage.textContent = 'Loaded default schema';
             }
