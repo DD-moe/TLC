@@ -212,7 +212,7 @@
             let loadedData = localStorage.getItem(tracks_STORAGE_KEY);
             try {
                 const parsed = JSON.parse(loadedData);
-                if (config || config.plate || config.tracks || Array.isArray(config.tracks)) {
+                if (parsed || parsed.plate || parsed.tracks || Array.isArray(parsed.tracks)) {
                     createBaselines(parsed.plate.s, parsed.plate.e);
                     for (let i = 0; i < parsed.tracks.length; i++) {
                         const element = parsed.tracks[i];
