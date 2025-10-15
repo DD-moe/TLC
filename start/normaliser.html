@@ -664,9 +664,12 @@
                 };
             });
 
+            const start_percent = (rect.left - canvasRect.left) / canvasRect.width * 100;
+            const end_percent = (rect.right - canvasRect.left) / canvasRect.width * 100
+
             try {
                 const proposition = JSON.stringify({
-                    plate: {s:(rect.left - canvasRect.left) / canvasRect.width * 100, e:(rect.right - canvasRect.left) / canvasRect.width * 100},
+                    plate: {s:start_percent, e: (end_percent - start_percent)},
                     tracks: processedTracks
                 });
                 localStorage.setItem("proposed_graphical_schema_V3", proposition);
