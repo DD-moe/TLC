@@ -654,7 +654,7 @@
             saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
 
             // zapisz propozycję do localstorage
-              const processedTracks = data.tracks.map(track => {
+              const processedTracks = data.map(track => {
                 // Tworzymy nowy obiekt, kopiując istniejące właściwości
                 // i nadpisując y oraz height nowymi, podzielonymi wartościami
                 return {
