@@ -134,15 +134,17 @@
 
     <!-- Lista substancji -->
     <label for="substancesInput">List of substances (JSON):</label><br>
-    <textarea id="substancesInput" rows="6" cols="60" placeholder='[
-    { "x": 0.12, "name": "Substance A" },
-    { "x": 0.35, "name": "Substance B" },
-    { "x": 0.78, "name": "Substance C" }
-    ]'></textarea>
+    <textarea id="substancesInput" rows="6" cols="60">
+        [
+            { "x": 0.12, "name": "Substance A" },
+            { "x": 0.35, "name": "Substance B" },
+            { "x": 0.78, "name": "Substance C" }
+        ]        
+    </textarea>
     <br>
     <hr>
     <h3>Define tracks configuration and plate boundaries here:</h3>
-    <textarea id="json-editor">
+    <textarea id="json-editor" rows="6" cols="60">
         {
             "plate": { "s": 10, "e": 90 },
             "tracks": [
