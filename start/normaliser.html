@@ -653,6 +653,15 @@
                 plate_width: cm_width});
             saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
 
+            // zapisz propozycję do localstorage
+            /*try {
+                localStorage.setItem("proposed_graphical_schema_V3", JSON.stringify({
+                    plate: {s:, e:},
+                    tracks: data
+                }));
+            } catch (error) {
+                console.log(error);
+            }*/
         }
 
         loadImageFromDB();
