@@ -1351,6 +1351,7 @@
 
         function countTertiaryParams() {
             document.querySelectorAll(".track").forEach(track => {
+                const Xwidth = JSON.parse(track.dataset.Xwidth);
 
                 let draggableData = [];
                 let maxSurface = 0; // Przechowuje największą wartość surface.value w danym track
@@ -1418,7 +1419,7 @@
 
                         if (params.RF && nextParams.RF && params.Wbas && nextParams.Wbas) {
                             params.RSz = {  
-                                value: (nextParams.RF.value - params.RF.value) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
+                                value: (nextParams.RF.value * Xwidth  - params.RF.value * Xwidth ) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
                                 description: "Resolution - Universal Formula (RS)",
                                 color: 'Thistle'   
                             };
