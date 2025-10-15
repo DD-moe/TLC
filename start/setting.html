@@ -155,6 +155,8 @@
         }
     </textarea>
     <div id="status-message" class="status"></div>
+    <button id="editor_view">Paste schema proposition</button>
+    <button id="editor_refuse">Refuse schema proposition</button>
     <script>
 
         const tracks_STORAGE_KEY = 'tracks_schema_V3';
@@ -209,6 +211,19 @@
         loadSchema();
         editor.addEventListener('change', ()=>{
             saveSchema();
+        });
+
+        // keeps last proposition
+        let last_editorValue;
+
+        editor_view.addEventListener('click', ()=>{
+            const proposition = localStorage.getItem("proposed_graphical_schema_V3");
+            last_editorValue = editor.value;
+            editor.value = proposition;
+        }); 
+
+        editor_refuse.addEventListener('click', ()=>{
+            editor.value = last_editorValue;
         });
 
         // List of URLs to be cached
