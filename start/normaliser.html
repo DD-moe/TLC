@@ -654,14 +654,16 @@
             saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
 
             // zapisz propozycję do localstorage
-            /*try {
-                localStorage.setItem("proposed_graphical_schema_V3", JSON.stringify({
-                    plate: {s:, e:},
+            try {
+                const proposition = JSON.stringify({
+                    plate: {s:(rect.left - canvasRect.left) / canvasRect.width * 100, e:(rect.right - canvasRect.left) / canvasRect.width * 100},
                     tracks: data
-                }));
+                });
+                console.log();
+                localStorage.setItem("proposed_graphical_schema_V3", proposition);
             } catch (error) {
                 console.log(error);
-            }*/
+            }
         }
 
         loadImageFromDB();
