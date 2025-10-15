@@ -139,8 +139,64 @@
     { "x": 0.35, "name": "Substance B" },
     { "x": 0.78, "name": "Substance C" }
     ]'></textarea>
-
+    <br>
+    <hr>
+    <h3>Define tracks configuration and plate boundaries here:</h3>
+    <textarea id="json-editor">
+        {
+            "plate": { "s": 10, "e": 90 },
+            "tracks": [
+                { "name": "Track 1", "y": 20, "h": 10 },
+                { "name": "Track 2", "y": 45, "h": 10 },
+                { "name": "Track 3", "y": 70, "h": 10 }
+            ]
+        }
+    </textarea>
+    <div id="status-message" class="status"></div>
     <script>
+
+        const tracks_STORAGE_KEY = 'tracks_schema_V3';
+        const editor = document.getElementById('json-editor');
+        const statusMessage = document.getElementById('status-message');
+
+        // Funkcja do wczytywania i inicjalizacji
+        function loadSchema() {
+            let loadedData = localStorage.getItem(tracks_STORAGE_KEY);
+
+            if (loadedData) {
+                editor.value = loadedData;
+                statusMessage.textContent = 'Schema loaded succesfully';
+            } else {
+                statusMessage.textContent = 'Loaded default schema';
+            }
+        }      
+
+        // Funkcja do walidacji i zapisu
+        function saveSchema() {
+            const content = editor.value;
+            let parsedJson;
+
+            try {
+                // 1. Konwersja tekstu do obiektu JSON
+                parsedJson = JSON.parse(content);
+                
+                // OPTIONAL: Możesz dodać tu bardziej rygorystyczną walidację struktury (np. czy 'plate' i 'tracks' istnieją)
+                if (!parsedJson.plate || !parsedJson.tracks || !Array.isArray(parsedJson.tracks)) {
+                    throw new Error("Scheme must contain 'plate' & 'tracks' (ARRAY).");
+                }
+                
+                // 2. Zapis do localStorage
+                localStorage.setItem(tracks_STORAGE_KEY, JSON.stringify(parsedJson)); // Zapisujemy zwalidowany JSON
+                
+                // 3. Status sukcesu
+                statusMessage.textContent = `Schema was succesfully saved`;
+                
+            } catch (e) {
+                // 4. Status błędu
+                statusMessage.textContent = `JSON error: ${e.message}.`;
+            }
+        }
+
         // List of URLs to be cached
         const resourceLinks = [
             '/TLC/start/internalize.js',

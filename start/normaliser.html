@@ -207,6 +207,33 @@
             };
         }
 
+        function prepareSchema(){
+            tracks_STORAGE_KEY = 'tracks_schema_V3';
+            let loadedData = localStorage.getItem(tracks_STORAGE_KEY);
+            try {
+                const parsed = JSON.parse(loadedData);
+                if (config || config.plate || config.tracks || Array.isArray(config.tracks)) {
+                    createBaselines(parsed.plate.s, parsed.plate.e);
+                    for (let i = 0; i < parsed.tracks.length; i++) {
+                        const element = parsed.tracks[i];
+                        createDraggableElement(element.y, element.h, element.name);
+                    }                    
+                }
+                else{
+                    createDraggableElement(20, 10);
+                    createDraggableElement(45, 10); 
+                    createDraggableElement(80, 10);
+                    createBaselines(10, 80);
+                }
+            } catch (error) {
+                console.log(error);
+                createDraggableElement(20, 10);
+                createDraggableElement(45, 10); 
+                createDraggableElement(80, 10);
+                createBaselines(10, 80);
+            }
+        }
+
         function renderImage(img) {
             const canvas = document.getElementById("canvas");
             const ctx = canvas.getContext("2d");
@@ -222,10 +249,7 @@
             ctx.restore();
             ctx.filter = "none";
             if (!manuals) {
-                createDraggableElement(20, 10);
-                createDraggableElement(45, 10); 
-                createDraggableElement(80, 10);
-                createBaselines(10, 80);
+                prepareSchema();
                 manuals = true; 
             }
         }
@@ -283,14 +307,19 @@
         }
 
         // Moveable setup
-        function createDraggableElement(positionYPercent, elementHeightPercent) {
+        function createDraggableElement(positionYPercent, elementHeightPercent, name) {
             const container = document.getElementById("cfc");
             if (!container) return;
             const containerHeight = canvas.getBoundingClientRect().height;
 
             const element = document.createElement("div");
             element.classList.add("draggable");
-            element.textContent = `Track: ${getLowestAvailableTrackNumber()}`;
+            if (!name || name ==="") {
+                element.textContent = `Track: ${getLowestAvailableTrackNumber()}`;
+            }
+            else{
+                element.textContent = `Track: ${name}`;
+            }
             
             // Obliczanie wartości w pikselach na podstawie procentów
             const elementHeight = (containerHeight * elementHeightPercent) / 100;
