@@ -199,6 +199,11 @@
             }
         }
 
+        loadSchema();
+        editor.addEventListener('change', ()=>{
+            saveSchema();
+        });
+
         // List of URLs to be cached
         const resourceLinks = [
             '/TLC/start/internalize.js',
