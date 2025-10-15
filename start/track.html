@@ -1308,25 +1308,25 @@
                     };
 
                     params.HobsBAS = { 
-                        value: (params.Wbas.value ** 2) / (16 * params.RF.value), 
+                        value: (params.Wbas.value ** 2) / (16 * params.midpointIndex.value), 
                         description: "Height Equivalent to a Theoretical Plate - United States Pharmacopeia (HETPUSP)",
                         color: 'lavender'
                     };
 
                     params.Hobs05 = { 
-                        value: (params.W50.value ** 2) / (5.54 * params.RF.value), 
+                        value: (params.W50.value ** 2) / (5.54 * params.midpointIndex.value), 
                         description: "Height Equivalent to a Theoretical Plate - European Pharmacopeia (HETPEP)",
                         color: 'lavender'   
                     };
 
                     params.NobsBAS = { 
-                        value: (16 * params.RF.value) / params.Wbas.value, 
+                        value: (16 * params.midpointIndex.value) / params.Wbas.value, 
                         description: "Number of Theoretical Plates - United States Pharmacopeia​ (NUSP)",
                         color: 'lavender'
                     };
 
                     params.Nobs05 = { 
-                        value: (params.RF.value / params.W50.value) ** 2 * 5.54, 
+                        value: (params.midpointIndex.value / params.W50.value) ** 2 * 5.54, 
                         description: "Number of Theoretical Plates - European Pharmacopeia​ (NEP)",
                         color: 'lavender'   
                     };
@@ -1351,7 +1351,6 @@
 
         function countTertiaryParams() {
             document.querySelectorAll(".track").forEach(track => {
-                const Xwidth = JSON.parse(track.dataset.Xwidth);
 
                 let draggableData = [];
                 let maxSurface = 0; // Przechowuje największą wartość surface.value w danym track
@@ -1419,7 +1418,7 @@
 
                         if (params.RF && nextParams.RF && params.Wbas && nextParams.Wbas) {
                             params.RSz = {  
-                                value: (nextParams.RF.value * Xwidth  - params.RF.value * Xwidth ) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
+                                value: (nextParams.midpointIndex.value - params.midpointIndex.value ) / 0.5 / (nextParams.Wbas.value + params.Wbas.value),  
                                 description: "Resolution - Universal Formula (RS)",
                                 color: 'Thistle'   
                             };
