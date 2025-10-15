@@ -1426,7 +1426,7 @@
 
                         if (params.k && nextParams.k) {
                             params.selectivity = {  
-                                value: 0.25 * (nextParams.k.value / params.k.value - 1),  
+                                value: 0.25 * ( ( Math.max(nextParams.k.value, params.k.value) / Math.min(nextParams.k.value, params.k.value) ) - 1),  
                                 description: "Selectivity (Sel)",
                                 color: 'bisque'  
                             };
