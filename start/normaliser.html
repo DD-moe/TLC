@@ -654,10 +654,20 @@
             saveToIndexedDB(baselines_data, 'baselines'); // Zapisz dane do IndexedDB
 
             // zapisz propozycję do localstorage
+              const processedTracks = data.tracks.map(track => {
+                // Tworzymy nowy obiekt, kopiując istniejące właściwości
+                // i nadpisując y oraz height nowymi, podzielonymi wartościami
+                return {
+                name: track.name,
+                y: track.y / canvasRect.height,      // Dzielenie y przez canvas_width
+                h: track.height / canvasRect.height // Dzielenie height przez canvas_width
+                };
+            });
+
             try {
                 const proposition = JSON.stringify({
                     plate: {s:(rect.left - canvasRect.left) / canvasRect.width * 100, e:(rect.right - canvasRect.left) / canvasRect.width * 100},
-                    tracks: data
+                    tracks: processedTracks
                 });
                 console.log(proposition);
                 localStorage.setItem("proposed_graphical_schema_V3", proposition);
