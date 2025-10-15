@@ -1332,13 +1332,13 @@
                     };
 
                     params.N_mBAS = { 
-                        value: params.NobsBAS.value / params.track_width.value, 
+                        value: params.NobsBAS.value * (100 / params.track_width.value), 
                         description: "Number of Theoretical Plates per meter - United States Pharmacopeia (NUSP/m)",
                         color: 'lavender'
                     };
 
                     params.N_m05 = { 
-                        value: params.Nobs05.value / params.track_width.value, 
+                        value: params.Nobs05.value * (100 / params.track_width.value), 
                         description: "Number of Theoretical Plates per meter - European Pharmacopeia​ (NEP/m)",
                         color: 'lavender'   
                     };
