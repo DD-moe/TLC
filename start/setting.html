@@ -218,9 +218,15 @@
 
         editor_view.addEventListener('click', ()=>{
             if (last_editorValue === "") {
-                const proposition = localStorage.getItem("proposed_graphical_schema_V3");
-                last_editorValue = editor.value;
-                editor.value = proposition;                
+                try {
+                    const proposition = localStorage.getItem("proposed_graphical_schema_V3");
+                    const parsed = JSON.parse(proposition);
+                    const beautifully_stringified = JSON.stringify(parsed, null, 4);
+                    last_editorValue = editor.value;
+                    editor.value = beautifully_stringified;                         
+                } catch (error) {
+                    console.log(error);
+                }
             }
         }); 
 
