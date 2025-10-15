@@ -214,16 +214,19 @@
         });
 
         // keeps last proposition
-        let last_editorValue;
+        let last_editorValue = "";
 
         editor_view.addEventListener('click', ()=>{
-            const proposition = localStorage.getItem("proposed_graphical_schema_V3");
-            last_editorValue = editor.value;
-            editor.value = proposition;
+            if (last_editorValue === "") {
+                const proposition = localStorage.getItem("proposed_graphical_schema_V3");
+                last_editorValue = editor.value;
+                editor.value = proposition;                
+            }
         }); 
 
         editor_refuse.addEventListener('click', ()=>{
             editor.value = last_editorValue;
+            last_editorValue = "";
         });
 
         // List of URLs to be cached
